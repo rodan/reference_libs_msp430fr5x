@@ -1,0 +1,1 @@
+../../../drivers/hsc_ssc_i2c.c
