@@ -1,0 +1,15 @@
+rtca_now.h
+proj.txt
+proj.elf
+proj.dep
+proj.cflags
+*.[oa]
+*.pyc
+*.*~
+*.s
+*.swp
+*.?#?
+.gitignore
+*.pyc
+output.map
+tags
