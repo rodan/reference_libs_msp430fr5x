@@ -13,11 +13,13 @@
 
 uint8_t fm24_seek(const uint32_t addr)
 {
-    uint8_t rv = 255;
     uint8_t retry;
     uint32_t c_addr;
     uint8_t i2c_buff[2];
     i2c_package_t pkg;
+#ifndef HARDWARE_I2C
+    uint8_t rv = 255;
+#endif
 
     // in case a seek beyond the end of device is requested
     // we roll to the beginning since this memory is circular in nature
@@ -45,11 +47,11 @@ uint8_t fm24_seek(const uint32_t addr)
         if (rv == I2C_ACK) {
             break;
         }
-#endif
     }
 
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
+#endif
     }
 
 #ifdef FM24_HAS_SLEEP_MODE
@@ -60,8 +62,6 @@ uint8_t fm24_seek(const uint32_t addr)
 
 uint32_t fm24_read(uint8_t * data, const uint32_t data_len)
 {
-    uint8_t rv = 0;
-
     i2c_package_t pkg;
     pkg.slave_addr = FM24_BA;
     pkg.addr = NULL;
@@ -73,6 +73,7 @@ uint32_t fm24_read(uint8_t * data, const uint32_t data_len)
 #ifdef HARDWARE_I2C
     i2c_transfer_start(&pkg, NULL);
 #else
+    uint8_t rv = 0;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
@@ -100,10 +101,12 @@ uint32_t fm24_read_from(uint8_t * data, const uint32_t addr,
 uint32_t fm24_write(uint8_t * data, const uint32_t addr,
                     const uint32_t data_len)
 {
-    uint8_t rv = 0;
     uint8_t retry;
     uint32_t c_addr;
     uint8_t i2c_buff[2];
+#ifndef HARDWARE_I2C
+    uint8_t rv = 0;
+#endif
 
     // in case a seek beyond the end of device is requested
     // we roll to the beginning since this memory is circular in nature

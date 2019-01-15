@@ -6,7 +6,6 @@
 
 #include "drivers/sys_messagebus.h"
 #include "drivers/uart0.h"
-#include "drivers/timer_a0.h"
 #include "drivers/hsc_ssc_i2c.h"
 
 #ifdef HARDWARE_I2C
@@ -122,11 +121,6 @@ void check_events(void)
     struct sys_messagebus *p = messagebus;
     enum sys_message msg = SYS_MSG_NONE;
 
-    // drivers/timer_a0
-    if (timer_a0_last_event) {
-        msg |= timer_a0_last_event;
-        timer_a0_last_event = TIMER_A0_EVENT_NONE;
-    }
     // uart RX
     if (uart0_last_event == UART0_EV_RX) {
         msg |= SYS_MSG_UART0_RX;

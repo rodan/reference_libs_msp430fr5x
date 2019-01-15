@@ -44,7 +44,7 @@ uint8_t sht_get_status(uint8_t * data)
     return i2csens_rxfrom(0x7, data, 1);
 }
 
-uint8_t sht_get_meas(uint16_t * temp, uint16_t * rh)
+uint8_t sht_get_meas(int16_t * temp, int16_t * rh)
 {
     uint8_t raw_temp[3];
     uint8_t raw_rh[3];
@@ -65,8 +65,8 @@ uint8_t sht_get_meas(uint16_t * temp, uint16_t * rh)
     rh_f = C1 + (C2 * raw_rh_l) + (C3 * raw_rh_l * raw_rh_l);
     // temperature compensation
     rhc_f = ((temp_f / 100.0 - 25.0) * (T1 + (T2 * raw_rh_l)) + rh_f) * 100.0;
-    *temp = (uint16_t) temp_f;
-    *rh = (uint16_t) rhc_f;
+    *temp = (int16_t) temp_f;
+    *rh = (int16_t) rhc_f;
 
     return EXIT_SUCCESS;
 }
