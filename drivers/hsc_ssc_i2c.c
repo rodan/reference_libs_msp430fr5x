@@ -52,9 +52,7 @@ uint8_t ps_get_raw(const uint8_t slave_addr, struct cs_raw *raw)
 
 #ifdef HARDWARE_I2C
     i2c_transfer_start(&pkg, NULL);
-
 #else
-    //rv = i2cm_rx_buff(slave_addr, NULL, 0, val, 4, 0);
     rv = i2cm_transfer(&pkg);
 
     if (rv != I2C_ACK) {
