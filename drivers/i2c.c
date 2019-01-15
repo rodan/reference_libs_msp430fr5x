@@ -166,10 +166,10 @@ void USCI_BX_ISR(void)
 //--------------------------------------------------------------------------------------------------
 void i2c_init(void)
 {
-    I2C_CTL0 |= UCSWRST;
+    I2C_CTL0 = UCSWRST;
     //Initialize all USCI registers with UCSWRST = 1 (including UCxCTL1).
-    I2C_CTL0 = UCMST | UCMODE_3 | UCSYNC;
-    I2C_CTL1 = UCTR | UCSWRST | (I2C_CLK_SRC << 6);
+    I2C_CTL0 |= UCMST | UCMODE_3 | UCSYNC;
+    I2C_CTL1 |= UCTR | (I2C_CLK_SRC << 6);
     I2C_BR = I2C_CLK_DIV;
 #ifdef I2C_CTLW1
     I2C_CTLW1 = I2C_CWR1;

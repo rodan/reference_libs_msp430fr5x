@@ -1,3 +1,5 @@
+#ifndef __I2C_CONFIG_H__
+#define __I2C_CONFIG_H__
 
 // hardware i2c config
 
@@ -26,3 +28,4 @@
 /// optional eUSCI Control Word Register 1
 #define I2C_CWR1        0
 
+#endif
