@@ -32,6 +32,18 @@
 * 
 *=================================================================================================*/
 
+/*
+
+
+modifications include:
+ - support for the eUSCI interface present in MSP430FR58x MSP430FR59x MSP430FR6xx chips
+
+
+the original code is available from 
+    https://github.com/amykyta3/msp430_modules
+
+*/
+
 /**
 * \addtogroup MOD_I2C
 * \{
