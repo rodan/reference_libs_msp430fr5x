@@ -18,22 +18,17 @@ uint32_t fm24_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_
 
     switch (test) {
         case TEST_00:
-            for (i=0; i<8; i++) {
-                data_w[i] = 0x00;
-            }
+            memset(data_w, 0x00, 8);
         break;
         case TEST_FF:
-            for (i=0; i<8; i++) {
-                data_w[i] = 0xff;
-            }
+            memset(data_w, 0xff, 8);
         break;
         case TEST_AA:
-            for (i=0; i<8; i++) {
-                data_w[i] = 0xaa;
-            }
+            memset(data_w, 0xaa, 8);
         break;
     }
 
+/*
     fragments = (stop_addr + 1 - start_addr) / 8;
 
     for (i = 0; i < fragments; i++) {
@@ -47,8 +42,17 @@ uint32_t fm24_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_
         }
         *rows_tested += 1;
     }
+*/
+        fm24_write(data_w, 0x90, 8);
+        memset(data_r, 0x11, 8);
+        fm24_read_from(data_r, 0x90, 8);
+        for (j=0; j<8; j++) {
+            if (data_w[j] != data_r[j]) {
+                rv++;
+            }
+        }
 
-    return rv;
+    //return rv;
 }
 
 

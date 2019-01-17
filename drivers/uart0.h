@@ -9,7 +9,7 @@ enum uart0_tevent {
     UART0_EV_TX = BIT1
 };
 
-#define UART0_RXBUF_SZ     6
+#define UART0_RXBUF_SZ      64
 
 volatile char uart0_rx_buf[UART0_RXBUF_SZ];
 volatile uint8_t uart0_p;

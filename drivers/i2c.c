@@ -198,10 +198,17 @@ void i2c_transfer_start(const i2c_package_t * pkg,
     transfer.idx = 0;
     transfer.callback = callback;
     transfer.status = I2C_BUSY;
-
+    
     // update next state
     if (pkg->addr_len != 0) {
         transfer.next_state = SM_SEND_ADDR;
+
+        I2C_IFG = 0;
+        I2C_IE = UCNACKIE | UCTXIE | UCRXIE;
+        I2C_SA = pkg->slave_addr;
+        I2C_CTL1 |= UCTR;   // Set to transmitter mode
+        I2C_CTL1 |= UCTXSTT;        // start condition (sends slave address)
+
     } else if (pkg->data_len != 0) {
         if (pkg->options & I2C_READ) {
         //if (pkg->read) {
@@ -242,6 +249,11 @@ i2c_status_t i2c_transfer_status(void)
     //ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     status = transfer.status;
     //}
+
+    // the underlying hardware knows better
+    if (I2C_STAT & UCBBUSY) {
+        return I2C_BUSY;
+    }
 
     return (status);
 }

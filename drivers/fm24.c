@@ -13,11 +13,11 @@
 
 uint8_t fm24_seek(const uint32_t addr)
 {
-    uint8_t retry;
     uint32_t c_addr;
     uint8_t i2c_buff[2];
     i2c_package_t pkg;
 #ifndef HARDWARE_I2C
+    uint8_t retry;
     uint8_t rv = 255;
 #endif
 
@@ -39,10 +39,10 @@ uint8_t fm24_seek(const uint32_t addr)
     pkg.data_len = 2;
     pkg.options = I2C_WRITE;
 
-    for (retry = 0; retry < FM24_MAX_RETRY; retry++) {
 #ifdef HARDWARE_I2C
-        i2c_transfer_start(&pkg, NULL);
+    i2c_transfer_start(&pkg, NULL);
 #else
+    for (retry = 0; retry < FM24_MAX_RETRY; retry++) {
         rv = i2cm_transfer(&pkg);
         if (rv == I2C_ACK) {
             break;
@@ -51,8 +51,8 @@ uint8_t fm24_seek(const uint32_t addr)
 
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
-#endif
     }
+#endif
 
 #ifdef FM24_HAS_SLEEP_MODE
     fm24_status |= FM24_AWAKE;
@@ -101,10 +101,11 @@ uint32_t fm24_read_from(uint8_t * data, const uint32_t addr,
 uint32_t fm24_write(uint8_t * data, const uint32_t addr,
                     const uint32_t data_len)
 {
-    uint8_t retry;
+    i2c_package_t pkg;
     uint32_t c_addr;
     uint8_t i2c_buff[2];
 #ifndef HARDWARE_I2C
+    uint8_t retry;
     uint8_t rv = 0;
 #endif
 
@@ -128,19 +129,20 @@ uint32_t fm24_write(uint8_t * data, const uint32_t addr,
     pkg.data_len = data_len;
     pkg.options = I2C_WRITE;
 
-    for (retry = 0; retry < FM24_MAX_RETRY; retry++) {
 #ifdef HARDWARE_I2C
-        i2c_transfer_start(&pkg, NULL);
+    i2c_transfer_start(&pkg, NULL);
 #else
+    //for (retry = 0; retry < FM24_MAX_RETRY; retry++) {
         rv = i2cm_transfer(&pkg);
-        if (rv == I2C_ACK) {
-            m.e += data_len;
-            if (m.e > FM_LA) {
-                m.e = m.e % FM_LA - 1;
-            }
-            break;
+        if (rv != I2C_ACK) {
+            return 1;
         }
+    //}
 #endif
+
+    m.e += data_len;
+    if (m.e > FM_LA) {
+        m.e = m.e % FM_LA - 1;
     }
 
 #ifdef FM24_HAS_SLEEP_MODE
