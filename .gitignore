@@ -1,8 +1,9 @@
 rtca_now.h
-proj.txt
-proj.elf
-proj.dep
-proj.cflags
+main.txt
+main.elf
+*.dep
+*.hdep
+main.cflags
 *.[oa]
 *.pyc
 *.*~
