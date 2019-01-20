@@ -2,34 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "drivers/uart0.h"
-#include "drivers/fm24.h"
-#include "drivers/i2c.h"
+#include "fm24_memtest.h"
+#include "uart0.h"
+#include "fm24.h"
+#include "i2c.h"
 #include "qa.h"
 
-uint8_t mt(const uint32_t start_addr, const uint32_t stop_addr)
-{
-    uint8_t data_r[8]; // test 8 bytes (1 row) at a time
-    uint8_t data_w[8];
-    uint8_t rv = 0;
-    uint8_t j;
-            
-    memset(data_w, 0xff, 8);
-    fm24_write(data_w, 0x90, 8);
-    memset(data_r, 0x11, 8);
-    fm24_read_from(data_r, 0x90, 8);
-    
-    for (j=0; j<8; j++) {
-        if (data_w[j] != data_r[j]) {
-            rv++;
-        }
-    }
-
-    return rv;
-}
-
-/*
-void display_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_test_t test)
+void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
 {
     uint32_t el;
     uint32_t rows_tested;
@@ -37,7 +16,7 @@ void display_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_t
     snprintf(str_temp, STR_LEN, " \e[36;1m*\e[0m testing %lx - %lx with pattern #%d\t", start_addr, stop_addr, test);
     uart0_tx_str(str_temp, strlen(str_temp));
 
-    el = fm24_memtest(start_addr, stop_addr, test, &rows_tested);
+    el = FM24_memtest(usci_base_addr, start_addr, stop_addr, test, &rows_tested);
 
     if (el == 0) { 
         snprintf(str_temp, STR_LEN, "%lu bytes tested \e[32;1mok\e[0m\r\n", rows_tested * 8);
@@ -46,7 +25,6 @@ void display_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_t
     }
     uart0_tx_str(str_temp, strlen(str_temp));
 }
-*/
 
 void display_menu(void)
 {
@@ -89,45 +67,29 @@ void parse_user_input(void)
 
     if (f == '?') {
         display_menu();
-    } else if (f == 'f') {
-        fm24_write(foo, 0x90, 8);
+    } else if (f == 'w') {
+        FM24_write(EUSCI_BASE_ADDR, foo, FM_LA-20, 8);
     } else if (f == 'b') {
-        fm24_write(bar, 0x90, 8);
+        FM24_write(EUSCI_BASE_ADDR, bar, 0x90, 8);
     } else if (f == 'r') {
-        fm24_read_from(data_r, 0x90, 8);
-    } else if (f == 'q') {
-        //fm24_memtest(0x0090, 0x0098, TEST_FF, &test_words);
-        //err = mt(0x90, 0x98);
-        //fm24_write(data_w, 0x90, 8);
-        fm24_write(foo, 0x90, 8);
-        //memset(data_r, 0x11, 8);
-        //while (i2c_transfer_status() != I2C_IDLE) {}
-        //__delay_cycles(100000);
-        //fm24_read_from(data_r, 0x90, 8);
-    
-        //for (j=0; j<8; j++) {
-        //    if (data_w[j] != data_r[j]) {
-        //        err++;
-        //    }
-        //}
-        //snprintf(str_temp, STR_LEN, "err %u\r\n", err);
-        //uart0_tx_str(str_temp, strlen(str_temp));
+        FM24_read(EUSCI_BASE_ADDR, data_r, FM_LA-20, 8);
     } else if (f == 't') {
-        //fm24_read_from(data_r, (i * 8) + start_addr, 8);
-        //display_memtest(0x10, 0x40, TEST_AA);
-        //display_memtest(0x40, 0x60, TEST_FF);
-        //display_memtest(0x60, 0x80, TEST_AA);
-        //display_memtest(0x90, 0x98, TEST_00);
-        //display_memtest(0, FM_LA, TEST_00);
-        //display_memtest(0, FM_LA, TEST_FF);
-        //display_memtest(0, FM_LA, TEST_AA);
-        //uart0_tx_str(" * roll over test\r\n", 19);
-        //display_memtest(FM_LA - 3, FM_LA + 5, TEST_FF);
+        //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
+        //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
+        //display_memtest(EUSCI_BASE_ADDR, 0x10, 0xb0, TEST_AA);
+        //display_memtest(EUSCI_BASE_ADDR, 0x40, 0x60, TEST_FF);
+        //display_memtest(EUSCI_BASE_ADDR, 0x60, 0x80, TEST_AA);
+        //display_memtest(EUSCI_BASE_ADDR, 0x90, 0x98, TEST_00);
+        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_00);
+        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_FF);
+        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_AA);
+        uart0_tx_str(" * roll over test\r\n", 19);
+        display_memtest(EUSCI_BASE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
     } else if (f == 'h') {
         //for (i=0;i<(FM_LA+1)/16;i++) {
-        for (i=0;i<32;i++) {
-            fm24_read_from(row, i * 10, 16);
-            snprintf(str_temp, STR_LEN, "%08x: ", i * 16);
+        for (i=0;i<8;i++) {
+            FM24_read(EUSCI_BASE_ADDR, row, FM_LA - 63 + (i * 16), 16);
+            snprintf(str_temp, STR_LEN, "%08lx: ", FM_LA - 63 + (i * 16));
             uart0_tx_str(str_temp, strlen(str_temp));
             for (j=0; j<8; j++) {
                 snprintf(str_temp, STR_LEN, "%02x%02x ", row[2*j], row[2*j+1]);

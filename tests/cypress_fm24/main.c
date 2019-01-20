@@ -24,18 +24,22 @@ void main_init(void)
     P7SEL1 &= ~(BIT0 | BIT1);
 #endif
 
-    // XT1
-    PJSEL0 |= BIT4 | BIT5;                  // For XT1
-    CSCTL0_H = CSKEY_H;                     // Unlock CS registers
-    CSCTL2 = SELA__LFXTCLK | SELS__DCOCLK | SELM__DCOCLK;
-    CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;   // Set all dividers
-    CSCTL4 &= ~LFXTOFF;
-    do
-    {
-        CSCTL5 &= ~LFXTOFFG;                // Clear XT1 fault flag
-        SFRIFG1 &= ~OFIFG;
-    } while (SFRIFG1 & OFIFG);              // Test oscillator fault flag
-    CSCTL0_H = 0;                           // Lock CS registers
+#ifdef USE_XT1
+    PJSEL0 |= BIT4 | BIT5;
+    CS_setExternalClockSource(32768,0);
+#endif
+
+    // Set DCO Frequency to 8MHz
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
+
+    // configure MCLK, SMCLK to be source by DCOCLK
+    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+
+#ifdef USE_XT1
+    CS_turnOnLFXT(CS_LFXT_DRIVE_3);
+#endif
 }
 
 static void uart0_rx_irq(enum sys_message msg)

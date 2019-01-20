@@ -13,6 +13,9 @@
 #define I2C_MASTER_SCL      BIT1
 #define I2C_MASTER_SDA      BIT0
 
+// eUSCI
+#define EUSCI_BASE_ADDR     EUSCI_B2_BASE
+
 #define led_on              P1OUT |= BIT0
 #define led_off             P1OUT &= ~BIT0
 #define led_switch          P1OUT ^= BIT0

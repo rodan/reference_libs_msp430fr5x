@@ -1,6 +1,6 @@
 /*
-* Copyright (c) 2019, Petre Rodan
 * Copyright (c) 2013, Alexander I. Mykyta
+* Copyright (c) 2019, Petre Rodan
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without

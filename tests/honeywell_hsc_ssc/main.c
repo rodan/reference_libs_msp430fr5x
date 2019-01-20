@@ -4,15 +4,12 @@
 #include <string.h>
 #include "proj.h"
 
-#include "drivers/sys_messagebus.h"
-#include "drivers/uart0.h"
-#include "drivers/hsc_ssc_i2c.h"
+#include "sys_messagebus.h"
+#include "uart0.h"
+#include "hsc_ssc.h"
+#include "driverlib.h"
 
-#ifdef HARDWARE_I2C
-    #include "drivers/i2c.h"
-#endif
-    
-// see hsc_ssc_i2c.h for a description of these values
+// see hsc_ssc.h for a description of these values
 // these defaults are valid for the HSCMRNN030PA2A3 chip
 #define SLAVE_ADDR 0x28
 #define OUTPUT_MIN 0
@@ -20,7 +17,7 @@
 #define PRESSURE_MIN 0.0        // min is 0 for sensors that give absolute values
 #define PRESSURE_MAX 206842.7   // 30psi (and we want results in pascals)
 
-struct cs_raw ps;
+struct HSC_SSC_pkt ps;
 
 #define STR_LEN 64
 char str_temp[STR_LEN];
@@ -30,23 +27,22 @@ void main_init(void)
     // port init
     P1DIR = BIT0;
 
-#ifdef HARDWARE_I2C
-    P7SEL0 |= (BIT0 | BIT1);
-    P7SEL1 &= ~(BIT0 | BIT1);
+#ifdef USE_XT1
+    PJSEL0 |= BIT4 | BIT5;
+    CS_setExternalClockSource(32768,0);
 #endif
 
-    // XT1
-    PJSEL0 |= BIT4 | BIT5;                  // For XT1
-    CSCTL0_H = CSKEY_H;                     // Unlock CS registers
-    CSCTL2 = SELA__LFXTCLK | SELS__DCOCLK | SELM__DCOCLK;
-    CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;   // Set all dividers
-    CSCTL4 &= ~LFXTOFF;
-    do
-    {
-        CSCTL5 &= ~LFXTOFFG;                // Clear XT1 fault flag
-        SFRIFG1 &= ~OFIFG;
-    } while (SFRIFG1 & OFIFG);              // Test oscillator fault flag
-    CSCTL0_H = 0;                           // Lock CS registers
+    // Set DCO Frequency to 8MHz
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
+
+    // configure MCLK, SMCLK to be source by DCOCLK
+    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+
+#ifdef USE_XT1
+    CS_turnOnLFXT(CS_LFXT_DRIVE_3);
+#endif
 }
 
 static void uart0_rx_irq(enum sys_message msg)
@@ -61,8 +57,8 @@ static void uart0_rx_irq(enum sys_message msg)
     p = input[0];
 
     if (p == 'g') {       // [g]et value
-        ps_get_raw(SLAVE_ADDR, &ps);
-        ps_convert(ps, &pressure, &temperature, OUTPUT_MIN, OUTPUT_MAX, PRESSURE_MIN,
+        HSC_SSC_read(EUSCI_BASE_ADDR, SLAVE_ADDR, &ps);
+        HSC_SSC_convert(ps, &pressure, &temperature, OUTPUT_MIN, OUTPUT_MAX, PRESSURE_MIN,
                    PRESSURE_MAX);
 
         snprintf(str_temp, STR_LEN, "status: 0x%x\r\n", ps.status);
@@ -109,7 +105,7 @@ static void uart0_rx_irq(enum sys_message msg)
         uart0_tx_str(str_temp, strlen(str_temp));
 
     } else {
-        uart0_tx_str("/r/n", 2);
+        uart0_tx_str("\r\n", 2);
     }
 
     uart0_p = 0;
@@ -148,8 +144,18 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C 
-    i2c_init();
+#ifdef HARDWARE_I2C
+    P7SEL0 |= (BIT0 | BIT1);
+    P7SEL1 &= ~(BIT0 | BIT1);
+
+    EUSCI_B_I2C_initMasterParam param = {0};
+
+    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
+    param.i2cClk = CS_getSMCLK();
+    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
+    param.byteCounterThreshold = 0;
+    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
+    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
 #endif
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
@@ -164,6 +170,4 @@ int main(void)
         led_switch;
         check_events();
     }
-
 }
-
