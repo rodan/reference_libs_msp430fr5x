@@ -7,14 +7,14 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
 {
     uint8_t i;
             
-    EUSCI_B_I2C_enable(base_addr);
 
     if (pkg->options & I2C_READ) {
         // some devices need to write a register address/command before a read
         if (pkg->addr_len) {
             EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
             EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_TRANSMIT_MODE);
-            __delay_cycles(100);
+            EUSCI_B_I2C_enable(base_addr);
+            //__delay_cycles(100);
             // send START, slave address
             EUSCI_B_I2C_masterSendStart(base_addr);
 
@@ -32,7 +32,8 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
         // SLAVE ADDR + R, read into pkg->data pkg->data_len times
         EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
         EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_RECEIVE_MODE);
-        __delay_cycles(100);
+        EUSCI_B_I2C_enable(base_addr);
+        //__delay_cycles(100);
         // send slave address
         EUSCI_B_I2C_masterReceiveStart(base_addr);
         for (i = 0; i < pkg->data_len - 1; i++) {
@@ -44,7 +45,8 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
     } else if (pkg->options & I2C_WRITE) {
         EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
         EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_TRANSMIT_MODE);
-        __delay_cycles(100);
+        EUSCI_B_I2C_enable(base_addr);
+        //__delay_cycles(100);
         // send START, slave address
         EUSCI_B_I2C_masterSendStart(base_addr);
 
@@ -72,6 +74,6 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
         EUSCI_B_I2C_masterSendMultiByteStop(base_addr);
     }
         
-    __delay_cycles(400);
-    EUSCI_B_I2C_disable(base_addr);
+    //__delay_cycles(400);
+    //EUSCI_B_I2C_disable(base_addr);
 }

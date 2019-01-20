@@ -1,4 +1,5 @@
 /*
+* Copyright (c) 2019, Petre Rodan
 * Copyright (c) 2013, Alexander I. Mykyta
 * All rights reserved.
 * 
@@ -27,16 +28,7 @@
 * \addtogroup MOD_I2C I2C Bus
 * \brief Application-level I2C master driver.
 * \author Alex Mykyta 
-*
-* 
-* ### MSP430 Processor Families Supported: ###
-*   Family  | Supported
-*   ------- | ----------
-*   1xx     | -
-*   2xx     | -
-*   4xx     | -
-*   5xx     | Yes
-*   6xx     | Yes
+* \author Petre Rodan
 * 
 * \{
 **/
@@ -45,6 +37,7 @@
 * \file
 * \brief Include file for \ref MOD_I2C
 * \author Alex Mykyta 
+* \author Petre Rodan
 **/
 
 #ifndef _I2C_H_
@@ -54,8 +47,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <inttypes.h>
 
 // option flags
 #define I2C_READ                0x1
@@ -87,16 +79,6 @@ extern "C" {
     } i2c_status_t;
 
 /**
- * \brief Initialize the I2C master module
- **/
-    void i2c_init(void);
-
-/**
- * \brief Uninitialize the I2C master module
- **/
-    void i2c_uninit(void);
-
-/**
  * \brief Start an I2C transfer
  * 
  * This function begins a new I2C transaction as described by the \c pkg struct. This function
@@ -106,11 +88,12 @@ extern "C" {
  * 
  * \note Global interrupts must be enabled.
  * 
- * \param pkg        Pointer to a package struct that describes the transfer operation.
- * \param callback   Optional pointer to a callback function to execute once the transfer completes
- *                   or fails. A NULL pointer disables the callback.
+ * \param base_address  MSP430-related register address of the USCI subsystem. can be USCI_B0_BASE - USCI_B1_BASE, EUSCI_B0_BASE - EUSCI_B3_BASE
+ * \param pkg           Pointer to a package struct that describes the transfer operation.
+ * \param callback      Optional pointer to a callback function to execute once the transfer completes
+ *                      or fails. A NULL pointer disables the callback.
  **/
-    void i2c_transfer_start(const uint16_t baseAddress, const i2c_package_t * pkg,
+    void i2c_transfer_start(const uint16_t base_address, const i2c_package_t * pkg,
                             void (*callback) (i2c_status_t result));
 
 /**

@@ -58,7 +58,7 @@ void parse_user_input(void)
 
     uint8_t foo[9]="hello wo";
     uint8_t bar[9]="33333333";
-    uint8_t err=0;
+    //uint8_t err=0;
 
     uint8_t data_r[8]; // test 8 bytes (1 row) at a time
     //uint8_t data_w[8];
