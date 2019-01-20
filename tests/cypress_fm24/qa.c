@@ -38,13 +38,10 @@ void display_menu(void)
     snprintf(str_temp, STR_LEN, " \e[33;1mi\e[0m             - display i2c registers\r\n" );
     uart0_tx_str(str_temp, strlen(str_temp));
 
-    snprintf(str_temp, STR_LEN, " \e[33;1mmem test\e[0m      - memtest\r\n" );
+    snprintf(str_temp, STR_LEN, " \e[33;1mt\e[0m             - memtest\r\n" );
     uart0_tx_str(str_temp, strlen(str_temp));
 
-    snprintf(str_temp, STR_LEN, " \e[33;1mmem raw\e[0m       - raw read of all FRAM\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mmem hex\e[0m       - hex dump read of all FRAM\r\n" );
+    snprintf(str_temp, STR_LEN, " \e[33;1mh\e[0m             - hex dump read of all FRAM\r\n" );
     uart0_tx_str(str_temp, strlen(str_temp));
 
 }
@@ -129,7 +126,8 @@ void parse_user_input(void)
 
         snprintf(str_temp, STR_LEN, "UCB2IV 0x%x\r\n", UCB2IV);
         uart0_tx_str(str_temp, strlen(str_temp));
-
+    } else {
+        uart0_tx_str("\r\n", 2);
     }
 }
 
