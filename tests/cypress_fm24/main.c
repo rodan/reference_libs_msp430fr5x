@@ -11,9 +11,6 @@
 #include "i2c.h"
 #include "fm24.h"
 
-#define STR_LEN 64
-char str_temp[STR_LEN];
-
 void main_init(void)
 {
     // port init

@@ -4,21 +4,10 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
-#include "sensirion.h"
+#include "sht1x.h"
 #include "serial_bitbang.h"
 
-void i2csens_reset(void)
-{
-    uint8_t i;
-    sda_high;
-    delay_c;
-    for (i = 0; i < 30; i++) {
-        scl_low;
-        scl_high;
-    }
-}
-
-uint8_t i2csens_rxfrom(const uint8_t slave_addr, uint8_t * data,
+uint8_t SHT1X_i2csens_rxfrom(const uint8_t slave_addr, uint8_t * data,
                        uint16_t data_len)
 {
     uint8_t rv;
@@ -39,23 +28,23 @@ uint8_t i2csens_rxfrom(const uint8_t slave_addr, uint8_t * data,
     return EXIT_SUCCESS;
 }
 
-uint8_t sht_get_status(uint8_t * data)
+uint8_t SHT1X_get_status(uint8_t * data)
 {
-    return i2csens_rxfrom(0x7, data, 1);
+    return SHT1X_i2csens_rxfrom(0x7, data, 1);
 }
 
-uint8_t sht_get_meas(int16_t * temp, uint16_t * rh)
+uint8_t SHT1X_get_meas(int16_t * temp, uint16_t * rh)
 {
     uint8_t raw_temp[3];
     uint8_t raw_rh[3];
     uint16_t raw_temp_l, raw_rh_l;
     float temp_f, rh_f, rhc_f;
 
-    if (i2csens_rxfrom(0x3, raw_temp, 3) != EXIT_SUCCESS) {
+    if (SHT1X_i2csens_rxfrom(0x3, raw_temp, 3) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     }
 
-    if (i2csens_rxfrom(0x5, raw_rh, 3) != EXIT_SUCCESS) {
+    if (SHT1X_i2csens_rxfrom(0x5, raw_rh, 3) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     }
 
@@ -69,6 +58,17 @@ uint8_t sht_get_meas(int16_t * temp, uint16_t * rh)
     *rh = (uint16_t) rhc_f;
 
     return EXIT_SUCCESS;
+}
+
+void SHT1X_i2csens_reset(void)
+{
+    uint8_t i;
+    sda_high;
+    delay_c;
+    for (i = 0; i < 30; i++) {
+        scl_low;
+        scl_high;
+    }
 }
 
 

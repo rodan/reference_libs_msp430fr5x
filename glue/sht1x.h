@@ -12,10 +12,10 @@
 #define D1     -39.7
 #define D2       0.01
 
-uint8_t sht_get_status(uint8_t * data);
-uint8_t sht_get_meas(int16_t * temp, uint16_t * rh);
+uint8_t SHT1X_get_status(uint8_t * data);
+uint8_t SHT1X_get_meas(int16_t * temp, uint16_t * rh);
 
 // reset connection on the pseudo i2c protocol
-void i2csens_reset(void);
+void SHT1X_i2csens_reset(void);
 
 #endif

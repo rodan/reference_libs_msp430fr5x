@@ -8,10 +8,13 @@
 #include "i2c.h"
 #include "qa.h"
 
+#define STR_LEN 64
+
 void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
 {
     uint32_t el;
     uint32_t rows_tested;
+    char str_temp[STR_LEN];
 
     snprintf(str_temp, STR_LEN, " \e[36;1m*\e[0m testing %lx - %lx with pattern #%d\t", start_addr, stop_addr, test);
     uart0_tx_str(str_temp, strlen(str_temp));
@@ -28,6 +31,8 @@ void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, c
 
 void display_menu(void)
 {
+    char str_temp[STR_LEN];
+
     snprintf(str_temp, STR_LEN,
             "\r\n cypress FM24 test suite --- available commands:\r\n\r\n");
     uart0_tx_str(str_temp, strlen(str_temp));
@@ -52,6 +57,7 @@ void parse_user_input(void)
     uint16_t i;
     uint8_t j;
     uint8_t row[16];
+    char str_temp[STR_LEN];
 
     uint8_t foo[9]="hello wo";
     uint8_t bar[9]="33333333";

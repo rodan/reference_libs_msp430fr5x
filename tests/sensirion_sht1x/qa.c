@@ -3,9 +3,8 @@
 #include <string.h>
 
 #include "uart0.h"
-#include "ds3231.h"
 #include "i2c.h"
-#include "rtca_now.h"
+#include "sht1x.h"
 #include "qa.h"
 
 #define STR_LEN 64
@@ -14,7 +13,7 @@ void display_menu(void)
 {
     char str_temp[STR_LEN];
 
-    snprintf(str_temp, STR_LEN, "\r\n Maxim DS3231 test suite --- available commands:\r\n\r\n");
+    snprintf(str_temp, STR_LEN, "\r\n Sensirion SHT1x test suite --- available commands:\r\n\r\n");
     uart0_tx_str(str_temp, strlen(str_temp));
 
     snprintf(str_temp, STR_LEN, " \e[33;1m?\e[0m             - show menu\r\n");
@@ -23,47 +22,31 @@ void display_menu(void)
     snprintf(str_temp, STR_LEN, " \e[33;1mi\e[0m             - display i2c registers\r\n");
     uart0_tx_str(str_temp, strlen(str_temp));
 
-    snprintf(str_temp, STR_LEN, " \e[33;1mr\e[0m             - read current time\r\n");
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mw\e[0m             - write current time\r\n");
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mt\e[0m             - read temperature\r\n");
+    snprintf(str_temp, STR_LEN, " \e[33;1mr\e[0m             - read sensor\r\n");
     uart0_tx_str(str_temp, strlen(str_temp));
 }
 
 void parse_user_input(void)
 {
     char f = uart0_rx_buf[0];
-    struct ts t;
     char str_temp[STR_LEN];
+
+    uint8_t reg;
+    int16_t temperature;
+    uint16_t rh;
 
     if (f == '?') {
         display_menu();
     } else if (f == 'r') {
-        DS3231_get(EUSCI_BASE_ADDR, &t);
-
-        // there is a compile time option in the library to include unixtime support
-#ifdef CONFIG_UNIXTIME
-        snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d %ld\r\n", t.year,
-                 t.mon, t.mday, t.hour, t.min, t.sec, t.unixtime);
-#else
-        snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d\r\n", t.year,
-                 t.mon, t.mday, t.hour, t.min, t.sec);
-#endif
+        SHT1X_get_status(&reg);
+        snprintf(str_temp, STR_LEN, "reg: 0x%x\r\n", reg);
         uart0_tx_str(str_temp, strlen(str_temp));
-    } else if (f == 'w') {
-        t.sec = 0;
-        t.min = COMPILE_MIN;
-        t.hour = COMPILE_HOUR;
-        t.wday = COMPILE_DOW;
-        t.mday = COMPILE_DAY;
-        t.mon = COMPILE_MON;
-        t.year = COMPILE_YEAR;
-        DS3231_set(EUSCI_BASE_ADDR, t);
-    } else if (f == 't') {
-        //DS3231_get_treg();
+
+        SHT1X_get_meas(&temperature, &rh);
+        snprintf(str_temp, STR_LEN, "temperature: %d.%d degC\r\n", temperature / 100, temperature % 100);
+        uart0_tx_str(str_temp, strlen(str_temp));
+        snprintf(str_temp, STR_LEN, "humidity: %d.%d %%rh\r\n", rh / 100, rh % 100);
+        uart0_tx_str(str_temp, strlen(str_temp));
     } else if (f == 'i') {
         snprintf(str_temp, STR_LEN, "P7SEL0 0x%x, P7SEL1 0x%x\r\n", P7SEL0, P7SEL1);
         uart0_tx_str(str_temp, strlen(str_temp));

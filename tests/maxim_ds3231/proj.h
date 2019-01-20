@@ -23,7 +23,4 @@
 #define true                1
 #define false               0
 
-#define STR_LEN 64
-char str_temp[STR_LEN];
-
 #endif

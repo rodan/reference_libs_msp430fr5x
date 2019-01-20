@@ -3,23 +3,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "proj.h"
-#include "qa.h"
 
 #include "driverlib.h"
 #include "sys_messagebus.h"
 #include "uart0.h"
-#include "i2c.h"
-#include "ds3231.h"
+#include "qa.h"
 
 void main_init(void)
 {
     // port init
     P1DIR = BIT0;
-
-#ifdef HARDWARE_I2C
-    P7SEL0 |= (BIT0 | BIT1);
-    P7SEL1 &= ~(BIT0 | BIT1);
-#endif
 
 #ifdef USE_XT1
     PJSEL0 |= BIT4 | BIT5;
@@ -37,6 +30,7 @@ void main_init(void)
 #ifdef USE_XT1
     CS_turnOnLFXT(CS_LFXT_DRIVE_3);
 #endif
+
 }
 
 static void uart0_rx_irq(enum sys_message msg)
@@ -79,21 +73,6 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C 
-    EUSCI_B_I2C_initMasterParam param = {0};
-
-    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = CS_getSMCLK();
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
-    param.byteCounterThreshold = 0;
-    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
-    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
-#endif
-
-    DS3231_init(EUSCI_BASE_ADDR, DS3231_CONTROL_INTCN);
-
-    led_off;
-
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
     while (1) {
@@ -103,7 +82,7 @@ int main(void)
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        //led_switch;
+        led_switch;
         check_events();
     }
 
