@@ -4,6 +4,9 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
+#include <msp430.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "sht1x.h"
 #include "serial_bitbang.h"
 

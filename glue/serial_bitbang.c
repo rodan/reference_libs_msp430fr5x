@@ -6,6 +6,7 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
+#include <msp430.h>
 #include "serial_bitbang.h"
 
 // returns one of I2C_OK, I2C_MISSING_SCL_PULLUP and/or I2C_MISSING_SDA_PULLUP

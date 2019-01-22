@@ -7,6 +7,7 @@
 #include "i2c.h"
 #include "rtca_now.h"
 #include "qa.h"
+//#include "i2c_config.h"
 
 #define STR_LEN 64
 
@@ -42,6 +43,7 @@ void parse_user_input(void)
     if (f == '?') {
         display_menu();
     } else if (f == 'r') {
+
         DS3231_get(EUSCI_BASE_ADDR, &t);
 
         // there is a compile time option in the library to include unixtime support

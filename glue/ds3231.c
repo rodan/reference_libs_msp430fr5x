@@ -19,6 +19,7 @@
 */
 
 #include <stdio.h>
+//#include <stdlib.h>
 #include "ds3231.h"
 
 #ifndef HARDWARE_I2C

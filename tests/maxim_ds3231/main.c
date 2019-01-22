@@ -2,6 +2,7 @@
 #include <msp430.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "proj.h"
 #include "qa.h"
 
@@ -79,7 +80,7 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C 
+#ifdef HARDWARE_I2C
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
@@ -88,6 +89,10 @@ int main(void)
     param.byteCounterThreshold = 0;
     param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
     EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
+#endif
+
+#ifdef IRQ_I2C
+    i2c_init(EUSCI_BASE_ADDR);
 #endif
 
     DS3231_init(EUSCI_BASE_ADDR, DS3231_CONTROL_INTCN);
