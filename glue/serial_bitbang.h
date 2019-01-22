@@ -2,9 +2,7 @@
 #define __SERIAL_BITBANG_
 
 #include "i2c.h"
-//#include "i2c_config.h"
-#include "proj.h"
-
+#include "i2c_config.h"
 
 /*
 // define the SDA/SCL ports

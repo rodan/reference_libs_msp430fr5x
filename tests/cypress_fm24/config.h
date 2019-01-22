@@ -4,6 +4,7 @@
 #define USE_XT1
 //#define USE_WATCHDOG
 #define HARDWARE_I2C
+#define IRQ_I2C
 
 //#define CONFIG_HAVE_FM24CL64B
 #define CONFIG_HAVE_FM24V10

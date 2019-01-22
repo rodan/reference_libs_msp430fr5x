@@ -38,7 +38,6 @@ void i2c_irq_init(const uint16_t usci_base_addr)
 void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
                         void (*callback) (i2c_status_t result))
 {
-
     if (i2c_transfer_status() == I2C_BUSY) {
         return;
     }
@@ -49,6 +48,8 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
     transfer.status = I2C_BUSY;
 
     if (pkg->addr_len != 0) {
+        // if i2c also need to send an adress/command between the slave 
+        // addr and the actual read/write of data
         transfer.next_state = SM_SEND_ADDR;
         I2C_IFG = 0;
         I2C_IE = UCNACKIE | UCTXIE | UCRXIE;
@@ -184,9 +185,7 @@ void USCI_BX_ISR(void)
             } else {
                 transfer.next_state = SM_DONE;
             }
-        } else {
-            transfer.next_state = SM_SEND_ADDR;
-        }
+        } // else { transfer.next_state remains SM_SEND_ADDR, so we end up in this case again }
         break;
     case SM_WRITE_DATA:
         I2C_TXBUF = transfer.pkg->data[transfer.idx];

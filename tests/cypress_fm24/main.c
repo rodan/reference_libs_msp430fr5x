@@ -88,6 +88,10 @@ int main(void)
     param.byteCounterThreshold = 0;
     param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
     EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
+
+    #ifdef IRQ_I2C
+        i2c_irq_init(EUSCI_BASE_ADDR);
+    #endif
 #endif
 
     led_off;

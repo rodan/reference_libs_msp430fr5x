@@ -19,10 +19,14 @@
 */
 
 #include <stdio.h>
-//#include <stdlib.h>
-#include "ds3231.h"
+#include <stdlib.h>
 
-#ifndef HARDWARE_I2C
+#include "ds3231.h"
+#include "config.h"
+
+#ifdef HARDWARE_I2C
+#include "i2c.h"
+#else
 #include "serial_bitbang.h"
 #endif
 
@@ -388,9 +392,9 @@ uint8_t DS3231_clear_a1f(const uint16_t usci_base_addr)
 
     rv = DS3231_get_sreg(usci_base_addr, &reg_val);
 
-    if (rv == I2C_ACK) {
+    //if (rv == I2C_ACK) {
         rv = DS3231_set_sreg(usci_base_addr, reg_val & ~DS3231_A1F);
-    }
+    //}
 
     return rv;
 }
@@ -402,9 +406,9 @@ uint8_t DS3231_triggered_a1(const uint16_t usci_base_addr, uint8_t * val)
 
     rv = DS3231_get_sreg(usci_base_addr, &reg_val);
 
-    if (rv == I2C_ACK) {
+    //if (rv == I2C_ACK) {
         *val = reg_val & DS3231_A1F;
-    }
+    //}
 
     return rv;
 }
@@ -496,13 +500,13 @@ uint8_t DS3231_clear_a2f(const uint16_t usci_base_addr)
 
     rv = DS3231_get_sreg(usci_base_addr, &reg_val);
 
-    if (rv == I2C_ACK) {
+    //if (rv == I2C_ACK) {
         rv = DS3231_set_sreg(usci_base_addr, reg_val & ~DS3231_A2F);
-    }
+    //}
 
-    if (rv != I2C_ACK) {
-        return EXIT_FAILURE;
-    }
+    //if (rv != I2C_ACK) {
+    //    return EXIT_FAILURE;
+    //}
 
     return EXIT_SUCCESS;
 }
@@ -514,9 +518,9 @@ uint8_t DS3231_triggered_a2(const uint16_t usci_base_addr, uint8_t * val)
 
     rv = DS3231_get_sreg(usci_base_addr, &reg_val);
 
-    if (rv == I2C_ACK) {
+    //if (rv == I2C_ACK) {
         *val = reg_val & DS3231_A2F;
-    }
+    //}
 
     return rv;
 }

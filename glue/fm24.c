@@ -6,10 +6,17 @@
 //   license:         BSD
 
 #include <inttypes.h>
+#include <stddef.h>
+#include <stdlib.h>
 
-#include "proj.h"
 #include "fm24.h"
+#include "config.h"
+
+#ifdef HARDWARE_I2C
+#include "i2c.h"
+#else
 #include "serial_bitbang.h"
+#endif
 
 uint32_t FM24_read(const uint16_t usci_base_addr, uint8_t * data, const uint32_t addr,
                    const uint32_t data_len)

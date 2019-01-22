@@ -124,12 +124,10 @@ uint8_t i2cm_tx_buff(const uint8_t * data, uint16_t data_len, const uint8_t opti
     uint8_t rv = I2C_ACK;
     uint16_t i;
 
-    if (rv == I2C_ACK) {
-        for (i=0;i<data_len;i++) {
-            rv = i2cm_tx(data[i], I2C_NO_ADDR_SHIFT | options);
-            if (rv != I2C_ACK) {
-                break;
-            }
+    for (i=0;i<data_len;i++) {
+        rv = i2cm_tx(data[i], I2C_NO_ADDR_SHIFT | options);
+        if (rv != I2C_ACK) {
+            break;
         }
     }
 
