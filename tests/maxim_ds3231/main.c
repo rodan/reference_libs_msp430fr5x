@@ -92,7 +92,7 @@ int main(void)
 #endif
 
 #ifdef IRQ_I2C
-    i2c_init(EUSCI_BASE_ADDR);
+    i2c_irq_init(EUSCI_BASE_ADDR);
 #endif
 
     DS3231_init(EUSCI_BASE_ADDR, DS3231_CONTROL_INTCN);

@@ -1,16 +1,8 @@
 
 #include "driverlib.h"
-//#include "i2c_internal.h"
-#include "i2c.h"
+#include "i2c_internal.h"
 #include "config.h"
-
-#include "uart0.h"
-
-#ifdef IRQ_I2C
-//////////////////////////////////////////////////
-// interrupt controlled i2c implementation
-// needs EUSCI_BASE_ADDR and I2C_ISR_VECTOR to be defined in local i2c_config.h
-//
+#include "i2c.h"
 
 typedef enum {
     SM_SEND_ADDR,
@@ -28,7 +20,14 @@ volatile static struct {
     i2c_state_t next_state;
 } transfer;
 
-void i2c_init(const uint16_t usci_base_addr)
+#ifdef IRQ_I2C
+//////////////////////////////////////////////////
+// interrupt controlled i2c implementation
+// needs a configured i2c_config.h in the source dir
+// see the i2c_config.TEMPLATE.h file for guidance
+
+
+void i2c_irq_init(const uint16_t usci_base_addr)
 {
     // UCBxCTLW0 and UCBxBRW must be setup externally
     I2C_CTL1 &= ~UCSWRST;       // Clear reset

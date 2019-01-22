@@ -102,7 +102,7 @@ extern "C" {
  **/
     i2c_status_t i2c_transfer_status(void);
 
-    void i2c_init(uint16_t usci_base_address);
+    void i2c_irq_init(uint16_t usci_base_address);
 
 #ifdef __cplusplus
 }

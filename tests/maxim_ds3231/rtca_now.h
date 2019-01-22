@@ -7,6 +7,6 @@
 #define COMPILE_DAY 22
 #define COMPILE_DOW 2
 #define COMPILE_HOUR 18
-#define COMPILE_MIN 38
+#define COMPILE_MIN 58
 
 #endif

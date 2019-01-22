@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "config.h"
+#include "i2c_config.h"
 
 #define led_on              P1OUT |= BIT0
 #define led_off             P1OUT &= ~BIT0
