@@ -20,11 +20,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
 #include "sys_messagebus.h"
 
-void sys_messagebus_register(void (*callback) (enum sys_message),
-                             enum sys_message listens)
+// static 
+struct sys_messagebus *messagebus;
+
+struct sys_messagebus * sys_messagebus_getp(void)
+{
+    return messagebus;
+}
+
+void sys_messagebus_register(void (*callback) (const uint16_t sys_message),
+                             const uint16_t listens)
 {
     struct sys_messagebus **p = &messagebus;
 
@@ -38,7 +45,7 @@ void sys_messagebus_register(void (*callback) (enum sys_message),
     (*p)->listens = listens;
 }
 
-void sys_messagebus_unregister(void (*callback) (enum sys_message))
+void sys_messagebus_unregister(void (*callback) (const uint16_t sys_message))
 {
     struct sys_messagebus *p = messagebus, *pp = NULL;
 

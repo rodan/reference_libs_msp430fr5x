@@ -40,23 +40,21 @@ void main_init(void)
 #endif
 }
 
-static void uart0_rx_irq(enum sys_message msg)
+static void uart0_rx_irq(const uint16_t msg)
 {
     parse_user_input();
-
-    uart0_p = 0;
-    uart0_rx_enable = 1;
+    uart0_set_eol();
 }
 
 void check_events(void)
 {
-    struct sys_messagebus *p = messagebus;
-    enum sys_message msg = SYS_MSG_NONE;
+    struct sys_messagebus *p = sys_messagebus_getp();
+    uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
-    if (uart0_last_event == UART0_EV_RX) {
+    if (uart0_get_event() == UART0_EV_RX) {
         msg |= SYS_MSG_UART0_RX;
-        uart0_last_event = UART0_EV_NONE;
+        uart0_rst_event();
     }
 
     while (p) {

@@ -28,7 +28,8 @@ void display_menu(void)
 
 void parse_user_input(void)
 {
-    char f = uart0_rx_buf[0];
+    char *input = uart0_get_rx_buf();
+    char f = input[0];
     char str_temp[STR_LEN];
 
     uint8_t reg;

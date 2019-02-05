@@ -43,7 +43,7 @@ void main_init(void)
 #endif
 }
 
-static void uart0_rx_irq(enum sys_message msg)
+static void uart0_rx_irq(const uint16_t msg)
 {
     char *input;
     uint8_t p;
@@ -110,8 +110,8 @@ static void uart0_rx_irq(enum sys_message msg)
 
 void check_events(void)
 {
-    struct sys_messagebus *p = messagebus;
-    enum sys_message msg = SYS_MSG_NONE;
+    struct sys_messagebus *p = sys_messagebus_getp();
+    uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
     if (uart0_get_event() == UART0_EV_RX) {

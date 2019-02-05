@@ -1,6 +1,5 @@
 
 #include "driverlib.h"
-#include "i2c_internal.h"
 #include "config.h"
 #include "i2c.h"
 
@@ -21,6 +20,8 @@ volatile static struct {
 } transfer;
 
 #ifdef IRQ_I2C
+#include "i2c_internal.h"
+
 //////////////////////////////////////////////////
 // interrupt controlled i2c implementation
 // needs a configured i2c_config.h in the source dir

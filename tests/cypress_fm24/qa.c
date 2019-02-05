@@ -2,10 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "fm24_memtest.h"
-#include "uart0.h"
-#include "fm24.h"
-#include "i2c.h"
+#include "glue.h"
 #include "qa.h"
 
 #define STR_LEN 64
@@ -53,7 +50,8 @@ void display_menu(void)
 
 void parse_user_input(void)
 {
-    char f = uart0_rx_buf[0];
+    char *input = uart0_get_rx_buf();
+    char f = input[0];
     uint16_t i;
     uint8_t j;
     uint8_t row[16];
