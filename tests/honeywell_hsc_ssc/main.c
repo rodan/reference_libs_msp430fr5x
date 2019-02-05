@@ -2,12 +2,10 @@
 #include <msp430.h>
 #include <stdio.h>
 #include <string.h>
-#include "proj.h"
 
-#include "sys_messagebus.h"
-#include "uart0.h"
-#include "hsc_ssc.h"
+#include "proj.h"
 #include "driverlib.h"
+#include "glue.h"
 
 // see hsc_ssc.h for a description of these values
 // these defaults are valid for the HSCMRNN030PA2A3 chip
@@ -53,7 +51,7 @@ static void uart0_rx_irq(enum sys_message msg)
     uint32_t pressure;
     int16_t temperature;
 
-    input = (char *)uart0_rx_buf;
+    input = uart0_get_rx_buf();
     p = input[0];
 
     if (p == 'g') {       // [g]et value
@@ -107,9 +105,7 @@ static void uart0_rx_irq(enum sys_message msg)
     } else {
         uart0_tx_str("\r\n", 2);
     }
-
-    uart0_p = 0;
-    uart0_rx_enable = 1;
+    uart0_set_eol();
 }
 
 void check_events(void)
@@ -118,9 +114,9 @@ void check_events(void)
     enum sys_message msg = SYS_MSG_NONE;
 
     // uart RX
-    if (uart0_last_event == UART0_EV_RX) {
+    if (uart0_get_event() == UART0_EV_RX) {
         msg |= SYS_MSG_UART0_RX;
-        uart0_last_event = UART0_EV_NONE;
+        uart0_rst_event();
     }
 
     while (p) {

@@ -1,25 +1,28 @@
 #ifndef __UART0_H__
 #define __UART0_H__
 
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-enum uart0_tevent {
-    UART0_EV_NONE = 0,
-    UART0_EV_RX   = 0x1,
-    UART0_EV_TX   = 0x2
-};
+#include "proj.h"
 
-#define UART0_RXBUF_SZ      64
+#define  UART0_EV_NULL 0
+#define    UART0_EV_RX 0x1
+#define    UART0_EV_TX 0x2
 
-volatile char uart0_rx_buf[UART0_RXBUF_SZ];
-volatile uint8_t uart0_p;
-volatile uint8_t uart0_rx_enable;
-volatile uint8_t uart0_rx_err;
+#define UART0_RXBUF_SZ 64
 
 void uart0_init();
-void uart0_port_init();
+void uart0_port_init(void);
 uint16_t uart0_tx_str(char *str, const uint16_t size);
+uint8_t uart0_get_event(void);
+void uart0_rst_event(void);
+void uart0_set_eol(void);
+char *uart0_get_rx_buf(void);
 
-volatile enum uart0_tevent uart0_last_event;
+#ifdef __cplusplus
+}
+#endif
 
 #endif
