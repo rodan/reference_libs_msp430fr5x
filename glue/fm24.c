@@ -5,6 +5,8 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
+#ifdef __I2C_CONFIG_H__
+
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -165,3 +167,6 @@ uint32_t FM24_data_len(const uint32_t first, const uint32_t last)
 
     return rv;
 }
+
+#endif // __I2C_CONFIG_H__
+

@@ -4,6 +4,8 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
+#ifdef __I2C_CONFIG_H__
+
 #include <msp430.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -74,4 +76,5 @@ void SHT1X_i2csens_reset(void)
     }
 }
 
+#endif // __I2C_CONFIG_H__
 

@@ -1,4 +1,6 @@
 
+#ifdef __I2C_CONFIG_H__
+
 #include <string.h>
 
 #include "fm24_memtest.h"
@@ -58,3 +60,6 @@ uint32_t FM24_memtest(const uint16_t usci_base_addr, const uint32_t start_addr,
 
     return rv;
 }
+
+#endif // __I2C_CONFIG_H__
+

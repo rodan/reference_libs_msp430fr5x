@@ -18,6 +18,8 @@
 
 */
 
+#ifdef __I2C_CONFIG_H__
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -576,3 +578,6 @@ uint8_t inp2toi(char *cmd, const uint16_t seek)
     rv = (cmd[seek] - 48) * 10 + cmd[seek + 1] - 48;
     return rv;
 }
+
+#endif // __I2C_CONFIG_H__
+

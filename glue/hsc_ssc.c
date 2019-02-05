@@ -7,6 +7,8 @@
 //  Honeywell High Accuracy Ceramic (HSC) and Standard Accuracy Ceramic
 //  (SSC) Series are piezoresistive silicon pressure sensors.
 
+#ifdef __I2C_CONFIG_H__
+
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -86,3 +88,4 @@ uint8_t HSC_SSC_convert(const struct HSC_SSC_pkt raw, uint32_t * pressure,
     *temperature = 100 * t;
     return 0;
 }
+#endif // __I2C_CONFIG_H__

@@ -7,6 +7,9 @@
 //  license:         BSD
 
 #include <msp430.h>
+
+#ifdef __I2C_CONFIG_H__
+
 #include "serial_bitbang.h"
 
 // returns one of I2C_OK, I2C_MISSING_SCL_PULLUP and/or I2C_MISSING_SDA_PULLUP
@@ -260,4 +263,4 @@ uint8_t i2cm_transfer(const i2c_package_t * pkg)
     i2cm_stop(pkg->options);
     return rv;
 }
-
+#endif
