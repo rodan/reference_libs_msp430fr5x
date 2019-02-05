@@ -1,4 +1,5 @@
 
+#include <string.h>
 #include "uart0.h"
 
 volatile char uart0_rx_buf[UART0_RXBUF_SZ];     // receive buffer
@@ -13,10 +14,23 @@ volatile uint8_t uart0_last_event;
 void uart0_init(void)
 {
     UCA0CTLW0 = UCSWRST;        // put eUSCI state machine in reset
-    UCA0CTLW0 |= UCSSEL__ACLK;  // CLK = ACLK
-    UCA0BRW = 3;                // 32kHz/3 ~ 9600 baud
-    UCA0MCTLW |= 0x5300;        // 32768/9600 - INT(32768/9600)=0.41
-    // UCBRSx value = 0x53 (See UG)
+
+    // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
+
+#ifdef UART0_SPEED_115200_1M
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 8;
+    UCA0MCTLW = 0xd600;
+#elif defined (UART0_SPEED_115200_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 4;
+    UCA0MCTLW = 0x5551;
+#else // a safe default of 9600 - does not depend on SMCLK
+    UCA0CTLW0 |= UCSSEL__ACLK;
+    UCA0BRW = 3;
+    UCA0MCTLW |= 0x5300;
+#endif
+
     UCA0CTLW0 &= ~UCSWRST;      // Initialize eUSCI
     UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
 
@@ -60,6 +74,19 @@ char *uart0_get_rx_buf(void)
 uint16_t uart0_tx_str(char *str, const uint16_t size)
 {
     uint16_t p = 0;
+    while (p < size) {
+        while (!(UCA0IFG & UCTXIFG)) {
+        }                       // USCI_A0 TX buffer ready?
+        UCA0TXBUF = str[p];
+        p++;
+    }
+    return p;
+}
+
+uint16_t uart0_print(char *str)
+{
+    size_t p = 0;
+    size_t size = strlen(str);
     while (p < size) {
         while (!(UCA0IFG & UCTXIFG)) {
         }                       // USCI_A0 TX buffer ready?

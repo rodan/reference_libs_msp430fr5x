@@ -16,6 +16,7 @@ extern "C" {
 void uart0_init();
 void uart0_port_init(void);
 uint16_t uart0_tx_str(char *str, const uint16_t size);
+uint16_t uart0_print(char *str);
 uint8_t uart0_get_event(void);
 void uart0_rst_event(void);
 void uart0_set_eol(void);

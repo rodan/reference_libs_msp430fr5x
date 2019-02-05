@@ -33,7 +33,7 @@ void main_init(void)
 
 static void uart0_rx_irq(uint16_t msg)
 {
-    parse_user_input();
+    //parse_user_input();
     uart0_set_eol();
 }
 
@@ -72,6 +72,30 @@ int main(void)
     led_off;
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+
+/*
+    uart0_tx_str("h1llo world\r\n",13);
+    uart0_tx_str("he2lo world\r\n",13);
+    uart0_tx_str("hel3o world\r\n",13);
+    uart0_tx_str("hell4 world\r\n",13);
+    uart0_tx_str("hello5world\r\n",13);
+    uart0_tx_str("hello 6orld\r\n",13);
+    uart0_tx_str("hello w7rld\r\n",13);
+    uart0_tx_str("hello wo8ld\r\n",13);
+    uart0_tx_str("hello wor9d\r\n",13);
+    uart0_tx_str("hello worl0\r\n",13);
+*/
+
+    uart0_print("h1llo world\r\n");
+    uart0_print("he2lo world\r\n");
+    uart0_print("hel3o world\r\n");
+    uart0_print("hell4 world\r\n");
+    uart0_print("hello5world\r\n");
+    uart0_print("hello 6orld\r\n");
+    uart0_print("hello w7rld\r\n");
+    uart0_print("hello wo8ld\r\n");
+    uart0_print("hello wor9d\r\n");
+    uart0_print("hello worl0\r\n");
 
     while (1) {
         // sleep
