@@ -80,7 +80,7 @@ int main(void)
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
-//#define TEST_UTOB
+#define TEST_UTOB
 
 #ifdef TEST_UART0_TX_STR
     uart0_tx_str("h1llo world\r\n",13);
@@ -145,11 +145,11 @@ int main(void)
 #ifdef TEST_UTOH
     uart0_print(_utoh(&buf[0], 0));
     uart0_print("\r\n");
-    uart0_print(_utoh(&buf[0], 0x0000ffff));
+    uart0_print(_utoh(&buf[0], 0x00000fef));
     uart0_print("\r\n");
     uart0_print(_utoh(&buf[0], 0xffffffff));
     uart0_print("\r\n");
-    uart0_print(_utoh(&buf[0], 0x1010cafe));
+    uart0_print(_utoh(&buf[0], 0x0110cafe));
     uart0_print("\r\n");
     uart0_print(_utoh(&buf[0], 0xa1b2c3e4));
     uart0_print("\r\n");
@@ -158,13 +158,13 @@ int main(void)
 #ifdef TEST_UTOB
     uart0_print(_utob(&buf[0], 0));
     uart0_print("\r\n");
-    uart0_print(_utob(&buf[0], 0x0000ffff));
+    uart0_print(_utob(&buf[0], 0xffff));
     uart0_print("\r\n");
-    uart0_print(_utob(&buf[0], 0xffffffff));
+    uart0_print(_utob(&buf[0], 0xe));
     uart0_print("\r\n");
-    uart0_print(_utob(&buf[0], 0x1010cafe));
+    uart0_print(_utob(&buf[0], 0x010a));
     uart0_print("\r\n");
-    uart0_print(_utob(&buf[0], 0xa1b2c3e4));
+    uart0_print(_utob(&buf[0], 0xefef));
     uart0_print("\r\n");
 #endif
 

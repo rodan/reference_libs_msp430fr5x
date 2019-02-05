@@ -176,10 +176,10 @@ uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
 
 static uint16_t const bin_ascii[2] = { 0x30, 0x31 };
 
-char *_utob(char *buf, const uint32_t val)
+char *_utob(char *buf, const uint16_t val)
 {
-    char *p = &buf[33];
-    uint32_t m = val;
+    char *p = &buf[17];
+    uint16_t m = val;
     uint8_t i = 0;
 
     *p = '\0';
@@ -189,7 +189,7 @@ char *_utob(char *buf, const uint32_t val)
         memcpy(p, &bin_ascii[0], sizeof(uint8_t));
     }
 
-    // I want groups of 8bits
+    // groups of 8bits
     while (m > 0 || (i & 7))
     {
         p -= 1;
@@ -207,6 +207,7 @@ char *_utoh(char *buf, const uint32_t val)
 {
     char *p = &buf[11];
     uint32_t m = val;
+    uint8_t i = 0;
 
     *p = '\0';
 
@@ -215,11 +216,13 @@ char *_utoh(char *buf, const uint32_t val)
         memcpy(p, &hex_ascii[0], sizeof(uint8_t));
     }
 
-    while (m > 0)
+    // groups of 8 bits
+    while (m > 0 || (i & 1))
     {
         p -= 1;
         memcpy(p, &hex_ascii[m & 0xf], sizeof(uint8_t));
         m >>= 4;
+        i++;
     }
 
     p -= 2;
