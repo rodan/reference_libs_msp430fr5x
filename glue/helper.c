@@ -1,24 +1,9 @@
 
 #include <math.h>
-#include "uart0.h"
-#include "helper.h"
-
-/*
-#include <stdarg.h>
-#include <stdio.h>
 #include <string.h>
 
-void _printf(const char *format, ...)
-{
-    va_list args;
-    char str_temp[128];
-
-    va_start (args, format);
-    snprintf(str_temp, STR_LEN, format, args );
-    va_end (args);
-    uart0_tx_str(str_temp, strlen(str_temp));
-}
-*/
+#include "config.h"
+#include "helper.h"
 
 // |error| < 0.005
 float _atan2f(const float y, const float x)
@@ -190,8 +175,59 @@ uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
     }
 }
 
-#ifdef ITOA_VITAUT_1
-static uint16_t const str100p[100] = {
+static uint16_t const bin_ascii[2] = { 0x30, 0x31 };
+
+char *_utob(char *buf, const uint32_t val)
+{
+    char *p = &buf[33];
+    uint32_t m = val;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        memcpy(p, &bin_ascii[0], sizeof(uint8_t));
+    }
+
+    while (m > 0)
+    {
+        p -= 1;
+        memcpy(p, &bin_ascii[m & 0x1], sizeof(uint8_t));
+        m >>= 1;
+    }
+
+    return p;
+}
+
+static uint16_t const hex_ascii[16] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66 };
+
+char *_utoh(char *buf, const uint32_t val)
+{
+    char *p = &buf[11];
+    uint32_t m = val;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        memcpy(p, &hex_ascii[0], sizeof(uint8_t));
+    }
+
+    while (m > 0)
+    {
+        p -= 1;
+        memcpy(p, &hex_ascii[m & 0xf], sizeof(uint8_t));
+        m >>= 4;
+    }
+
+    p -= 2;
+    memcpy(p, "0x" , sizeof(uint16_t));
+
+    return p;
+}
+
+#ifdef BIG_ITOA_TABLE
+static uint16_t const dec_ascii[100] = {
     0x3030, 0x3130, 0x3230, 0x3330, 0x3430, 0x3530, 0x3630, 0x3730, 0x3830, 0x3930,
     0x3031, 0x3131, 0x3231, 0x3331, 0x3431, 0x3531, 0x3631, 0x3731, 0x3831, 0x3931,
     0x3032, 0x3132, 0x3232, 0x3332, 0x3432, 0x3532, 0x3632, 0x3732, 0x3832, 0x3932,
@@ -203,68 +239,67 @@ static uint16_t const str100p[100] = {
     0x3038, 0x3138, 0x3238, 0x3338, 0x3438, 0x3538, 0x3638, 0x3738, 0x3838, 0x3938,
     0x3039, 0x3139, 0x3239, 0x3339, 0x3439, 0x3539, 0x3639, 0x3739, 0x3839, 0x3939, };
 
-char *_itoa(char *buf, uint32_t val)
+char *_uint32toa(char *buf, const uint32_t val)
 {
-    char *p = &buf[10];
+    char *p = &buf[11];
+    uint32_t m = val;
 
     *p = '\0';
 
-    while(val >= 100)
+    while(m >= 100)
     {
-        uint32_t const old = val;
+        uint32_t const old = m;
 
         p -= 2;
-        val /= 100;
-        memcpy(p, &str100p[old - (val * 100)], sizeof(uint16_t));
+        m /= 100;
+        memcpy(p, &dec_ascii[old - (m * 100)], sizeof(uint16_t));
     }
 
     p -= 2;
-    memcpy(p, &str100p[val], sizeof(uint16_t));
+    memcpy(p, &dec_ascii[m], sizeof(uint16_t));
 
-    return &p[val < 10];
+    return &p[m < 10];
 }
-#else 
+#else
+static uint16_t const dec_ascii[10] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 };
 
-// inge implementation
-/*
-uint8_t len100K[100000];
-char str100K[100000][5];
-
-void itoa_inge_2_init()
+char *_uint32toa(char *buf, const uint32_t val)
 {
-    memset(str100K, '0', sizeof(str100K));
-
-    for(uint32_t i = 0; i < 100000; i++)
-    {
-        char buf[6];
-        itoa(i, buf, 10);
-        len100K[i] = strlen(buf);
-        memcpy(&str100K[i][5 - len100K[i]], buf, len100K[i]);
-    }
-}
-
-char *itoa_inge_2(char *buf, uint32_t val)
-{
-    char *p = &buf[10];
-    uint32_t prevlen;
+    char *p = &buf[11];
+    uint32_t m = val;
 
     *p = '\0';
 
-    do
+    while(m >= 10)
     {
-        uint32_t const old = val;
-        uint32_t mod;
+        uint32_t const old = m;
 
-        val /= 100000;
-        mod = old - (val * 100000);
-
-        prevlen = len100K[mod];
-        p -= 5;
-        memcpy(p, str100K[mod], 5);
+        p -= 1;
+        m /= 10;
+        memcpy(p, &dec_ascii[old - (m * 10)], sizeof(uint8_t));
     }
-    while(val != 0);
 
-    return &p[5 - prevlen];
+    p -= 1;
+    memcpy(p, &dec_ascii[m], sizeof(uint8_t));
+
+    return p;
 }
-*/
 #endif
+
+char *_utoa(char *buf, const uint32_t val)
+{
+    return _uint32toa(buf, val);
+}
+
+char *_itoa(char *buf, const int32_t val)
+{
+    char *p;
+    if (val >= 0) {
+        return _uint32toa(buf, val);
+    } else {
+        p = _uint32toa(buf, val * -1);
+        *(p - 1) = '-';
+        return p-1;
+    }
+}
+

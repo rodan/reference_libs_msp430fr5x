@@ -25,7 +25,7 @@ void uart0_init(void)
     UCA0CTLW0 |= UCSSEL__SMCLK;
     UCA0BRW = 4;
     UCA0MCTLW = 0x5551;
-#else // a safe default of 9600 - does not depend on SMCLK
+#else // a safer default of 9600 - does not depend on SMCLK
     UCA0CTLW0 |= UCSSEL__ACLK;
     UCA0BRW = 3;
     UCA0MCTLW |= 0x5300;

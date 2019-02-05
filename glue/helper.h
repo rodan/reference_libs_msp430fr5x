@@ -25,6 +25,11 @@ float _sqrt(const float number);
 float radians(const float x);
 float sq(const float x);
 
+
+char *_utob(char *buf, const uint32_t val);
+char *_utoh(char *buf, const uint32_t val);
+char *_utoa(char *buf, const uint32_t val);
+char *_itoa(char *buf, const int32_t val);
 uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
                       const uint8_t len, const uint32_t min, const uint32_t max);
 uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
