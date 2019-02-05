@@ -75,10 +75,9 @@ int main(void)
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
-
 //#define TEST_UART0_TX_STR
 //#define TEST_UART0_PRINT
-#define TEST_ITOA
+//#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB
@@ -179,5 +178,4 @@ int main(void)
         //led_switch;
         check_events();
     }
-
 }
