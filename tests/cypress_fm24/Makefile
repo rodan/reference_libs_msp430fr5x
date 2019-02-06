@@ -106,14 +106,14 @@ tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(PROJ).dep
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(PROJ).hdep)
 
 %.o: %.c
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOBJECT): $(PROJ_SRC) $(PROJ).cflags
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
 	@echo -e "\n>> Building $@ as target $(TARGET)"
-	$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
+	@$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
 #	$(CC) $(LDFLAGS) $(EXOBJECT) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
 
 debug: all

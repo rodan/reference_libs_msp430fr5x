@@ -11,14 +11,14 @@ extern "C" {
 	\brief List of possible message types for the message bus.
 	\sa sys_messagebus_register()
 */
-/* WARNING: the enum values are optimized to work with some drivers.
-	If you need to add a new entry, append it to the end! */
 
-#define           SYS_MSG_NULL 0
-#define    SYS_MSG_TIMER0_CRR1 0x1   // timer_a0_delay_noblk_ccr1
-#define    SYS_MSG_TIMER0_CRR2 0x2   // timer_a0_delay_noblk_ccr2
-#define     SYS_MSG_TIMER0_IFG 0x4   // timer0 overflow
-#define       SYS_MSG_UART0_RX 0x8   // UART received something
+// should be moved to proj.h
+
+//#define           SYS_MSG_NULL 0
+//#define    SYS_MSG_TIMER0_CRR1 0x1   // timer_a0_delay_noblk_ccr1
+//#define    SYS_MSG_TIMER0_CRR2 0x2   // timer_a0_delay_noblk_ccr2
+//#define     SYS_MSG_TIMER0_IFG 0x4   // timer0 overflow
+//#define       SYS_MSG_UART0_RX 0x8   // UART received something
 
 /*!
 	\brief Linked list of nodes listening to the message bus.

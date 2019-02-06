@@ -1,7 +1,8 @@
 
+#include <inttypes.h>
 #include <math.h>
 #include <string.h>
-
+#include <stdlib.h>
 #include "helper.h"
 
 // |error| < 0.005

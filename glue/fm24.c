@@ -5,14 +5,13 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
+#include "config.h"
 #ifdef __I2C_CONFIG_H__
 
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
-
 #include "fm24.h"
-#include "config.h"
 
 #ifdef HARDWARE_I2C
 #include "i2c.h"

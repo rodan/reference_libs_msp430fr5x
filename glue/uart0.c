@@ -1,4 +1,5 @@
 
+#include <inttypes.h>
 #include <string.h>
 #include "uart0.h"
 

@@ -1,6 +1,6 @@
 
 #include <msp430.h>
-#include "main.h"
+#include "proj.h"
 #include "config.h"
 #include "driverlib.h"
 

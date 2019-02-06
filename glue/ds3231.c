@@ -18,13 +18,12 @@
 
 */
 
+#include "config.h"
 #ifdef __I2C_CONFIG_H__
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "ds3231.h"
-#include "config.h"
 
 #ifdef HARDWARE_I2C
 #include "i2c.h"

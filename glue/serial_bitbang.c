@@ -6,9 +6,10 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
-#include <msp430.h>
-
+#include "config.h"
 #ifdef __I2C_CONFIG_H__
+
+#include <msp430.h>
 
 #include "serial_bitbang.h"
 

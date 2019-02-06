@@ -1,11 +1,10 @@
 
+#include "config.h"
 #ifdef __I2C_CONFIG_H__
 
 #include <string.h>
-
 #include "fm24_memtest.h"
 #include "fm24.h"
-#include "config.h"
 
 uint32_t FM24_memtest(const uint16_t usci_base_addr, const uint32_t start_addr,
                       const uint32_t stop_addr, FM24_test_t test, uint32_t * rows_tested)
