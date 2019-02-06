@@ -6,7 +6,6 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "qa.h"
 
 void main_init(void)
 {
@@ -73,7 +72,7 @@ int main(void)
 
     led_off;
 
-//    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
 //#define TEST_UART0_PRINT
@@ -155,18 +154,16 @@ int main(void)
 
 #ifdef TEST_UTOB
     uart0_print(_utob(&buf[0], 0));
-    uart0_print("\r\n");
+    uart0_print((char *)"\r\n");
     uart0_print(_utob(&buf[0], 0xffff));
-    uart0_print("\r\n");
+    uart0_print((char *)"\r\n");
     uart0_print(_utob(&buf[0], 0xe));
-    uart0_print("\r\n");
+    uart0_print((char *)"\r\n");
     uart0_print(_utob(&buf[0], 0x010a));
-    uart0_print("\r\n");
+    uart0_print((char *)"\r\n");
     uart0_print(_utob(&buf[0], 0xefef));
-    uart0_print("\r\n");
+    uart0_print((char *)"\r\n");
 #endif
-
-    led_on;
 
     while (1) {
         // sleep

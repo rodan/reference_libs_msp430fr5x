@@ -41,7 +41,8 @@ void sys_messagebus_register(void (*callback) (const uint16_t sys_message),
         p = &(*p)->next;
     }
 
-    *p = malloc(sizeof(struct sys_messagebus));
+    *p = (struct sys_messagebus*)malloc(sizeof(struct sys_messagebus));
+    //*p = malloc(sizeof(struct sys_messagebus));
     (*p)->next = NULL;
     (*p)->fn = callback;
     (*p)->listens = listens;

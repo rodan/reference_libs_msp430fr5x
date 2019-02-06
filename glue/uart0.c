@@ -4,6 +4,9 @@
 #include <string.h>
 #include "uart0.h"
 
+// get the UART0_SPEED_ #define
+#include "config.h"
+
 volatile char uart0_rx_buf[UART0_RXBUF_SZ];     // receive buffer
 volatile uint8_t uart0_p;       // number of characters received, 0 if none
 volatile uint8_t uart0_rx_enable;
