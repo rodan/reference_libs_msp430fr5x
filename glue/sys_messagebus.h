@@ -12,7 +12,7 @@ extern "C" {
 	\sa sys_messagebus_register()
 */
 
-// should be moved to proj.h
+// should be re-created in local proj.h
 
 //#define           SYS_MSG_NULL 0
 //#define    SYS_MSG_TIMER0_CRR1 0x1   // timer_a0_delay_noblk_ccr1

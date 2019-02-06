@@ -1,4 +1,5 @@
 
+#include <msp430.h>
 #include <inttypes.h>
 #include <string.h>
 #include "uart0.h"

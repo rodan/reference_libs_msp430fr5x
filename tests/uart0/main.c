@@ -79,8 +79,8 @@ int main(void)
 //#define TEST_UART0_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
-//#define TEST_UTOH
-#define TEST_UTOB
+#define TEST_UTOH
+//#define TEST_UTOB
 
 #ifdef TEST_UART0_TX_STR
     uart0_tx_str("h1llo world\r\n",13);

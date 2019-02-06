@@ -1,8 +1,6 @@
 #ifndef __HELPER_H__
 #define __HELPER_H__
 
-#include "proj.h"
-
 #define PREC 5
 
 #define PI           3.14159265358f
