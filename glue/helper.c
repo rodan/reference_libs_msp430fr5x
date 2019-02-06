@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include "helper.h"
 
+// in case the user defines USE_ITOA_LUT locally
+#include "config.h"
+
 // |error| < 0.005
 float _atan2f(const float y, const float x)
 {
@@ -175,32 +178,6 @@ uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
     }
 }
 
-static uint16_t const bin_ascii[2] = { 0x30, 0x31 };
-
-char *_utob(char *buf, const uint16_t val)
-{
-    char *p = &buf[17];
-    uint16_t m = val;
-    uint8_t i = 0;
-
-    *p = '\0';
-
-    if (val == 0) {
-        p -= 1;
-        memcpy(p, &bin_ascii[0], sizeof(uint8_t));
-    }
-
-    // groups of 8bits
-    while (m > 0 || (i & 7))
-    {
-        p -= 1;
-        memcpy(p, &bin_ascii[m & 0x1], sizeof(uint8_t));
-        m >>= 1;
-        i++;
-    }
-
-    return p;
-}
 
 static uint16_t const hex_ascii[16] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66 };
 
@@ -232,7 +209,10 @@ char *_utoh(char *buf, const uint32_t val)
     return p;
 }
 
+#ifdef USE_ITOA_LUT
+
 static uint16_t const dec_ascii[10] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 };
+static uint16_t const bin_ascii[2] = { 0x30, 0x31 };
 
 char *_uint32toa(char *buf, const uint32_t val)
 {
@@ -255,6 +235,88 @@ char *_uint32toa(char *buf, const uint32_t val)
 
     return p;
 }
+
+char *_utob(char *buf, const uint16_t val)
+{
+    char *p = &buf[18];
+    uint16_t m = val;
+    uint8_t i = 0;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        memcpy(p, &bin_ascii[0], sizeof(uint8_t));
+    }
+
+    // groups of 8bits
+    while (m > 0 || (i & 7))
+    {
+        if (m > 0 && !(i & 7)) {
+            p -= 1;
+            *p = ' ';
+        }
+        p -= 1;
+        memcpy(p, &bin_ascii[m & 0x1], sizeof(uint8_t));
+        m >>= 1;
+        i++;
+    }
+
+    return p;
+}
+#else
+
+char *_uint32toa(char *buf, const uint32_t val)
+{
+    char *p = &buf[11];
+    uint32_t m = val;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        *p = '0';
+    }
+
+    while (m > 0) {
+        p -= 1;
+        *p = (m % 10) + '0';
+        m /= 10;
+    }
+
+    return p;
+}
+
+char *_utob(char *buf, const uint16_t val)
+{
+    char *p = &buf[18];
+    uint16_t m = val;
+    uint8_t i = 0;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        *p = '0';
+    }
+
+    // groups of 8bits
+    while (m > 0 || (i & 7))
+    {
+        if (m > 0 && !(i & 7)) {
+            p -= 1;
+            *p = ' ';
+        }
+        p -= 1;
+        *p = (m & 0x1) + '0' ;
+        m >>= 1;
+        i++;
+    }
+
+    return p;
+}
+
+#endif
 
 char *_utoa(char *buf, const uint32_t val)
 {

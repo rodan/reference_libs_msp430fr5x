@@ -79,8 +79,8 @@ int main(void)
 //#define TEST_UART0_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
-#define TEST_UTOH
-//#define TEST_UTOB
+//#define TEST_UTOH
+#define TEST_UTOB
 
 #ifdef TEST_UART0_TX_STR
     uart0_tx_str("h1llo world\r\n",13);
@@ -122,8 +122,6 @@ int main(void)
 //>> Building main.elf as target RELEASE
 //   text    data     bss     dec     hex filename
 //   2627     212     106    2945     b81 main.elf
-//with BIG_ITOA_TABLE
-//   2835     212     106    3153     c51 main.elf
 #endif
 
 #ifdef TEST_SNPRINTF
