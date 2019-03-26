@@ -154,15 +154,15 @@ int main(void)
 
 #ifdef TEST_UTOB
     uart0_print(_utob(&buf[0], 0));
-    uart0_print((char *)"\r\n");
+    uart0_print("\r\n");
     uart0_print(_utob(&buf[0], 0xffff));
-    uart0_print((char *)"\r\n");
+    uart0_print("\r\n");
     uart0_print(_utob(&buf[0], 0xe));
-    uart0_print((char *)"\r\n");
+    uart0_print("\r\n");
     uart0_print(_utob(&buf[0], 0x010a));
-    uart0_print((char *)"\r\n");
+    uart0_print("\r\n");
     uart0_print(_utob(&buf[0], 0xefef));
-    uart0_print((char *)"\r\n");
+    uart0_print("\r\n");
 #endif
 
     while (1) {
@@ -172,7 +172,7 @@ int main(void)
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        //led_switch;
+        led_switch;
         check_events();
     }
 }

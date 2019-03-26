@@ -21,19 +21,61 @@ void uart0_init(void)
     UCA0CTLW0 = UCSWRST;        // put eUSCI state machine in reset
 
     // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
+    // for some reason any baud >= 115200 ends up with a non-working RX channel
 
-#ifdef UART0_SPEED_115200_1M
+#ifdef UART0_SPEED_9600_1M
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 6;
+    UCA0MCTLW = 0x2081;
+#elif defined (UART0_SPEED_19200_1M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 3;
+    UCA0MCTLW = 0x0241;
+#elif defined (UART0_SPEED_38400_1M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 1;
+    UCA0MCTLW = 0x00a1;
+#elif defined (UART0_SPEED_57600_1M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 17;
+    UCA0MCTLW = 0x4a00;
+#elif defined (UART0_SPEED_115200_1M)
     UCA0CTLW0 |= UCSSEL__SMCLK;
     UCA0BRW = 8;
     UCA0MCTLW = 0xd600;
+#elif defined (UART0_SPEED_9600_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 52;
+    UCA0MCTLW = 0x4911;
+#elif defined (UART0_SPEED_19200_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 26;
+    UCA0MCTLW = 0xb601;
+#elif defined (UART0_SPEED_38400_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 13;
+    UCA0MCTLW = 0x8401;
+#elif defined (UART0_SPEED_57600_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 8;
+    UCA0MCTLW = 0xf7a1;
 #elif defined (UART0_SPEED_115200_8M)
     UCA0CTLW0 |= UCSSEL__SMCLK;
     UCA0BRW = 4;
     UCA0MCTLW = 0x5551;
+#elif defined (UART0_SPEED_230400_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 2;
+    UCA0MCTLW = 0xbb21;
+#elif defined (UART0_SPEED_460800_8M)
+    UCA0CTLW0 |= UCSSEL__SMCLK;
+    UCA0BRW = 17;
+    UCA0MCTLW = 0x4a00;
 #else // a safer default of 9600 - does not depend on SMCLK
     UCA0CTLW0 |= UCSSEL__ACLK;
     UCA0BRW = 3;
-    UCA0MCTLW |= 0x5300;
+    //UCA0MCTLW |= 0x5300;
+    UCA0MCTLW |= 0x9200;
 #endif
 
     UCA0CTLW0 &= ~UCSWRST;      // Initialize eUSCI
@@ -76,7 +118,7 @@ char *uart0_get_rx_buf(void)
     }
 }
 
-uint16_t uart0_tx_str(char *str, const uint16_t size)
+uint16_t uart0_tx_str(const char *str, const uint16_t size)
 {
     uint16_t p = 0;
     while (p < size) {
@@ -88,7 +130,7 @@ uint16_t uart0_tx_str(char *str, const uint16_t size)
     return p;
 }
 
-uint16_t uart0_print(char *str)
+uint16_t uart0_print(const char *str)
 {
     size_t p = 0;
     size_t size = strlen(str);

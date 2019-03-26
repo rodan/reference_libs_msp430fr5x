@@ -34,6 +34,10 @@
 #ifndef __HSC_SSC_H_
 #define __HSC_SSC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 
 struct HSC_SSC_pkt {
@@ -49,5 +53,9 @@ uint8_t HSC_SSC_convert(const struct HSC_SSC_pkt hsc_pkt, uint32_t * pressure,
                    int16_t * temperature, const uint16_t output_min,
                    const uint16_t output_max, const float pressure_min,
                    const float pressure_max);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

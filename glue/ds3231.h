@@ -1,6 +1,10 @@
 #ifndef __DS3231_H_
 #define __DS3231_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // i2c slave address of the DS3231 chip
 #define DS3231_I2C_ADDR             0x68
 
@@ -96,5 +100,9 @@ uint32_t get_unixtime(struct ts t);
 uint8_t dectobcd(const uint8_t val);
 uint8_t bcdtodec(const uint8_t val);
 uint8_t inp2toi(char *cmd, const uint16_t seek);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

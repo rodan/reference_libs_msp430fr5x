@@ -21,7 +21,10 @@ void main_init(void)
     // Set DCO Frequency to 8MHz
     CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
 
-    // configure MCLK, SMCLK to be source by DCOCLK
+    // Set DCO Frequency to 1MHz
+    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
+
+    // configure MCLK, SMCLK to be sourced by DCOCLK
     CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
@@ -33,7 +36,7 @@ void main_init(void)
 
 static void uart0_rx_irq(uint16_t msg)
 {
-    //parse_user_input();
+    parse_user_input();
     uart0_set_eol();
 }
 
@@ -73,13 +76,13 @@ int main(void)
 
     led_off;
 
-//    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
 //#define TEST_UART0_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
-#define TEST_UTOH
+//#define TEST_UTOH
 //#define TEST_UTOB
 
 #ifdef TEST_UART0_TX_STR
@@ -165,6 +168,8 @@ int main(void)
     uart0_print(_utob(&buf[0], 0xefef));
     uart0_print("\r\n");
 #endif
+
+    display_menu();
 
     led_on;
 

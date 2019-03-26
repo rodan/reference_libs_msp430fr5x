@@ -1,6 +1,10 @@
 #ifndef __SENSIRION_H__
 #define __SENSIRION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // coefficients for 12bit rh, 14bit temperature, 3.3V Vdd
@@ -17,5 +21,9 @@ uint8_t SHT1X_get_meas(int16_t * temp, uint16_t * rh);
 
 // reset connection on the pseudo i2c protocol
 void SHT1X_i2csens_reset(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

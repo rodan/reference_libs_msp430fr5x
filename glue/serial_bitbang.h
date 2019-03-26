@@ -1,6 +1,10 @@
 #ifndef __SERIAL_BITBANG_
 #define __SERIAL_BITBANG_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "i2c.h"
 #include "i2c_config.h"
 
@@ -30,5 +34,9 @@
 #define delay_c     { _NOP(); _NOP(); _NOP(); }
 
 uint8_t i2cm_transfer(const i2c_package_t * pkg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

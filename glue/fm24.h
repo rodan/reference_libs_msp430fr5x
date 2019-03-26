@@ -34,6 +34,10 @@
 #ifndef __FM24_H__
 #define __FM24_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include "config.h"
 
@@ -120,5 +124,9 @@ struct mem_mgmt_t {
 struct mem_mgmt_t m;
 
 uint32_t FM24_data_len(const uint32_t first, const uint32_t last);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

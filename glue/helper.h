@@ -1,6 +1,10 @@
 #ifndef __HELPER_H__
 #define __HELPER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PREC 5
 
 #define PI           3.14159265358f
@@ -49,5 +53,9 @@ uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
                       const uint8_t len, const uint16_t min, const uint16_t max);
 uint8_t str_to_floaty_uint16(char *str, uint16_t * out, const uint8_t seek,
                       const uint8_t len, const uint8_t precision, const uint16_t min, const uint16_t max);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
