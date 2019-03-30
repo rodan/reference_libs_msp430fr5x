@@ -1,4 +1,10 @@
 
+/*
+    program that tests the functionality of the EUSCI A0 UART 
+
+    tweak the baud rate in config.h
+*/
+
 #include <msp430.h>
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +68,7 @@ void check_events(void)
 
 int main(void)
 {
-    char buf[64];
+    char buf[18];
 
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
@@ -79,7 +85,7 @@ int main(void)
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
-//#define TEST_UART0_PRINT
+#define TEST_UART0_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
