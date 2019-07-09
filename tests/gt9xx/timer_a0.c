@@ -8,8 +8,6 @@
 //   license:         BSD
 
 #include "timer_a0.h"
-#include "ir_acquire.h"
-#include "ir_send.h"
 
 volatile uint8_t timer_a0_last_event;
 volatile uint16_t timer_a0_ovf;
@@ -27,7 +25,7 @@ void timer_a0_init(void)
 
     __disable_interrupt();
     timer_a0_ovf = 0;
-    TA0CTL = TASSEL__SMCLK + MC__CONTINOUS + TACLR + ID__8 + TAIE; // divide SMCLK by 8
+    TA0CTL = TASSEL__SMCLK + MC__CONTINOUS + TACLR + ID__8; // divide SMCLK by 8
     TA0EX0 = TAIDEX_3; // further divide SMCLK by 4
     __enable_interrupt();
 }
@@ -65,26 +63,23 @@ void timer0_A1_ISR(void)
     if (iv == TAIV__TACCR1) {
         // timer used by timer_a0_delay_noblk_ccr1()
         // disable interrupt
+        sig2_off;
         TA0CCTL1 &= ~CCIE;
         TA0CCTL1 = 0;
-        ir_acquire_sm();
-        //timer_a0_last_event |= TIMER_A0_EVENT_CCR1;
-        //_BIC_SR_IRQ(LPM3_bits);
+        timer_a0_last_event |= TIMER_A0_EVENT_CCR1;
+        _BIC_SR_IRQ(LPM3_bits);
+        sig2_on;
     } else if (iv == TAIV__TACCR2) {
         // timer used by timer_a0_delay_noblk_ccr2()
         // disable interrupt
         TA0CCTL2 &= ~CCIE;
         TA0CCTL2 = 0;
-        if (ir_send_sm_get_state()) {
-            ir_send_sm();
-        } else if (ir_acquire_sm_get_state()) {
-            timer_a0_last_event |= TIMER_A0_EVENT_CCR2;
-            _BIC_SR_IRQ(LPM3_bits);
-        }
+        timer_a0_last_event |= TIMER_A0_EVENT_CCR2;
+        _BIC_SR_IRQ(LPM3_bits);
     } else if (iv == TA0IV_TA0IFG) {
         TA0CTL &= ~TAIFG;
         timer_a0_ovf++;
-        timer_a0_last_event |= TIMER_A0_EVENT_IFG;
+        //timer_a0_last_event |= TIMER_A0_EVENT_IFG;
         _BIC_SR_IRQ(LPM3_bits);
     }
 }

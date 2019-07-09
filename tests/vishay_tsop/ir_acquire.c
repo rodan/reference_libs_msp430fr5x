@@ -16,7 +16,7 @@ volatile uint16_t ir_acquire_sm_edge_cntr;      // a counter for the number of e
 volatile uint16_t ir_acquire_sm_state;          // current state machine state
 volatile uint8_t ir_acquire_last_level;         // if the last level was LOW or HIGH
 
-int ir_acquire_get_aquisition(uint16_t **data, uint16_t *size)
+int ir_acquire_get_acquisition(uint16_t **data, uint16_t *size)
 {
     *data = (uint16_t *) ir_acquire_deltas;
     *size = ir_acquire_sm_edge_cntr;
@@ -27,6 +27,11 @@ int ir_acquire_get_aquisition(uint16_t **data, uint16_t *size)
 void ir_acquire_sm_set_state(const uint16_t state)
 {
     ir_acquire_sm_state = state;
+}
+
+uint16_t ir_acquire_sm_get_state(void)
+{
+    return ir_acquire_sm_state;
 }
 
 void ir_acquire_start()
@@ -65,8 +70,8 @@ void ir_acquire_sm(void)
             IR_IE &= ~IR_TRIG;
             ir_acquire_sm_edge_cntr = 0;
             
-            // mark the end of the aquiring function
-            timer_a0_delay_noblk_ccr2(_90ms);
+            // mark the end of the acquiring function
+            timer_a0_delay_noblk_ccr2(IR_ACQUIRE_MAX_INTERVAL);
 
             ir_acquire_last_level = IR_IN & IR_TRIG;
             ir_acquire_sm_state = IR_ACQUIRE_SM_ONGOING;
@@ -88,7 +93,7 @@ void ir_acquire_sm(void)
                 }
             }
             // come back via the timer IRQ
-            timer_a0_delay_noblk_ccr1(10);
+            timer_a0_delay_noblk_ccr1(2);
             sig3_off;
             break;
         case IR_ACQUIRE_SM_STOP:

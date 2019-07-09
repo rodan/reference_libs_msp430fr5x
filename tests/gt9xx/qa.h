@@ -11,6 +11,8 @@ void display_memtest(const uint32_t start_addr, const uint32_t stop_addr, fm24_t
 void display_menu(void);
 
 void parse_user_input(void);
-void qa_acquisition_end(void);
+void parse_sensor_output(void);
+
+void qa_task(void);
 
 #endif

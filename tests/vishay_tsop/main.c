@@ -16,6 +16,8 @@
 #include "timer_a0.h"
 #include "ir_acquire.h"
 
+
+
 void main_init(void)
 {
     // port init
@@ -49,28 +51,9 @@ static void uart0_rx_irq(uint16_t msg)
     uart0_set_eol();
 }
 
-static void aquisition_end(uint16_t msg)
+static void acquisition_end(uint16_t msg)
 {
-    uint16_t *data;
-    uint16_t size;
-    char itoa_buf[18];
-    uint16_t i;
-
-    // signal the state machine that the aquiring time has elapsed
-    ir_acquire_sm_set_state(IR_ACQUIRE_SM_STOP);
-    ir_acquire_sm();
-
-    ir_acquire_get_aquisition(&data, &size);
-    uart0_print("got ");
-    uart0_print(_utoa(itoa_buf, size));
-    uart0_print(" edges\r\n");
-
-    for (i=0; i<size; i++) {
-        uart0_print(_utoa(itoa_buf, data[i]));
-        uart0_print("\r\n");
-    }
-
-    // save acquired command to the ir_tome
+    qa_acquisition_end();
 }
 
 void check_events(void)
@@ -115,7 +98,7 @@ int main(void)
     sig2_off;
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
-    sys_messagebus_register(&aquisition_end, SYS_MSG_TIMER0_CRR2);
+    sys_messagebus_register(&acquisition_end, SYS_MSG_TIMER0_CRR2);
 
     display_menu();
 

@@ -18,4 +18,6 @@
 
 //#define CONFIG_DEBUG
 
+#define UART0_SPEED_57600_8M
+
 #endif

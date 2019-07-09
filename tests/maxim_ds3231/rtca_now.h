@@ -3,10 +3,10 @@
 #define __RTCA_NOW_H__
 
 #define COMPILE_YEAR 2019
-#define COMPILE_MON 2
-#define COMPILE_DAY 6
-#define COMPILE_DOW 3
-#define COMPILE_HOUR 6
-#define COMPILE_MIN 50
+#define COMPILE_MON 7
+#define COMPILE_DAY 9
+#define COMPILE_DOW 2
+#define COMPILE_HOUR 8
+#define COMPILE_MIN 9
 
 #endif
