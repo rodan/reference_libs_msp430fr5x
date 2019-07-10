@@ -39,19 +39,39 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
+#include "proj.h"
+
+#define  GT9XX_EV_NULL 0
+#define   GT9XX_EV_IRQ 0x1
 
 #define assert_rst          P5OUT &= ~BIT2
 #define deassert_rst        P5OUT |= BIT2
 
+#define set_irq_output      P6DIR |= GT9XX_IRQ
+#define set_irq_input       P6DIR &= ~GT9XX_IRQ
+
+#define set_irq_low         P6OUT &= ~GT9XX_IRQ
+#define set_irq_high        P6OUT |= GT9XX_IRQ
+
+#define set_rst_output      P5DIR |= GT9XX_RST
+#define set_rst_input       P5DIR &= ~GT9XX_RST
+
+#define set_rst_low         P5OUT &= ~GT9XX_RST
+#define set_rst_high        P5OUT |= GT9XX_RST
+
+#define set_rst_input       P5DIR &= ~GT9XX_RST
+#define set_rst_output      P5DIR |= GT9XX_RST
+
+
+/*
 #define GOODIX_MAX_HEIGHT   4096
 #define GOODIX_MAX_WIDTH    4096
 #define GOODIX_INT_TRIGGER    1
-#define GOODIX_CONTACT_SIZE   8
-#define GOODIX_MAX_CONTACTS   10
 
 #define GOODIX_CONFIG_MAX_LENGTH  240
 #define GOODIX_CONFIG_911_LENGTH  186
 #define GOODIX_CONFIG_967_LENGTH  228
+*/
 
 /* Register defines */
 #define GT_REG_CMD  0x8040
@@ -131,6 +151,8 @@ struct GTInfo {
   uint8_t vendorId;
 } __attribute__((packed));
 
+#define GT9XX_COORD_MAX_COUNT  10
+#define GT9XX_POINT_STRUCT_SZ  8
 struct GTPoint {
   // 0x814F-0x8156, ... 0x8176 (5 points) 
   uint8_t trackId;
@@ -245,6 +267,11 @@ int16_t GT9XX_read_state(const uint16_t usci_base_addr, const uint8_t slave_addr
 uint8_t GT9XX_write(const uint16_t usci_base_addr, const uint8_t slave_addr, const uint16_t reg, uint8_t *buf, const size_t buf_len);
 
 uint8_t GT9XX_clear_irq(const uint16_t usci_base_addr, const uint8_t slave_addr);
+void GT9XX_disable_irq(void);
+void GT9XX_enable_irq(void);
+
+void gt9xx_rst_event(void);
+uint8_t gt9xx_get_event(void);
 
 #ifdef __cplusplus
 }

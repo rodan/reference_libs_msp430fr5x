@@ -26,7 +26,6 @@ void parse_user_input(void)
 
     char *input = uart0_get_rx_buf();
     char f = input[0];
-    uint8_t data[100];
 
     if (f == '?') {
         display_menu();
@@ -38,8 +37,8 @@ void parse_user_input(void)
         GT9XX_init(EUSCI_BASE_ADDR, GT9XX_SA);
     } else if (f == 's') {
         uart0_print("read state\r\n");
-        GT9XX_read_state(EUSCI_BASE_ADDR, GT9XX_SA, data);
-        GT9XX_clear_irq(EUSCI_BASE_ADDR, GT9XX_SA);
+        //GT9XX_read_state(EUSCI_BASE_ADDR, GT9XX_SA, data);
+        //GT9XX_clear_irq(EUSCI_BASE_ADDR, GT9XX_SA);
     } else if (f == '!') {
         uart0_print("stats\r\n sm_count  ");
         uart0_print(_utoh(&itoa_buf[0], timer_a0_get_event()));

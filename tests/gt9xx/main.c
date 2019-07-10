@@ -18,7 +18,7 @@
 
 #include "gt9xx.h"
 
-volatile uint8_t gt9xx_last_event;
+uint8_t coord_buff[100];
 
 void main_init(void)
 {
@@ -72,11 +72,9 @@ void main_init(void)
 //    P5IE |= BIT6;    // enable irq
 
     P6DIR &= ~GT9XX_IRQ;  // set as input
-    //P6OUT |= GT9XX_IRQ;   // pull-up resistor
-    //P6REN |= GT9XX_IRQ;   // select pull-up mode
+    P6REN &= ~GT9XX_IRQ;  // disable pullup/pulldown
     P6IES |= GT9XX_IRQ;   // IRQ triggers on falling edge
     P6IFG &= ~GT9XX_IRQ;  // reset IRQ flags
-    //P6IE |= GT9XX_IRQ;    // enable irq
 
 #ifdef HARDWARE_I2C
     P7SEL0 |= (BIT0 | BIT1);
@@ -108,7 +106,7 @@ void main_init(void)
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
     param.i2cClk = CS_getSMCLK();
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_100KBPS;
+    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
     param.byteCounterThreshold = 0;
     param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
     EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
@@ -127,14 +125,6 @@ static void uart0_rx_irq(uint16_t msg)
 
 uint8_t data[100];
 
-static void gt9xx_irq(uint16_t msg)
-{
-    sig1_switch;
-    //GT9XX_read_state(EUSCI_BASE_ADDR, GT9XX_SA, data);
-    //GT9XX_clear_irq(EUSCI_BASE_ADDR, GT9XX_SA);
-    //GT9XX_get_info(EUSCI_BASE_ADDR, GT9XX_SA);
-}
-
 void check_events(void)
 {
     struct sys_messagebus *p = sys_messagebus_getp();
@@ -142,9 +132,9 @@ void check_events(void)
     uint16_t ev;
 
     // gt9xx irq
-    if (gt9xx_last_event) {
+    if (gt9xx_get_event() == GT9XX_EV_IRQ) {
         msg |= SYS_MSG_GT9XX_IRQ;
-        gt9xx_last_event = 0;
+        gt9xx_rst_event();
     }
 
     // uart RX
@@ -199,18 +189,21 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    timer_a1_delay_ccr2(2500); // wait 10 ms
-    //GT9XX_init(EUSCI_BASE_ADDR, GT9XX_SA);
-    P5OUT |= BIT2;
-    timer_a1_delay_ccr2(2500); // wait 10 ms
+    sig3_on;
+    GT9XX_init(EUSCI_BASE_ADDR, GT9XX_SA);
+    sig3_off;
+
+    //timer_a1_delay_ccr2(_10ms); // wait 10 ms
+    //P5OUT |= BIT2;
+    //timer_a1_delay_ccr2(_10ms); // wait 10 ms
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
-    sys_messagebus_register(&gt9xx_irq, SYS_MSG_GT9XX_IRQ);
 
     display_menu();
 
-    P5IE |= BIT6;
-    P6IE |= GT9XX_IRQ;    // enable irq
+    //P5IE |= BIT6;
+    GT9XX_enable_irq();
+    //P6IE |= GT9XX_IRQ;    // enable irq
 
     sig1_off;
     sig2_on;
@@ -232,6 +225,7 @@ int main(void)
     }
 }
 
+/*
 // Port 5 interrupt service routine
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=PORT5_VECTOR
@@ -249,21 +243,4 @@ void Port5_ISR(void)
         LPM3_EXIT;
     }
 }
-
-// Port 6 interrupt service routine
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector=PORT6_VECTOR
-__interrupt void Port_6(void)
-#elif defined(__GNUC__)
-__attribute__ ((interrupt(PORT6_VECTOR)))
-void Port6_ISR(void)
-#else
-#error Compiler not supported!
-#endif
-{
-    if (P6IFG & GT9XX_IRQ) {
-        gt9xx_last_event = 1;
-        P6IFG &= ~GT9XX_IRQ;
-        LPM3_EXIT;
-    }
-}
+*/
