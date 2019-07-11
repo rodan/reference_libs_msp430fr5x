@@ -108,20 +108,6 @@ void main_init(void)
     CS_turnOnLFXT(CS_LFXT_DRIVE_3);
 #endif
 
-#ifdef HARDWARE_I2C 
-    EUSCI_B_I2C_initMasterParam param = {0};
-
-    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = CS_getSMCLK();
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
-    param.byteCounterThreshold = 0;
-    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
-    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
-
-    #ifdef IRQ_I2C
-        i2c_irq_init(EUSCI_BASE_ADDR);
-    #endif
-#endif
 }
 
 static void uart0_rx_irq(uint16_t msg)
@@ -181,6 +167,25 @@ void check_events(void)
     }
 }
 
+void touch_HL_handler(struct GT9XX_coord_t *coord)
+{
+    uint8_t i;
+    char itoa_buf[18];
+   
+    for (i = 0; i < coord->count; i++) {
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].trackId));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].x));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].y));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].area));
+        uart0_print("   ");
+    }
+    uart0_print("\r\n");
+}
+
 int main(void)
 {
     int16_t rv;
@@ -199,11 +204,27 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
+#ifdef HARDWARE_I2C 
+    EUSCI_B_I2C_initMasterParam param = {0};
+
+    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
+    param.i2cClk = CS_getSMCLK();
+    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
+    param.byteCounterThreshold = 0;
+    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
+    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
+
+    #ifdef IRQ_I2C
+        i2c_irq_init(EUSCI_BASE_ADDR);
+    #endif
+#endif
+
     sig3_on;
     ts.usci_base_addr = EUSCI_BASE_ADDR;
     ts.slave_addr = GT9XX_SA;
 
     rv = GT9XX_init(&ts);
+    GT9XX_set_HLHandler(touch_HL_handler);
     sig3_off;
 
     uart0_print("GT9XX_init ret: ");

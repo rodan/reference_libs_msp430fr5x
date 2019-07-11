@@ -75,15 +75,7 @@ extern "C" {
         uint8_t *data;
     };
 
-    struct goodix_ts_data {
-        uint16_t usci_base_addr;
-        uint8_t slave_addr;
-        uint16_t id;
-        struct firmware conf;
-    };
-
-
-    struct GTPoint {
+    struct GT9XX_point_t {
         // 0x814F-0x8156, ... 0x8176 (5 points) 
         uint8_t trackId;
         uint16_t x;
@@ -91,6 +83,21 @@ extern "C" {
         uint16_t area;
         uint8_t reserved;
     } __attribute__ ((packed));
+
+    struct GT9XX_coord_t {
+        uint8_t count;
+        struct GT9XX_point_t point[GT9XX_COORD_MAX_COUNT-1];
+    };
+
+    struct goodix_ts_data {
+        uint16_t usci_base_addr;
+        uint8_t slave_addr;
+        uint16_t id;
+        struct GT9XX_coord_t coord;
+        struct firmware conf;
+    };
+
+
 
     uint8_t GT9XX_init(struct goodix_ts_data *t);
 
@@ -117,6 +124,10 @@ extern "C" {
 			const struct firmware *cfg);
     
     uint8_t GT9XX_calc_checksum(uint8_t* buf, uint16_t len);
+
+    // callback function
+    void (*GT9XX_HLHandler)(struct GT9XX_coord_t*);
+    void GT9XX_set_HLHandler(void (*handler)(struct GT9XX_coord_t*));
 
     uint16_t _strtou16(char *buf);
 

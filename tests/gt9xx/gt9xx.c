@@ -31,7 +31,6 @@
 #include "serial_bitbang.h"
 #endif
 
-#include "uart0.h"
 #include "helper.h"
 #include "timer_a1.h"
 #include "sys_messagebus.h"
@@ -168,7 +167,6 @@ uint8_t GT9XX_calc_checksum(uint8_t * buf, uint16_t len)
 uint8_t GT9XX_init(struct goodix_ts_data * t)
 {
     uint8_t rv = 0;
-    char itoa_buf[18];
 
     // stay a while and listen
     timer_a1_delay_ccr2(_200ms);
@@ -204,7 +202,6 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
     timer_a1_delay_ccr2(51 * _1ms);
     set_irq_input;
 
-    //timer_a1_delay_ccr2(51*_1ms);
     timer_a1_delay_ccr2(_200ms);
 
     // send configuration
@@ -216,10 +213,6 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
     if (rv) {
         return rv;
     }
-
-    uart0_print("chip id ");
-    uart0_print(_utoh(&itoa_buf[0], t->id));
-    uart0_print("\r\n");
 
     rv = GT9XX_check_chipid(t->id);
     if (rv) {
@@ -271,7 +264,6 @@ uint8_t GT9XX_read_version(struct goodix_ts_data * t)
 {
     uint8_t rv = EXIT_FAILURE;
     char buf[11];
-    //struct GTInfo *gt_info;
 
     rv = GT9XX_read(t, GT9XX_rDATA, (uint8_t *) buf, sizeof(buf));
     if (rv) {
@@ -331,62 +323,41 @@ void GT9XX_free_config(struct goodix_ts_data *t)
     }
 }
 
+// returns either a positive number with the number of contacts or a negative number if an error occured
 int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
 {
     uint8_t rv = 0;
-    uint8_t coord_cnt;
-    char itoa_buf[18];
+    uint8_t ret;
     uint8_t reply[1];
-    uint8_t i;
-    struct GTPoint *coord;
-
-    coord = (struct GTPoint *)gt9xx_coord_buff;
+    uint8_t should_callback = 0;
 
     rv = GT9XX_read(t, GT9XX_rCOORD_ADDR, reply, 1);
-
     if (rv) {
-        // i2c error
         return -rv;
     }
 
     if (!(reply[0] & 0x80)) {
         // no coordinates available
-        return -100;
+        return -1;
     }
+    ret = reply[0] & 0x0f;
 
-    coord_cnt = reply[0] & 0x0f;
-
-    if (coord_cnt > 0 && coord_cnt <= GT9XX_COORD_MAX_COUNT) {
-        uart0_print("c");
-        uart0_print(_utoa(itoa_buf, coord_cnt));
-        uart0_print("\r\n");
-
-        rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, gt9xx_coord_buff,
-                        GT9XX_POINT_STRUCT_SZ * (coord_cnt));
-
-        for (i = 0; i < coord_cnt; i++) {
-            uart0_print(" ");
-            uart0_print(_utoa(itoa_buf, coord[i].trackId));
-            uart0_print(" ");
-            uart0_print(_utoa(itoa_buf, coord[i].x));
-            uart0_print(" ");
-            uart0_print(_utoa(itoa_buf, coord[i].y));
-            uart0_print(" ");
-            uart0_print(_utoa(itoa_buf, coord[i].area));
-            uart0_print("\r\n");
-        }
-
-        //if (rv) {
-        //    return -rv;
-        //}
-        uart0_print("\r\n");
-    } else {
-        uart0_print(".");
+    if (ret > 0 && ret <= GT9XX_COORD_MAX_COUNT) {
+        rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, (uint8_t *) &t->coord.point,
+                        GT9XX_POINT_STRUCT_SZ * (ret));
+        t->coord.count = ret;
+        should_callback = 1;
     }
-
+    // zero out GT9XX_rCOORD_ADDR
     GT9XX_clear_irq(t);
 
-    return coord_cnt;
+    if (should_callback) {
+        if (GT9XX_HLHandler != NULL) {
+            GT9XX_HLHandler(&t->coord);
+        }
+    }
+
+    return ret;
 }
 
 void GT9XX_disable_irq(void)
@@ -424,6 +395,10 @@ uint16_t _strtou16(char *buf)
         val = val * 10 + c;
     }
     return val;
+}
+
+void GT9XX_set_HLHandler(void (*handler)(struct GT9XX_coord_t*)) {
+    GT9XX_HLHandler = handler;
 }
 
 // Port 6 interrupt service routine
