@@ -41,19 +41,27 @@ void parse_user_input(void)
         uart0_print("\r\n");
     } else if (strstr (input, "rrtc")) {
         uart0_print("read real-time command register\r\n");
-        GT9XX_read(&ts, GT9XX_rCOMMAND, temp_buff, 1);
+        GT9XX_read(&ts, GT9XX_rCMD, temp_buff, 1);
         uart0_print(_utoh(&itoa_buf[0], temp_buff[0]));
         uart0_print("\r\n");
-    } else if (strstr (input, "wrtc")) {
-        temp_buff[0] = 0xAA; // ESD protection
-        uart0_print("write real-time command register\r\n");
-        GT9XX_write(&ts, GT9XX_rCOMMAND, temp_buff, 1);
-        uart0_print("write touch number 3\r\n");
-        temp_buff[0] = 0x3; // max number of contacts
-        GT9XX_write(&ts, GT9XX_rMAX_TOUCH, temp_buff, 1);
-        //uart0_print("config updated\r\n");
-        //temp_buff[0] = GT9XX_wCONFIG_UPDATED; // trigger char
-        //GT9XX_write(EUSCI_BASE_ADDR, GT9XX_SA, GT9XX_rCONFIG_UPDATED, temp_buff, 1);
+    } else if (strstr (input, "rconf")) {
+        uart0_print("read 0x8047-0x8100\r\n");
+
+        rv = GT9XX_read_config(&ts);
+        if (rv) {
+            uart0_print("[!!] read conf\r\n");
+            return;
+        }
+        uart0_print("[ok] read conf\r\n");
+
+        ts.conf.data[rOFF_FRESH_CONFIG] = 1;
+        rv = GT9xx_check_cfg_8(&ts, &ts.conf);
+        if (rv) {
+            uart0_print("[!!] check conf\r\n");
+            return;
+        }
+        uart0_print("[ok] check conf\r\n");
+        uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_MAX_CONTACTS]));
     } else if (strstr (input, "tconf")) {
         uart0_print("read/write 0x8047-0x8100\r\n");
 
@@ -74,7 +82,7 @@ void parse_user_input(void)
 
         uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_MAX_CONTACTS]));
         ts.conf.data[rOFF_MAX_CONTACTS] = 2;
-        ts.conf.data[rOFF_CHECKSUM] = GT9XX_calc_checksum(ts.conf.data, GT9XX_CONFIG_911_LENGTH - 2);
+        ts.conf.data[rOFF_CHECKSUM] = GT9XX_calc_checksum(ts.conf.data, GT9XX_CONFIG_911_SZ - 2);
         ts.conf.data[rOFF_FRESH_CONFIG] = 1;
         uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_CHECKSUM]));
         rv = GT9xx_check_cfg_8(&ts, &ts.conf);

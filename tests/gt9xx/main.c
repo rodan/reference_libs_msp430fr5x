@@ -66,12 +66,14 @@ void main_init(void)
     // port init
     P1DIR |= BIT0 + BIT3 + BIT4 + BIT5;
 
+/*
     P5DIR &= ~BIT6;  // set as input
     P5OUT |= BIT6;   // pull-up resistor
     P5REN |= BIT6;   // select pull-up mode
     P5IES |= BIT6;   // IRQ triggers on falling edge
     P5IFG &= ~BIT6;  // reset IRQ flags
 //    P5IE |= BIT6;    // enable irq
+*/
 
     P6DIR &= ~GT9XX_IRQ;  // set as input
     P6REN &= ~GT9XX_IRQ;  // disable pullup/pulldown

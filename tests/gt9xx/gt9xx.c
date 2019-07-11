@@ -40,7 +40,7 @@
 //#define READ_CONFIG_DURING_INIT
 
 // factory config
-    uint8_t gt9xx_conf[GT9XX_CONFIG_911_LENGTH] =
+    uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
         { 0x41, 0x20, 0x03, 0xe0, 0x01, 0x05, 0x3d, 0x0, 0x01, 0x08,
           0x1e, 0x05, 0x50, 0x3c, 0x03, 0x05, 0x0, 0x0, 0x0, 0x0,
           0x0, 0x0, 0x0, 0x1a, 0x1c, 0x1e, 0x14, 0x8c, 0x2e, 0x0e,
@@ -169,6 +169,7 @@ uint8_t GT9XX_calc_checksum(uint8_t* buf, uint16_t len) {
 uint8_t GT9XX_init(struct goodix_ts_data *t)
 {
     uint8_t rv = 0;
+    char itoa_buf[18];
 
     // stay a while and listen
     timer_a1_delay_ccr2(_200ms);
@@ -205,7 +206,8 @@ uint8_t GT9XX_init(struct goodix_ts_data *t)
     timer_a1_delay_ccr2(51*_1ms);
     set_irq_input;  
 
-    timer_a1_delay_ccr2(51*_1ms);
+    //timer_a1_delay_ccr2(51*_1ms);
+    timer_a1_delay_ccr2(_200ms);
 
     // send configuration
 
@@ -216,6 +218,10 @@ uint8_t GT9XX_init(struct goodix_ts_data *t)
     if (rv) {
         return rv;
     }
+
+    uart0_print("chip id ");
+    uart0_print(_utoh(&itoa_buf[0], t->id));
+    uart0_print("\r\n");
 
     rv = GT9XX_check_chipid(t->id);
     if (rv) {
@@ -286,15 +292,15 @@ uint8_t GT9XX_read_config(struct goodix_ts_data *t)
     uint8_t *config_data;
     int16_t rv = EXIT_SUCCESS;
     
-    config_data = (uint8_t *) malloc(sizeof(uint8_t)*GT9XX_CONFIG_911_LENGTH);
+    config_data = (uint8_t *) malloc(sizeof(uint8_t)*GT9XX_CONFIG_911_SZ);
     if (config_data == NULL) {
         return GT9XX_err_malloc;
     }
 
-    t->conf.size = GT9XX_CONFIG_911_LENGTH;
+    t->conf.size = GT9XX_CONFIG_911_SZ;
     t->conf.data = config_data;
 
-    rv = GT9XX_read(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_LENGTH);
+    rv = GT9XX_read(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_SZ);
     if (rv) {
         return GT9XX_err_i2c_read;
     }
@@ -311,10 +317,13 @@ uint8_t GT9XX_write_config(struct goodix_ts_data *t)
         return rv;
     }
 
-    rv = GT9XX_write(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_LENGTH);
+    rv = GT9XX_write(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_SZ);
     if (rv) {
         return GT9XX_err_i2c_write;
     }
+
+    // allow the TS chip to reconfigure itself
+    timer_a1_delay_ccr2(_200ms);
 
     return rv;
 }
