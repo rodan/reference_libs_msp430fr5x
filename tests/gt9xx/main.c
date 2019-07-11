@@ -20,6 +20,8 @@
 
 uint8_t coord_buff[100];
 
+struct goodix_ts_data ts;
+
 void main_init(void)
 {
     P1OUT = 0;
@@ -73,7 +75,10 @@ void main_init(void)
 
     P6DIR &= ~GT9XX_IRQ;  // set as input
     P6REN &= ~GT9XX_IRQ;  // disable pullup/pulldown
+    // falling edge triggering provides valid data every 15ms cycle
     P6IES |= GT9XX_IRQ;   // IRQ triggers on falling edge
+    // rising edge triggering provides valid data every ~30ms
+    //P6IES &= ~GT9XX_IRQ;  // IRQ triggers on rising edge
     P6IFG &= ~GT9XX_IRQ;  // reset IRQ flags
 
 #ifdef HARDWARE_I2C
@@ -176,6 +181,9 @@ void check_events(void)
 
 int main(void)
 {
+    int16_t rv;
+    char itoa_buf[18];
+
     sig1_on;
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
@@ -190,8 +198,15 @@ int main(void)
     PM5CTL0 &= ~LOCKLPM5;
 
     sig3_on;
-    GT9XX_init(EUSCI_BASE_ADDR, GT9XX_SA);
+    ts.usci_base_addr = EUSCI_BASE_ADDR;
+    ts.slave_addr = GT9XX_SA;
+
+    rv = GT9XX_init(&ts);
     sig3_off;
+
+    uart0_print("GT9XX_init ret: ");
+    uart0_print(_utoh(&itoa_buf[0], rv));
+    uart0_print("\r\n");
 
     //timer_a1_delay_ccr2(_10ms); // wait 10 ms
     //P5OUT |= BIT2;
