@@ -26,6 +26,29 @@
 #include "sys_messagebus.h"
 #include "gt9xx.h"
 
+// factory config
+    uint8_t gt9xx_conf[185] =
+        { 0x41, 0x20, 0x03, 0xe0, 0x01, 0x05, 0x3d, 0x0, 0x01, 0x08,
+          0x1e, 0x05, 0x50, 0x3c, 0x03, 0x05, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x1a, 0x1c, 0x1e, 0x14, 0x8c, 0x2e, 0x0e,
+          0x28, 0x2a, 0x5e, 0x05, 0x0, 0x0, 0x01, 0x9b, 0x03, 0x11,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x03, 0x64, 0x32, 0x0, 0x0,
+          0x0, 0x19, 0x41, 0x94, 0xc5, 0x02, 0x07, 0x0, 0x0, 0x04,
+          0xb9, 0x1b, 0x0, 0x99, 0x21, 0x0, 0x7f, 0x28, 0x0, 0x69,
+          0x31, 0x0, 0x59, 0x3b, 0x0, 0x59, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x1c, 0x1a, 0x18, 0x16, 0x14, 0x12, 0x10, 0x0e,
+          0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x2a, 0x29, 0x28, 0x26, 0x24, 0x22, 0x21, 0x20,
+          0x1f, 0x1e, 0x1d, 0x1c, 0x18, 0x16, 0x14, 0x13, 0x12, 0x10,
+          0x0f, 0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+          0x0, 0x0, 0x0, 0x0, 0xef
+    };
+
 uint8_t gt9xx_coord_buff[GT9XX_COORD_MAX_COUNT * GT9XX_POINT_STRUCT_SZ];
 
 volatile uint8_t gt9xx_last_event;
@@ -119,24 +142,23 @@ uint8_t GT9XX_init(const uint16_t usci_base_addr, const uint8_t slave_addr)
     uint8_t rv = 0;
     struct GTInfo gt_info;
 
+    // stay a while and listen
     timer_a1_delay_ccr2(_200ms);
     timer_a1_delay_ccr2(_100ms);
 
     // reset
     
-    // set both control pins as output
-    set_irq_output; // interrupt pin
-    set_rst_output; //P5DIR |= BIT2;      // rst pin
-
-    // set both signals low
+    // set both control pins as output, low level
+    set_irq_output;
     set_irq_low;
+    set_rst_output;
     set_rst_low;
 
     // select the slave address
     // T2 > 10ms
     timer_a1_delay_ccr2(11 * _1ms);
 
-    // HIGH: 0x28/0x29 (0x14 7bit), LOW: 0xBA/0xBB (0x5D 7bit)
+    // HIGH: 0x14, LOW (default): 0x5d
     if (slave_addr == 0x14) {
         set_irq_high;
     }
@@ -155,11 +177,13 @@ uint8_t GT9XX_init(const uint16_t usci_base_addr, const uint8_t slave_addr)
     timer_a1_delay_ccr2(51*_1ms);
     set_irq_input;  
 
-    timer_a1_delay_ccr2(_200ms);
+    timer_a1_delay_ccr2(51*_1ms);
+
+    // send configuration
 
     sys_messagebus_register(&gt9xx_event_handler, SYS_MSG_GT9XX_IRQ);
 
-    rv = GT9XX_read(usci_base_addr, slave_addr, GT_REG_DATA, (uint8_t *) & gt_info,
+    rv = GT9XX_read(usci_base_addr, slave_addr, GT9XX_rDATA, (uint8_t *) & gt_info,
                     sizeof(gt_info));
     return rv;
 }
@@ -169,7 +193,7 @@ uint8_t GT9XX_clear_irq(const uint16_t usci_base_addr, const uint8_t slave_addr)
     uint8_t rv = 0;
     uint8_t data[1] = { 0 };
 
-    rv = GT9XX_write(usci_base_addr, slave_addr, GOODIX_READ_COORD_ADDR, (uint8_t *) data, 1);
+    rv = GT9XX_write(usci_base_addr, slave_addr, GT9XX_rCOORD_ADDR, (uint8_t *) data, 1);
     return rv;
 }
 
@@ -217,7 +241,7 @@ int16_t GT9XX_read_state(const uint16_t usci_base_addr, const uint8_t slave_addr
 
     coord = (struct GTPoint *) gt9xx_coord_buff;
 
-    rv = GT9XX_read(usci_base_addr, slave_addr, GOODIX_READ_COORD_ADDR, reply, 1);
+    rv = GT9XX_read(usci_base_addr, slave_addr, GT9XX_rCOORD_ADDR, reply, 1);
     //uart0_print("reply: ");
     //uart0_print(_utoh(itoa_buf, reply[0]));
     //uart0_print("\n");
@@ -239,7 +263,7 @@ int16_t GT9XX_read_state(const uint16_t usci_base_addr, const uint8_t slave_addr
         uart0_print(_utoa(itoa_buf, coord_cnt));
         uart0_print("\r\n");
 
-        rv = GT9XX_read(usci_base_addr, slave_addr, GOODIX_READ_COORD_ADDR + 1, gt9xx_coord_buff, GT9XX_POINT_STRUCT_SZ * (coord_cnt));
+        rv = GT9XX_read(usci_base_addr, slave_addr, GT9XX_rCOORD_ADDR + 1, gt9xx_coord_buff, GT9XX_POINT_STRUCT_SZ * (coord_cnt));
 
         for (i=0; i<coord_cnt; i++) {
             uart0_print(" ");
