@@ -36,9 +36,9 @@
 #include "sys_messagebus.h"
 #include "gt9xx.h"
 
-//#define READ_CONFIG_DURING_INIT
 
-// factory config
+#ifdef GT9XX_CONF_VER_A
+// default config the touchscreen came with
 uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
     { 0x41, 0x20, 0x03, 0xe0, 0x01, 0x05, 0x3d, 0x0, 0x01, 0x08,
     0x1e, 0x05, 0x50, 0x3c, 0x03, 0x05, 0x0, 0x0, 0x0, 0x0,
@@ -58,8 +58,35 @@ uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
     0x1f, 0x1e, 0x1d, 0x1c, 0x18, 0x16, 0x14, 0x13, 0x12, 0x10,
     0x0f, 0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0xef, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0xef, 0x1,
 };
+#elif defined(GT9XX_CONF_VER_B)
+// Changes:
+// version   = 0x42
+// touch_num = 0x03
+// checksum  = 0xf0
+uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] = 
+    { 0x42, 0x20, 0x03, 0xe0, 0x01, 0x03, 0x3d, 0x0, 0x01, 0x08, 
+    0x1e, 0x05, 0x50, 0x3c, 0x03, 0x05, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x1a, 0x1c, 0x1e, 0x14, 0x8c, 0x2e, 0x0e, 
+    0x28, 0x2a, 0x5e, 0x05, 0x0, 0x0, 0x01, 0x9b, 0x03, 0x11, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x03, 0x64, 0x32, 0x0, 0x0, 
+    0x0, 0x19, 0x41, 0x94, 0xc5, 0x02, 0x07, 0x0, 0x0, 0x04, 
+    0xb9, 0x1b, 0x0, 0x99, 0x21, 0x0, 0x7f, 0x28, 0x0, 0x69, 
+    0x31, 0x0, 0x59, 0x3b, 0x0, 0x59, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x1c, 0x1a, 0x18, 0x16, 0x14, 0x12, 0x10, 0x0e, 
+    0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x2a, 0x29, 0x28, 0x26, 0x24, 0x22, 0x21, 0x20, 
+    0x1f, 0x1e, 0x1d, 0x1c, 0x18, 0x16, 0x14, 0x13, 0x12, 0x10, 
+    0x0f, 0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0xf0, 0x01
+};
+#endif
 
 uint8_t gt9xx_coord_buff[GT9XX_COORD_MAX_COUNT * GT9XX_POINT_STRUCT_SZ];
 
@@ -76,12 +103,12 @@ static void gt9xx_event_handler(uint16_t msg)
     GT9XX_enable_irq();
 }
 
-void gt9xx_rst_event(void)
+void GT9XX_rst_event(void)
 {
     gt9xx_last_event = GT9XX_EV_NULL;
 }
 
-uint8_t gt9xx_get_event(void)
+uint8_t GT9XX_get_event(void)
 {
     return gt9xx_last_event;
 }
@@ -130,13 +157,14 @@ uint8_t GT9XX_write(struct goodix_ts_data * t, const uint16_t reg,
     return rv;
 }
 
-int16_t GT9xx_check_cfg_8(struct goodix_ts_data * t, const struct firmware * cfg)
+int16_t GT9xx_check_conf_8(const struct firmware * cfg)
 {
     int i, raw_cfg_len = cfg->size - 2;
     uint8_t check_sum = 0;
 
-    for (i = 0; i < raw_cfg_len; i++)
+    for (i = 0; i < raw_cfg_len; i++) {
         check_sum += cfg->data[i];
+    }
     check_sum = (~check_sum) + 1;
 
     if (check_sum != cfg->data[raw_cfg_len]) {
@@ -209,29 +237,32 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
     ts_handled = t;             // kinda cludgy
     sys_messagebus_register(&gt9xx_event_handler, SYS_MSG_GT9XX_IRQ);
 
-    rv = GT9XX_read_version(t);
+    rv = GT9XX_read_chip_id(t);
     if (rv) {
         return rv;
     }
 
-    rv = GT9XX_check_chipid(t->id);
+    rv = GT9XX_check_chip_id(t->chip_id);
     if (rv) {
         return GT9XX_err_check_chip_id;
     }
-#ifdef READ_CONFIG_DURING_INIT
-    // optionally read the config registers (this will malloc() 186 bytes)
-    rv = GT9XX_read_config(t);
-    if (rv) {
-        return rv;
-    }
-    // fake a fresh config so it's test passes the _check_config()
-    t->conf.data[rOFF_FRESH_CONFIG] = 1;
 
-    rv = GT9xx_check_cfg_8(t, &t->conf);
+    t->conf.data = NULL;
+
+    rv = GT9XX_read_conf_version(t);
     if (rv) {
         return rv;
     }
-#endif
+
+    rv = GT9XX_check_conf_version(t);
+    if (rv == GT9XX_NEED_CONF_UPDATE) {
+        rv = GT9XX_write_config(t, (uint8_t *) &gt9xx_conf, GT9XX_CONFIG_911_SZ);
+        if (rv) {
+            return rv;
+        }
+    } else if (rv != EXIT_SUCCESS) {
+        return rv;
+    }
 
     return rv;
 }
@@ -246,7 +277,7 @@ uint8_t GT9XX_clear_irq(struct goodix_ts_data * t)
 }
 
 // returns EXIT_FAILURE if chip is not supported
-uint8_t GT9XX_check_chipid(const uint16_t id)
+uint8_t GT9XX_check_chip_id(const uint16_t id)
 {
     switch (id) {
     case 911:
@@ -260,7 +291,9 @@ uint8_t GT9XX_check_chipid(const uint16_t id)
     return EXIT_FAILURE;
 }
 
-uint8_t GT9XX_read_version(struct goodix_ts_data * t)
+// reads 2 bytes from the configuration area - the conf version and the checksum
+// and places the data into t->conf.*
+uint8_t GT9XX_read_chip_id(struct goodix_ts_data * t)
 {
     uint8_t rv = EXIT_FAILURE;
     char buf[11];
@@ -270,42 +303,90 @@ uint8_t GT9XX_read_version(struct goodix_ts_data * t)
         return GT9XX_err_i2c_read;
     }
 
-    t->id = _strtou16(buf);
+    t->chip_id = _strtou16(buf);
 
     return rv;
 }
 
+// checks the current config parameters from t->conf against the provided data
+uint8_t GT9XX_check_conf_version(struct goodix_ts_data * t)
+{
+    if ((t->conf.version < gt9xx_conf[rOFF_CONF_VER]) || ((t->conf.version == gt9xx_conf[rOFF_CONF_VER]) && (t->conf.checksum != gt9xx_conf[rOFF_CHECKSUM]))) {
+        return GT9XX_NEED_CONF_UPDATE;
+    }
+
+    if ((t->conf.version == gt9xx_conf[rOFF_CONF_VER]) && (t->conf.checksum == gt9xx_conf[rOFF_CHECKSUM])) {
+        // no need to update
+        return EXIT_SUCCESS;
+    }
+
+    return GT9XX_err_check_cfg_ver;
+}
+
+// reads 2 bytes from the configuration area - the conf version and the checksum
+// and places the data into t->conf.*
+uint8_t GT9XX_read_conf_version(struct goodix_ts_data * t)
+{
+    uint8_t rv = EXIT_FAILURE;
+    char buf[1];
+
+    rv = GT9XX_read(t, GT9XX_rCFG + rOFF_CONF_VER, (uint8_t *) buf, 1);
+    if (rv) {
+        return GT9XX_err_i2c_read;
+    }
+    t->conf.version = buf[0];
+
+    rv = GT9XX_read(t, GT9XX_rCFG + rOFF_CHECKSUM, (uint8_t *) buf, 1);
+    if (rv) {
+        return GT9XX_err_i2c_read;
+    }
+    t->conf.checksum = buf[0];
+
+    return rv;
+}
+
+// reads all GT9XX_CONFIG_911_SZ bytes from GT9XX_rCFG and places the data into
+// t->conf.*
 uint8_t GT9XX_read_config(struct goodix_ts_data * t)
 {
     uint8_t *config_data;
     int16_t rv = EXIT_SUCCESS;
 
-    config_data = (uint8_t *) malloc(sizeof(uint8_t) * GT9XX_CONFIG_911_SZ);
-    if (config_data == NULL) {
-        return GT9XX_err_malloc;
+    if ((t->conf.data == NULL) || (t->conf.size != GT9XX_CONFIG_911_SZ)) {
+        config_data = (uint8_t *) malloc(sizeof(uint8_t) * GT9XX_CONFIG_911_SZ);
+        if (config_data == NULL) {
+            return GT9XX_err_malloc;
+        }
+        t->conf.size = GT9XX_CONFIG_911_SZ;
+        t->conf.data = config_data;
     }
-
-    t->conf.size = GT9XX_CONFIG_911_SZ;
-    t->conf.data = config_data;
 
     rv = GT9XX_read(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_SZ);
     if (rv) {
         return GT9XX_err_i2c_read;
     }
 
+    t->conf.version  = t->conf.data[rOFF_CONF_VER];
+    t->conf.checksum = (uint8_t) t->conf.data[rOFF_CHECKSUM]; // 911 has a 8bit checksum, should ifdef?
+
     return rv;
 }
 
-uint8_t GT9XX_write_config(struct goodix_ts_data * t)
+uint8_t GT9XX_write_config(struct goodix_ts_data * t, uint8_t *data, size_t data_len)
 {
     int16_t rv = EXIT_SUCCESS;
 
-    rv = GT9xx_check_cfg_8(t, &t->conf);
+    struct firmware new_conf;
+
+    new_conf.size = data_len;
+    new_conf.data = data;
+
+    rv = GT9xx_check_conf_8(&new_conf);
     if (rv) {
         return rv;
     }
 
-    rv = GT9XX_write(t, GT9XX_rCFG, t->conf.data, GT9XX_CONFIG_911_SZ);
+    rv = GT9XX_write(t, GT9XX_rCFG, data, data_len);
     if (rv) {
         return GT9XX_err_i2c_write;
     }

@@ -39,6 +39,8 @@ extern "C" {
 #define                  GT9XX_EV_NULL  0
 #define                   GT9XX_EV_IRQ  0x1
 
+#define         GT9XX_NEED_CONF_UPDATE  0xee
+
 // register addresses
 #define                     GT9XX_rCMD  0x8040
 #define                     GT9XX_rCFG  0x8047
@@ -68,10 +70,13 @@ extern "C" {
 #define        GT9XX_err_check_chip_id  0xfa
 #define   GT9XX_err_check_cfg_checksum  0xf9
 #define      GT9XX_err_check_cfg_fresh  0xf8
+#define        GT9XX_err_check_cfg_ver  0xf7
 #define                 GT9XX_err_misc  EXIT_FAILURE
 
     struct firmware {
         size_t size;
+        uint8_t version;
+        uint16_t checksum;
         uint8_t *data;
     };
 
@@ -92,7 +97,7 @@ extern "C" {
     struct goodix_ts_data {
         uint16_t usci_base_addr;
         uint8_t slave_addr;
-        uint16_t id;
+        uint16_t chip_id;
         struct GT9XX_coord_t coord;
         struct firmware conf;
     };
@@ -103,25 +108,26 @@ extern "C" {
 
     uint8_t GT9XX_read(struct goodix_ts_data *t, const uint16_t reg,
                        uint8_t * buf, const size_t buf_len);
-    uint8_t GT9XX_read_version(struct goodix_ts_data *t);
     int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data);
     uint8_t GT9XX_read_config(struct goodix_ts_data *t);
+    uint8_t GT9XX_read_chip_id(struct goodix_ts_data *t);
+    uint8_t GT9XX_read_conf_version(struct goodix_ts_data * t);
     void GT9XX_free_config(struct goodix_ts_data *t);
     uint8_t GT9XX_write(struct goodix_ts_data *t, const uint16_t reg,
                         uint8_t * buf, const size_t buf_len);
-    uint8_t GT9XX_write_config(struct goodix_ts_data *t);
+    uint8_t GT9XX_write_config(struct goodix_ts_data * t, uint8_t *data, size_t data_len);
 
     uint8_t GT9XX_clear_irq(struct goodix_ts_data *t);
     void GT9XX_disable_irq(void);
     void GT9XX_enable_irq(void);
 
-    uint8_t GT9XX_check_chipid(const uint16_t id);
+    uint8_t GT9XX_check_chip_id(const uint16_t id);
+    uint8_t GT9XX_check_conf_version(struct goodix_ts_data * t);
 
-    void gt9xx_rst_event(void);
-    uint8_t gt9xx_get_event(void);
+    void GT9XX_rst_event(void);
+    uint8_t GT9XX_get_event(void);
 
-    int16_t GT9xx_check_cfg_8(struct goodix_ts_data *t,
-			const struct firmware *cfg);
+    int16_t GT9xx_check_conf_8(const struct firmware *conf);
     
     uint8_t GT9XX_calc_checksum(uint8_t* buf, uint16_t len);
 

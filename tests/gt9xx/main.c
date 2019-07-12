@@ -125,9 +125,9 @@ void check_events(void)
     uint16_t ev;
 
     // gt9xx irq
-    if (gt9xx_get_event() == GT9XX_EV_IRQ) {
+    if (GT9XX_get_event() == GT9XX_EV_IRQ) {
         msg |= SYS_MSG_GT9XX_IRQ;
-        gt9xx_rst_event();
+        GT9XX_rst_event();
     }
 
     // uart RX

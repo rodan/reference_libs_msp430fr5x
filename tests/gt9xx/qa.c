@@ -29,6 +29,7 @@ void parse_user_input(void)
     char f = input[0];
     uint8_t temp_buff[255];
     int16_t rv;
+    uint16_t i,j;
 
     temp_buff[0] = 0xff;
 
@@ -55,13 +56,26 @@ void parse_user_input(void)
         uart0_print("[ok] read conf\r\n");
 
         ts.conf.data[rOFF_FRESH_CONFIG] = 1;
-        rv = GT9xx_check_cfg_8(&ts, &ts.conf);
+        rv = GT9xx_check_conf_8(&ts.conf);
         if (rv) {
             uart0_print("[!!] check conf\r\n");
             return;
         }
         uart0_print("[ok] check conf\r\n");
         uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_MAX_CONTACTS]));
+
+        uart0_print("\r\n");
+        j=0;
+        for (i=0; i<GT9XX_CONFIG_911_SZ; i++) {
+            if (j%10 == 0) {
+                uart0_print("\r\n");
+            }
+            uart0_print(_utoh(&itoa_buf[0], ts.conf.data[i]));
+            uart0_print(", ");
+            j++;
+        }
+        uart0_print("\r\n");
+
     } else if (strstr (input, "tconf")) {
         uart0_print("read/write 0x8047-0x8100\r\n");
 
@@ -73,7 +87,7 @@ void parse_user_input(void)
         uart0_print("[ok] read conf\r\n");
 
         ts.conf.data[rOFF_FRESH_CONFIG] = 1;
-        rv = GT9xx_check_cfg_8(&ts, &ts.conf);
+        rv = GT9xx_check_conf_8(&ts.conf);
         if (rv) {
             uart0_print("[!!] check conf\r\n");
             return;
@@ -81,18 +95,19 @@ void parse_user_input(void)
         uart0_print("[ok] check conf\r\n");
 
         uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_MAX_CONTACTS]));
-        ts.conf.data[rOFF_MAX_CONTACTS] = 2;
+        ts.conf.data[rOFF_CONF_VER] = 0x42;
+        ts.conf.data[rOFF_MAX_CONTACTS] = 4;
         ts.conf.data[rOFF_CHECKSUM] = GT9XX_calc_checksum(ts.conf.data, GT9XX_CONFIG_911_SZ - 2);
         ts.conf.data[rOFF_FRESH_CONFIG] = 1;
         uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_CHECKSUM]));
-        rv = GT9xx_check_cfg_8(&ts, &ts.conf);
+        rv = GT9xx_check_conf_8(&ts.conf);
         if (rv) {
             uart0_print("[!!] check conf\r\n");
             return;
         }
         uart0_print("[ok] check conf\r\n");
 
-        rv = GT9XX_write_config(&ts);
+        rv = GT9XX_write_config(&ts, ts.conf.data, GT9XX_CONFIG_911_SZ);
         if (rv) {
             uart0_print("[!!] write conf\r\n");
             return;

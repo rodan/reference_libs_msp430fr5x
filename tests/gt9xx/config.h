@@ -12,6 +12,7 @@
 //#define  GT9XX_SA 0x14
 #define GT9XX_IRQ BIT3 // port for the irq functionality
 #define GT9XX_RST BIT2 // port for the reset functionality
+#define GT9XX_CONF_VER_B
 
 //#define UART0_SPEED_9600_1M
 //#define UART0_SPEED_19200_1M
