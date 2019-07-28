@@ -8,6 +8,7 @@
 DEVICE:=MSP430FR5994
 PROJ:=main
 SUBDIRS:= 
+OBJ_DIR:=build
 
 ###################### Windows OS ######################
 ifeq ($(OS),Windows_NT)
@@ -41,11 +42,11 @@ GDB	             := $(GCC_BIN_DIR)/msp430-elf-gdb
 # are used for dead code elimination, see:
 # http://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
 
-CFLAGS           := -D__$(DEVICE)__ -mmcu=$(DEVICE) -g -DDEPRECATED
+CFLAGS           := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
 CFLAGS           += -Wall -Wno-switch
 CFLAGS		     += -fno-force-addr -finline-limit=1 -fno-schedule-insns
 CFLAGS		     += -fshort-enums -Wl,-Map=output.map
-LDFLAGS          := -T $(LDDIR).ld -L $(GCC_MSP_INC_DIR) -mmcu=$(DEVICE) -g -Wl,--gc-sections
+LDFLAGS          := -T $(LDDIR).ld -L $(GCC_MSP_INC_DIR) -mmcu=$(DEVICE) -mhwmult=f5series -g -Wl,--gc-sections
 CFLAGS_REL	     += -Os -fdata-sections -ffunction-sections -fomit-frame-pointer
 LDFLAGS_REL	     += -Wl,-s
 CFLAGS_DBG	     += -O1 -ggdb
@@ -57,11 +58,16 @@ GLUELIB_SRC      := $(wildcard $(GLUELIB)/*.c)
 LOCAL_SRC        := $(wildcard *.c)
 PROJ_SRC         := $(PROJ).c
 SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC)
-DRIVERLIB_OBJECTS:= $(patsubst %.c,%.o,$(DRIVERLIB_SRC))
-GLUELIB_OBJECTS  := $(patsubst %.c,%.o,$(GLUELIB_SRC))
-LOCAL_OBJECTS    := $(patsubst %.c,%.o,$(LOCAL_SRC))
-EXOBJECT         := $(PROJ).o
-EXOUTPUT         := $(PROJ).elf
+
+DRIVERLIB_OBJECTS = $(DRIVERLIB_SRC:$(DRIVERLIB)/%.c=$(OBJ_DIR)/%.o)
+GLUELIB_OBJECTS   = $(GLUELIB_SRC:$(GLUELIB)/%.c=$(OBJ_DIR)/%.o)
+LOCAL_OBJECTS     = $(LOCAL_SRC:%.c=$(OBJ_DIR)/%.o)
+
+#DRIVERLIB_OBJECTS:= $(patsubst %.c,%.o,$(DRIVERLIB_SRC))
+#GLUELIB_OBJECTS  := $(patsubst %.c,%.o,$(GLUELIB_SRC))
+#LOCAL_OBJECTS    := $(patsubst %.c,%.o,$(LOCAL_SRC))
+EXOBJECT         := $(OBJ_DIR)/$(PROJ).o
+EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 ######################################
 
 # Append specific CFLAGS/LDFLAGS
@@ -87,28 +93,42 @@ endif
 
 all: depend config.h tags driverlib $(EXOUTPUT)
 
-depend:	$(PROJ).dep
+depend:	$(OBJ_DIR)/$(PROJ).dep
 
-$(PROJ).dep: $(SRC)
+$(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@echo "Generating dependencies.."
+	@mkdir -p $(OBJ_DIR)
 	@touch $@
 	@makedepend $(INCLUDES) -Y -f $@ $^ &> /dev/null
-	@grep -v ^\# $(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(PROJ).hdep
-	@echo "tags: `cat $(PROJ).hdep`" >> $(PROJ).dep
+	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
+	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
 config.h:
 	@echo "config.h file is missing" && false
 
-tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(PROJ).dep
+tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
 	echo $(deps)
-	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(PROJ).hdep)
+	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
-%.o: %.c
+$(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
+	@echo -e ">> build driverlib /$<"
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	#$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $(BUILDDIR)/$(@F)
+
+$(OBJ_DIR)/%.o: $(GLUELIB)/%.c
+	@echo -e ">> build gluelib /$<"
+	mkdir -p $(OBJ_DIR)
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(EXOBJECT): $(PROJ_SRC) $(PROJ).cflags
+$(OBJ_DIR)/%.o: %.c
+	@echo -e "\n>> local/$<"
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
@@ -117,21 +137,21 @@ $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT
 #	$(CC) $(LDFLAGS) $(EXOBJECT) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
 
 debug: all
-	$(GDB) $(PROJ).elf
+	$(GDB) $(OBJ_DIR)/$(PROJ).elf
 
 clean:
-	$(RM) *.o $(PROJ).{elf,cflags,dep,hdep} output.map
+	$(RM) build/*.o build/$(PROJ).{elf,cflags,dep,hdep}
 	$(RM) tags
 
 cleanlib:
 	$(RM) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS)
 
-install: $(PROJ).elf
+install: $(OBJ_DIR)/$(PROJ).elf
 	@bash ../../tools/burn.sh $<
 
 # rebuild if CFLAGS changed, as suggested in:
 # http://stackoverflow.com/questions/3236145/force-gnu-make-to-rebuild-objects-affected-by-compiler-definition/3237349#3237349
-$(PROJ).cflags: cflags_update
+$(OBJ_DIR)/$(PROJ).cflags: cflags_update
 	@echo "$(CFLAGS)" | cmp -s - $@ || echo "$(CFLAGS)" > $@
 
--include $(PROJ).dep
+-include $(OBJ_DIR)/$(PROJ).dep

@@ -2,6 +2,7 @@ old_drivers
 rtca_now.h
 main.txt
 main.elf
+build
 *.dep
 *.hdep
 main.cflags

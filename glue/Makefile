@@ -31,3 +31,5 @@ tags:
 	echo $(deps)
 	@exuberant-ctags --recurse=yes $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(GCC_INC_DIR)/msp430.h $(GCC_INC_DIR)/msp430fr5xx_6xxgeneric.h
 
+clean:
+	@$(RM) *.o
