@@ -591,7 +591,7 @@ typedef struct Timer_B_initCompareModeParam {
 //
 //*****************************************************************************
 #define TIMER_B_OUTPUTMODE_OUTBITVALUE_HIGH                                 OUT
-#define TIMER_B_OUTPUTMODE_OUTBITVALUE_LOW                                 0x00
+#define TIMER_B_OUTPUTMODE_OUTBITVALUE_LOW                               0x0000
 
 //*****************************************************************************
 //
@@ -992,7 +992,7 @@ extern uint16_t Timer_B_getCaptureCompareCount(uint16_t baseAddress,
 //*****************************************************************************
 extern void Timer_B_setOutputForOutputModeOutBitValue(uint16_t baseAddress,
                                                       uint16_t captureCompareRegister,
-                                                      uint8_t outputModeOutBitValue);
+                                                      uint16_t outputModeOutBitValue);
 
 //*****************************************************************************
 //

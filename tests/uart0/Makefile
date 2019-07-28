@@ -113,18 +113,18 @@ tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 $(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
-	@echo -e ">> build driverlib /$<"
+	@echo -e " * [drv] $(@F)"
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 	#$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $(BUILDDIR)/$(@F)
 
 $(OBJ_DIR)/%.o: $(GLUELIB)/%.c
-	@echo -e ">> build gluelib /$<"
+	@echo -e " * [glue] $(@F)"
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: %.c
-	@echo -e "\n>> local/$<"
+	@echo -e " * $(@F)"
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 

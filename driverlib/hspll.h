@@ -123,6 +123,8 @@ extern "C"
 //*****************************************************************************
 #define HSPLL_OSCILLATOR_STABILIZED             OSCSTATE_0
 #define HSPLL_OSCILLATOR_NOT_STABILIZED         OSCSTATE_1
+#define HSPLL_OSCILLATOR_NOT_STARTED            OSCSTATE_0
+#define HSPLL_OSCILLATOR_STARTED                OSCSTATE_1
 
 //*****************************************************************************
 //
@@ -292,8 +294,8 @@ extern void HSPLL_setInterrupt(uint16_t baseAddress);
 //!
 //! \param baseAddress is the base address of the HSPLL module.
 //!
-//! \return \b HSPLL_OSCILLATOR_STABILIZED or 
-//!         \b HSPLL_OSCILLATOR_NOT_STABILIZED
+//! \return \b HSPLL_OSCILLATOR_NOT_STARTED or 
+//!         \b HSPLL_OSCILLATOR_STARTED
 //!
 //
 //*****************************************************************************

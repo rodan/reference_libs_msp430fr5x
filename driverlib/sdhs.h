@@ -219,7 +219,7 @@ typedef struct SDHS_initParam
 {
     //! Trigger source select
     //! \n Valid values are:
-    //! - \B SDHS_REGISTER_CONTROL_MODE [Default]
+    //! - \b SDHS_REGISTER_CONTROL_MODE [Default]
     //! - \b SDHS_ASQ_CONTROL_MODE
     uint16_t triggerSourceSelect;
     //! Selects MSB shift from filter out

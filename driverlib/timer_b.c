@@ -270,7 +270,7 @@ uint16_t Timer_B_getCaptureCompareCount
 void Timer_B_setOutputForOutputModeOutBitValue
     (uint16_t baseAddress,
     uint16_t captureCompareRegister,
-    uint8_t outputModeOutBitValue
+    uint16_t outputModeOutBitValue
     )
 {
     HWREG16(baseAddress + captureCompareRegister) &= ~OUT;

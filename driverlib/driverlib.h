@@ -49,6 +49,7 @@
 #include "aes256.h"
 #include "sfr.h"
 #include "wdt_a.h"
+#include "saph_a.h"
 #include "timer_a.h"
 #include "pmm.h"
 #include "rtc_c.h"

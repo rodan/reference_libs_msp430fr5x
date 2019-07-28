@@ -63,7 +63,7 @@ void EUSCI_A_SPI_initMaster (uint16_t baseAddress,
     HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~(UCSSEL_3);
 
     //Select Clock
-    HWREG16(baseAddress + OFS_UCAxCTLW0) |= param->selectClockSource;
+    HWREG16(baseAddress + OFS_UCAxCTLW0) |= (uint16_t)param->selectClockSource;
 
     HWREG16(baseAddress + OFS_UCAxBRW) =
         (uint16_t)(param->clockSourceFrequency / param->desiredSpiClock);
@@ -88,7 +88,7 @@ void EUSCI_A_SPI_initMaster (uint16_t baseAddress,
 }
 
 void EUSCI_A_SPI_select4PinFunctionality (uint16_t baseAddress,
-    uint8_t select4PinFunctionality
+    uint16_t select4PinFunctionality
     )
 {
   HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~UCSTEM;
@@ -136,7 +136,6 @@ void EUSCI_A_SPI_changeClockPhasePolarity (uint16_t baseAddress,
     uint16_t clockPolarity
     )
 {
-
   //Disable the USCI Module
   HWREG16(baseAddress + OFS_UCAxCTLW0) |= UCSWRST;
 
@@ -164,14 +163,14 @@ uint8_t EUSCI_A_SPI_receiveData (uint16_t baseAddress)
 }
 
 void EUSCI_A_SPI_enableInterrupt (uint16_t baseAddress,
-    uint8_t mask
+    uint16_t mask
     )
 {
     HWREG16(baseAddress + OFS_UCAxIE) |= mask;
 }
 
 void EUSCI_A_SPI_disableInterrupt (uint16_t baseAddress,
-    uint8_t mask
+    uint16_t mask
     )
 {
     HWREG16(baseAddress + OFS_UCAxIE) &= ~mask;
@@ -185,7 +184,7 @@ uint8_t EUSCI_A_SPI_getInterruptStatus (uint16_t baseAddress,
 }
 
 void EUSCI_A_SPI_clearInterrupt (uint16_t baseAddress,
-    uint8_t mask
+    uint16_t mask
     )
 {
     HWREG16(baseAddress + OFS_UCAxIFG) &=  ~mask;

@@ -60,7 +60,7 @@ void EUSCI_B_I2C_initMaster (uint16_t baseAddress,
 
     //Configure Automatic STOP condition generation
     HWREG16(baseAddress + OFS_UCBxCTLW1) &= ~UCASTP_3;
-    HWREG16(baseAddress + OFS_UCBxCTLW1) |= param->autoSTOPGeneration;
+    HWREG16(baseAddress + OFS_UCBxCTLW1) |= (uint16_t)param->autoSTOPGeneration;
 
     //Byte Count Threshold
     HWREG16(baseAddress + OFS_UCBxTBCNT) = param->byteCounterThreshold;
@@ -124,7 +124,7 @@ void EUSCI_B_I2C_setSlaveAddress (uint16_t baseAddress,
 }
 
 void EUSCI_B_I2C_setMode (uint16_t baseAddress,
-    uint8_t mode
+    uint16_t mode
     )
 {
     HWREG16(baseAddress + OFS_UCBxCTLW0) &= ~EUSCI_B_I2C_TRANSMIT_MODE;

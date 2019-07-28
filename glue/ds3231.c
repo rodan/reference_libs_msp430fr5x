@@ -76,7 +76,7 @@ uint8_t DS3231_set(const uint16_t usci_base_addr, struct ts t)
 t.year_s };
 
     for (i = 1; i <= 7; i++) {
-        i2c_buff[i] = dectobcd(i2c_buff[i]);
+        i2c_buff[i] = dec_to_bcd(i2c_buff[i]);
         if (i == 6) {
             i2c_buff[6] += century;
         }
@@ -130,10 +130,10 @@ uint8_t DS3231_get(const uint16_t usci_base_addr, struct ts * t)
 
     for (i = 0; i <= 6; i++) {
         if (i == 5) {
-            TimeDate[5] = bcdtodec(i2c_buff[i] & 0x1F);
+            TimeDate[5] = bcd_to_dec(i2c_buff[i] & 0x1F);
             century = (i2c_buff[i] & 0x80) >> 7;
         } else
-            TimeDate[i] = bcdtodec(i2c_buff[i]);
+            TimeDate[i] = bcd_to_dec(i2c_buff[i]);
     }
 
     if (century == 1) {
@@ -318,9 +318,9 @@ uint8_t DS3231_set_a1(const uint16_t usci_base_addr,
 
     for (i = 0; i <= 3; i++) {
         if (i == 3) {
-            i2c_buff[4] = dectobcd(t[3]) | (flags[3] << 7) | (flags[4] << 6);
+            i2c_buff[4] = dec_to_bcd(t[3]) | (flags[3] << 7) | (flags[4] << 6);
         } else {
-            i2c_buff[i + 1] = dectobcd(t[i]) | (flags[i] << 7);
+            i2c_buff[i + 1] = dec_to_bcd(t[i]) | (flags[i] << 7);
         }
     }
 
@@ -371,11 +371,11 @@ uint8_t DS3231_get_a1(const uint16_t usci_base_addr, char *buf, const uint8_t le
 
     for (i = 0; i <= 3; i++) {
         f[i] = (i2c_buff[i] & 0x80) >> 7;
-        t[i] = bcdtodec(i2c_buff[i] & 0x7F);
+        t[i] = bcd_to_dec(i2c_buff[i] & 0x7F);
     }
 
     f[4] = (i2c_buff[3] & 0x40) >> 6;
-    t[3] = bcdtodec(i2c_buff[3] & 0x3F);
+    t[3] = bcd_to_dec(i2c_buff[3] & 0x3F);
 
     snprintf(buf, len,
              "s%02d m%02d h%02d d%02d fs%d m%d h%d d%d wm%d %d %d %d %d",
@@ -427,9 +427,9 @@ uint8_t DS3231_set_a2(const uint16_t usci_base_addr,
 
     for (i = 0; i <= 2; i++) {
         if (i == 2) {
-            i2c_buff[3] = dectobcd(t[2]) | (flags[2] << 7) | (flags[3] << 6);
+            i2c_buff[3] = dec_to_bcd(t[2]) | (flags[2] << 7) | (flags[3] << 6);
         } else {
-            i2c_buff[i + 1] = dectobcd(t[i]) | (flags[i] << 7);
+            i2c_buff[i + 1] = dec_to_bcd(t[i]) | (flags[i] << 7);
         }
     }
 
@@ -480,11 +480,11 @@ uint8_t DS3231_get_a2(const uint16_t usci_base_addr, char *buf, const uint8_t le
 
     for (i = 0; i <= 2; i++) {
         f[i] = (i2c_buff[i] & 0x80) >> 7;
-        t[i] = bcdtodec(i2c_buff[i] & 0x7F);
+        t[i] = bcd_to_dec(i2c_buff[i] & 0x7F);
     }
 
     f[3] = (i2c_buff[2] & 0x40) >> 6;
-    t[2] = bcdtodec(i2c_buff[2] & 0x3F);
+    t[2] = bcd_to_dec(i2c_buff[2] & 0x3F);
 
     snprintf(buf, len, "m%02d h%02d d%02d fm%d h%d d%d wm%d %d %d %d", t[0],
              t[1], t[2], f[0], f[1], f[2], f[3], i2c_buff[0], i2c_buff[1],
@@ -560,16 +560,6 @@ uint32_t get_unixtime(struct ts t)
     return rv;
 }
 #endif
-
-uint8_t dectobcd(const uint8_t val)
-{
-    return ((val / 10 * 16) + (val % 10));
-}
-
-uint8_t bcdtodec(const uint8_t val)
-{
-    return ((val / 16 * 10) + (val % 16));
-}
 
 uint8_t inp2toi(char *cmd, const uint16_t seek)
 {

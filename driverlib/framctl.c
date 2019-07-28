@@ -97,13 +97,13 @@ void FRAMCtl_fillMemory32 (uint32_t value,
     }
 }
 
-void FRAMCtl_enableInterrupt (uint8_t interruptMask)
+void FRAMCtl_enableInterrupt (uint16_t interruptMask)
 {
-	uint8_t waitSelection;
+    uint8_t waitSelection;
 
-	waitSelection=(HWREG8(FRAM_BASE + OFS_FRCTL0) & 0xFF);
-	// Clear lock in FRAM control registers
-	HWREG16(FRAM_BASE + OFS_FRCTL0) = FWPW | waitSelection;
+    waitSelection=(HWREG8(FRAM_BASE + OFS_FRCTL0) & 0xFF);
+    // Clear lock in FRAM control registers
+    HWREG16(FRAM_BASE + OFS_FRCTL0) = FWPW | waitSelection;
 
     // Enable user selected interrupt sources
     HWREG16(FRAM_BASE + OFS_GCCTL0) |= interruptMask;

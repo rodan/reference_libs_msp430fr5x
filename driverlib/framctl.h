@@ -187,7 +187,7 @@ extern void FRAMCtl_fillMemory32(uint32_t value,
 //! \return None
 //
 //*****************************************************************************
-extern void FRAMCtl_enableInterrupt(uint8_t interruptMask);
+extern void FRAMCtl_enableInterrupt(uint16_t interruptMask);
 
 //*****************************************************************************
 //

@@ -58,7 +58,7 @@ bool EUSCI_A_UART_init(uint16_t baseAddress, EUSCI_A_UART_initParam *param)
 
     //Clock source select
     HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~UCSSEL_3;
-    HWREG16(baseAddress + OFS_UCAxCTLW0) |= param->selectClockSource;
+    HWREG16(baseAddress + OFS_UCAxCTLW0) |= (uint16_t)param->selectClockSource;
 
     //MSB, LSB select
     HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~UCMSB;
@@ -143,11 +143,11 @@ void EUSCI_A_UART_enableInterrupt (uint16_t baseAddress,
         | EUSCI_A_UART_STARTBIT_INTERRUPT
         | EUSCI_A_UART_TRANSMIT_COMPLETE_INTERRUPT));
 
-    HWREG16(baseAddress + OFS_UCAxIE) |= locMask;
+    HWREG16(baseAddress + OFS_UCAxIE) |= (uint16_t)locMask;
 
     locMask = (mask & (EUSCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT
         | EUSCI_A_UART_BREAKCHAR_INTERRUPT));
-    HWREG16(baseAddress + OFS_UCAxCTLW0) |= locMask;
+    HWREG16(baseAddress + OFS_UCAxCTLW0) |= (uint16_t)locMask;
 }
 
 void EUSCI_A_UART_disableInterrupt (uint16_t baseAddress,
@@ -160,11 +160,11 @@ void EUSCI_A_UART_disableInterrupt (uint16_t baseAddress,
         | EUSCI_A_UART_TRANSMIT_INTERRUPT
         | EUSCI_A_UART_STARTBIT_INTERRUPT
         | EUSCI_A_UART_TRANSMIT_COMPLETE_INTERRUPT));
-    HWREG16(baseAddress + OFS_UCAxIE) &= ~locMask;
+    HWREG16(baseAddress + OFS_UCAxIE) &= (uint16_t)~locMask;
 
     locMask = (mask & (EUSCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT
         | EUSCI_A_UART_BREAKCHAR_INTERRUPT));
-    HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~locMask;
+    HWREG16(baseAddress + OFS_UCAxCTLW0) &= (uint16_t)~locMask;
 }
 
 uint8_t EUSCI_A_UART_getInterruptStatus (uint16_t baseAddress,
@@ -173,7 +173,7 @@ uint8_t EUSCI_A_UART_getInterruptStatus (uint16_t baseAddress,
     return ( HWREG16(baseAddress + OFS_UCAxIFG) & mask );
 }
 
-void EUSCI_A_UART_clearInterrupt (uint16_t baseAddress, uint8_t mask)
+void EUSCI_A_UART_clearInterrupt (uint16_t baseAddress, uint16_t mask)
 {
     //Clear the UART interrupt source.
     HWREG16(baseAddress + OFS_UCAxIFG) &= ~(mask);

@@ -1,14 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head>
 
+
 <meta content="HTML Tidy for Windows (vers 15 August 2007), see www.w3.org" name="generator">
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii"><!-- /* * Copyright 2007 by Texas Instruments Incorporated. * All rights reserved. Property of Texas Instruments Incorporated. * Restricted rights to use, duplicate or disclose this code are * granted through contract. * * */ --><title>MSP430 Peripheral Driver Library</title><!-- For now, we use the doxygen style sheet -->
 
 
 
 <link href="docs/html/doxygen.css" rel="stylesheet" type="text/css">
-<link href="docs/html/doxygen.css" rel="stylesheet" type="text/css"></head>
-<body>
+<link href="docs/html/doxygen.css" rel="stylesheet" type="text/css"></head><body>
 <table width="100%">
 <tbody>
 <tr>
@@ -17,9 +17,9 @@
 </tr>
 </tbody>
 </table>
-<h1>MSP430 DriverLib&nbsp;2.91.08.00</h1>
+<h1>MSP430 DriverLib&nbsp;2.91.11.01</h1>
 <h2>Release Notes&nbsp;</h2>
-Document Revision: 092718.1545<br>
+Document Revision: 022019.1203<br>
 <br>
 <h2><a name="Introduction" id="Introduction">Introduction</a></h2>
 <p>This is the MSP430 Peripheral Driver Library.
@@ -69,24 +69,37 @@ Driver Library API&nbsp;</li>
 Peripheral
 Driver Library User's Guides</li>
 <ul>
-<li><a href="doc/MSP430F5xx_6xx/MSP430F5xx_6xx_DriverLib_Users_Guide-2_91_08_00.pdf">MSP430F5xx_6xx</a></li>
+<li><a href="doc/MSP430F5xx_6xx/MSP430F5xx_6xx_DriverLib_Users_Guide-2_91_11_01.pdf">MSP430F5xx_6xx</a></li>
 </ul>
 <ul>
-<li><a href="doc/MSP430FR57xx/MSP430FR57xx_DriverLib_Users_Guide-2_91_08_00.pdf">MSP430FR57xx</a></li>
+<li><a href="doc/MSP430FR57xx/MSP430FR57xx_DriverLib_Users_Guide-2_91_11_01.pdf">MSP430FR57xx</a></li>
 </ul>
 <ul>
-<li><a href="doc/MSP430FR5xx_6xx/MSP430FR5xx_6xx_DriverLib_Users_Guide-2_91_08_00.pdf">MSP430FR5xx_6xx</a></li><li><a href="doc/MSP430FR2xx_4xx/MSP430FR2xx_4xx_DriverLib_Users_Guide-2_91_08_00.pdf">MSP430FR2xx_4xx</a></li><li><a href="doc/MSP430i2xx/MSP430i2xx_DriverLib_Users_Guide-2_91_08_00.pdf">MSP430i2xx</a></li>
+<li><a href="doc/MSP430FR5xx_6xx/MSP430FR5xx_6xx_DriverLib_Users_Guide-2_91_11_01.pdf">MSP430FR5xx_6xx</a></li><li><a href="doc/MSP430FR2xx_4xx/MSP430FR2xx_4xx_DriverLib_Users_Guide-2_91_11_01.pdf">MSP430FR2xx_4xx</a></li><li><a href="doc/MSP430i2xx/MSP430i2xx_DriverLib_Users_Guide-2_91_11_01.pdf">MSP430i2xx</a></li>
 </ul>
 <li><a href="./manifest.html">Manifest</a></li>
 <li><a href="./license.txt">License</a></li>
 </ul>
 <h2><a name="Whats_New" id="Whats_New">What's&nbsp;New</a></h2>
-<span style="font-weight: bold;">2.91.08.00</span><br><ul style="color: black;"><li style="color: rgb(51, 51, 255);">MSPDVRLIB-178:
+<span style="font-weight: bold;">2.91.11.01</span><br><ul style="color: black;"><li style="color: rgb(51, 51, 255);">MSPDVRLIB-185: Fixed 03_dma_repeated_block PEPTO test failing due to hard-coded DMA src/dest addresses.</li><li style="color: rgb(51, 51, 255);">MSPDVRLIB-176: Changed the Latex header to use T1 encoded fonts so that proper underscores are generated in UGs.</li><li style="color: rgb(51, 51, 255);">MSPDVRLIB-194: Adjusted DCO range selection logic in FLL initialization functions to ensure FLL will lock.</li></ul><h2><a name="Revision_History"></a>Revision
+History</h2><span style="font-weight: bold;">2.91.10.06<br></span>
+<ul style="color: black;">
+  <li>MSPDVRLIB-150: Added support for MSP430FR6043 (SAPH_A) module. New SAPHXPG registers.</li>
+  <li>MSPDVRLIB-153: Added USS/USS_A Doxygen files.</li>
+  <li>MSPDVRLIB-165: Added new MSP430FR5xx_6xx DriverLib examples to demonstrate SAPH_A.</li>
+  <li>MSPDVRLIB-173:
+Added more clarification to MSP430F5xx_6xx DriverLib User Guide
+regarding how to include DriverLib into existing IAR project.</li>
+  <li>MSPDVRLIB-174: Fixing random ?'s in MSP430F5xx_6xx DriverLib User Guide.</li>
+  <li>MSPDVRLIB-175: Fixed typo in MSP430F5xx_6xx DriverLib User Guide, UCS_getSMCLK has no parameter.</li>
+  <li>MSPDVRLIB-186: Modified FlashCtl_eraseBank in MSP430F5xx_6xx family to accommodate FLASH34 errata.</li>
+  <li>MSPDVRLIB-193: Fixed MSP430FR2xx_4xx ADC example "adc_ex2_intRef" VRef generation incorrect call sequence on 24 MHz devices.</li>
+</ul>
+<span style="font-weight: bold;"></span><span style="font-weight: bold;">2.91.09.00<br></span><ul style="color: black;"><li>Added MSP430FR2676 family ROM header files.</li><li>Added extended EUSCI remap support for MSP430FR2676 family.</li></ul><span style="font-weight: bold;">2.91.08.00<br></span><ul style="color: black;"><li>MSPDVRLIB-178:
 Fixed RTC_A and RTC_B struct's month element being labelled with the
-wrong range in documentation (no functional issue).</li><ul><li style="color: rgb(51, 51, 255);">Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/697352/2570555#2570555</li></ul><li style="color: rgb(51, 51, 255);">MSPDVRLIB-179: Fixed TIMER_A and TIMER_B chapters missing from MSP430FR2xx_4xx API guide.</li><ul><li style="color: rgb(51, 51, 255);">Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/700115/2580791#2580791</li></ul><li style="color: rgb(51, 51, 255);">MSPDVRLIB-180/MSPDVRLIB-181: Fixed a typo in MSP430FR2xx_4xx SAC example 4.</li><li style="color: rgb(51, 51, 255);">MSPDVRLIB-182: Added what the units were for EUSCI_A_SPI params clock settings.</li><li style="color: rgb(51, 51, 255);">MSPDVRLIB-183: Adding ADC66 errata fix to MSP430FR5xx_6xx ADC12_B Driver Library.</li><ul><li style="color: rgb(51, 51, 255);">Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/t/725457</li></ul><li style="color: rgb(51, 51, 255);">MSPDVRLIB-184:
+wrong range in documentation (no functional issue).</li><ul><li>Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/697352/2570555#2570555</li></ul><li>MSPDVRLIB-179: Fixed TIMER_A and TIMER_B chapters missing from MSP430FR2xx_4xx API guide.</li><ul><li>Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/700115/2580791#2580791</li></ul><li>MSPDVRLIB-180/MSPDVRLIB-181: Fixed a typo in MSP430FR2xx_4xx SAC example 4.</li><li>MSPDVRLIB-182: Added what the units were for EUSCI_A_SPI params clock settings.</li><li>MSPDVRLIB-183: Adding ADC66 errata fix to MSP430FR5xx_6xx ADC12_B Driver Library.</li><ul><li>Thank you for reporting the bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/t/725457</li></ul><li>MSPDVRLIB-184:
 Removed two unrelated Python files that were generated in Driver
-Library source folders (lextab.py and yacctab.py)</li></ul><h2><a name="Revision_History"></a>Revision
-History</h2><span style="font-weight: bold;">2.91.07.07<br></span><ul style="color: black;"><li style="color: black;">Added support for MSP430FR2355 series of devices. New features include ICC, SAC-L3 modules, and other additions.</li><li style="color: black;">Inaugural release of ROM header files for MSP430FR2xx_4xx family</li><ul style="color: black;"><li>DRIVERLIB_ROM_README.html is included under docs folder on how to utilize it</li><li>Certain
+Library source folders (lextab.py and yacctab.py)</li></ul><span style="font-weight: bold;">2.91.07.07<br></span><ul style="color: black;"><li style="color: black;">Added support for MSP430FR2355 series of devices. New features include ICC, SAC-L3 modules, and other additions.</li><li style="color: black;">Inaugural release of ROM header files for MSP430FR2xx_4xx family</li><ul style="color: black;"><li>DRIVERLIB_ROM_README.html is included under docs folder on how to utilize it</li><li>Certain
 devices will have Driver Library preprogrammed in ROM. See list of
 supported devices under driverlib/MSP430FR2xx_4xx/rom_driverlib.h</li></ul><li style="color: black;">MSPDVRLIB-109: Update Port Mapping example snippet in MSP430F5xx_6xx DriverLib User's Guide</li><ul style="color: black;"><li>Thank you for reporting bug from E2E post: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/534148/1950100</li></ul><li style="color: black;">MSPDVRLIB-112: Fixed incorrect definitions of TIMER_B_COUNTER_16BIT et cetera for Timer_B driver.</li><li style="color: black;">MSPDVRLIB-115:
 MSP430FR2xx_4xx CS_initFLLSettle, initFLLCalculateTrim, initFLLLoadTrim
@@ -436,7 +449,7 @@ Driver Library:<br>
 <h2><a name="Peripheral_Support" id="Known_Issues">Peripheral
 Support</a></h2>
 <h2 style="font-weight: normal;"><small><small>This
-is the 2.91.08.00 release of MSP430 Peripheral Driver
+is the 2.91.11.01 release of MSP430 Peripheral Driver
 Library. &nbsp;The following peripherals are supported in this
 release:</small></small></h2>
 <ul>
@@ -693,7 +706,7 @@ been removed. If your user code uses these defines please remove them.</li>
 </ul>
 <hr>
 <h2><a name="Versioning" id="Versioning">Versioning</a></h2>
-<p>This is build 2.91.08.00 of MSP430 driver library.</p>
+<p>This is build 2.91.11.01 of MSP430 driver library.</p>
 <h2><a name="Technical_Support" id="Technical_Support">Technical
 Support and Product Updates</a></h2>
 <ul>

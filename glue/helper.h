@@ -53,6 +53,8 @@ uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
                       const uint8_t len, const uint16_t min, const uint16_t max);
 uint8_t str_to_floaty_uint16(char *str, uint16_t * out, const uint8_t seek,
                       const uint8_t len, const uint8_t precision, const uint16_t min, const uint16_t max);
+uint8_t dec_to_bcd(const uint8_t val);
+uint8_t bcd_to_dec(const uint8_t val);
 
 #ifdef __cplusplus
 }

@@ -192,7 +192,7 @@ typedef struct EUSCI_A_SPI_initMasterParam {
 // parameter for functions: EUSCI_A_SPI_select4PinFunctionality().
 //
 //*****************************************************************************
-#define EUSCI_A_SPI_PREVENT_CONFLICTS_WITH_OTHER_MASTERS                   0x00
+#define EUSCI_A_SPI_PREVENT_CONFLICTS_WITH_OTHER_MASTERS                 0x0000
 #define EUSCI_A_SPI_ENABLE_SIGNAL_FOR_4WIRE_SLAVE                        UCSTEM
 
 //*****************************************************************************
@@ -260,7 +260,7 @@ extern void EUSCI_A_SPI_initMaster(uint16_t baseAddress,
 //
 //*****************************************************************************
 extern void EUSCI_A_SPI_select4PinFunctionality(uint16_t baseAddress,
-                                                uint8_t select4PinFunctionality);
+                                                uint16_t select4PinFunctionality);
 
 //*****************************************************************************
 //
@@ -374,7 +374,7 @@ extern uint8_t EUSCI_A_SPI_receiveData(uint16_t baseAddress);
 //
 //*****************************************************************************
 extern void EUSCI_A_SPI_enableInterrupt(uint16_t baseAddress,
-                                        uint8_t mask);
+                                        uint16_t mask);
 
 //*****************************************************************************
 //
@@ -396,7 +396,7 @@ extern void EUSCI_A_SPI_enableInterrupt(uint16_t baseAddress,
 //
 //*****************************************************************************
 extern void EUSCI_A_SPI_disableInterrupt(uint16_t baseAddress,
-                                         uint8_t mask);
+                                         uint16_t mask);
 
 //*****************************************************************************
 //
@@ -436,7 +436,7 @@ extern uint8_t EUSCI_A_SPI_getInterruptStatus(uint16_t baseAddress,
 //
 //*****************************************************************************
 extern void EUSCI_A_SPI_clearInterrupt(uint16_t baseAddress,
-                                       uint8_t mask);
+                                       uint16_t mask);
 
 //*****************************************************************************
 //

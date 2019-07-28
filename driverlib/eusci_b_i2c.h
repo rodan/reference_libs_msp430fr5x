@@ -164,7 +164,7 @@ typedef struct EUSCI_B_I2C_initSlaveParam {
 //
 //*****************************************************************************
 #define EUSCI_B_I2C_TRANSMIT_MODE                                          UCTR
-#define EUSCI_B_I2C_RECEIVE_MODE                                           0x00
+#define EUSCI_B_I2C_RECEIVE_MODE                                         0x0000
 
 //*****************************************************************************
 //
@@ -338,7 +338,7 @@ extern void EUSCI_B_I2C_setSlaveAddress(uint16_t baseAddress,
 //
 //*****************************************************************************
 extern void EUSCI_B_I2C_setMode(uint16_t baseAddress,
-                                uint8_t mode);
+                                uint16_t mode);
 
 //*****************************************************************************
 //

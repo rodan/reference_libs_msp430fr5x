@@ -409,7 +409,7 @@ extern uint8_t EUSCI_A_UART_getInterruptStatus(uint16_t baseAddress,
 //
 //*****************************************************************************
 extern void EUSCI_A_UART_clearInterrupt(uint16_t baseAddress,
-                                        uint8_t mask);
+                                        uint16_t mask);
 
 //*****************************************************************************
 //
