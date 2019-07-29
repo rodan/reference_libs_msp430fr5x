@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "helper.h"
 #include "ds3231.h"
 
 #ifdef HARDWARE_I2C

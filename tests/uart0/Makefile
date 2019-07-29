@@ -99,7 +99,8 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@echo "Generating dependencies.."
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
-	@makedepend $(INCLUDES) -Y -f $@ $^ &> /dev/null
+	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
+	@sed -i "s|build/$(GLUELIB)/|build/|;s|build/$(DRIVERLIB)/|build/|" $(OBJ_DIR)/main.dep
 	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
@@ -109,32 +110,27 @@ config.h:
 
 tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
-	echo $(deps)
+	@echo $(deps)
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 $(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
 	@echo -e " * [drv] $(@F)"
-	mkdir -p $(OBJ_DIR)
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-	#$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $(BUILDDIR)/$(@F)
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(GLUELIB)/%.c
 	@echo -e " * [glue] $(@F)"
-	mkdir -p $(OBJ_DIR)
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	@echo -e " * $(@F)"
-	mkdir -p $(OBJ_DIR)
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
 	@echo -e "\n>> Building $@ as target $(TARGET)"
-	$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
-#	$(CC) $(LDFLAGS) $(EXOBJECT) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
+	@$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@ && size $@
 
 debug: all
 	$(GDB) $(OBJ_DIR)/$(PROJ).elf
