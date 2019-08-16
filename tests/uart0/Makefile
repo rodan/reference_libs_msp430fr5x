@@ -10,31 +10,7 @@ PROJ:=main
 SUBDIRS:= 
 OBJ_DIR:=build
 
-###################### Windows OS ######################
-ifeq ($(OS),Windows_NT)
-	################## GCC Root Variable ###################
-	GCC_DIR     ?= C:\ti\ccs901\ccs\tools\compiler\msp430-gcc-7.3.2.154_win32
-	GCC_MSP_INC_DIR ?= $(GCC_DIR)\include
-	GCC_CSS_DIR := C:\ti\ccs901\ccs\ccs_base\msp430
-	GCC_CSS_INC_GCC_DIR := $(GCC_CSS_DIR)\include_gcc
-	GCC_CSS_INC_DIR     := $(GCC_CSS_DIR)\include
-	LIB_DIR     := $(GCC_CSS_INC_GCC_DIR)
-	DRIVERLIB   := ../../driverlib
-	GLUELIB     := ../../glue
-	LDDIR       := $(GCC_CSS_INC_GCC_DIR)\$(DEVICE)
-	RM          := rd /s /q
-################### Linux or Mac OS ####################
-else
-	################## GCC Root Variable ###################
-	GCC_DIR     ?= /opt/msp430
-	GCC_MSP_INC_DIR ?= $(GCC_DIR)/msp430-elf/lib
-	DRIVERLIB   := ../../driverlib
-	GLUELIB     := ../../glue
-	GCC_CSS_INC_GCC_DIR := $(GCC_MSP_INC_DIR)
-	LIB_DIR     := $(GCC_MSP_INC_DIR)
-	LDDIR       := $(GCC_MSP_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z)
-	RM          := rm -f
-endif
+include ../../Makefile.env
 
 ######################################
 GCC_BIN_DIR      ?= $(GCC_DIR)/bin
