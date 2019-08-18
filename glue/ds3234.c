@@ -40,12 +40,9 @@ void DS3234_init(const uint16_t baseAddress)
     param.clockSourceFrequency = 8000000;
     param.desiredSpiClock = 1000000;
     param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
-    //param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT;
     param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
-    //param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW;
     param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
     param.spiMode = EUSCI_B_SPI_3PIN;
-    //param.spiMode = EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW;
     EUSCI_B_SPI_initMaster(baseAddress, &param);
     EUSCI_B_SPI_enable(baseAddress);
 }
@@ -73,21 +70,15 @@ void DS3234_set(const uint16_t baseAddress, struct ts t)
 
     uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
     for (i = 0; i <= 6; i++) {
-        //digitalWrite(pin, LOW);
         DS3234_CS_LOW;
-        //SPI.transfer(i + 0x80);
         txdata = i + 0x80;
         spi_send_frame(baseAddress, &txdata, 1);
         if (i == 5) {
             txdata = dec_to_bcd(TimeDate[5]) + century;
-            //SPI.transfer(dec_to_bcd(TimeDate[5]) + century);
-            }
-        else {
+        } else {
             txdata = dec_to_bcd(TimeDate[i]);
-            //SPI.transfer(dec_to_bcd(TimeDate[i]));
         }
         spi_send_frame(baseAddress, &txdata, 1);
-        //digitalWrite(pin, HIGH);
         DS3234_CS_HIGH;
     }
 }
@@ -102,10 +93,6 @@ void DS3234_get(const uint16_t baseAddress, struct ts *t)
 
     for (i = 0; i <= 6; i++) {
         DS3234_CS_LOW;
-        //SPI.transfer(i + 0x00);
-        //EUSCI_B_SPI_transmitData(baseAddress, i+0x00);
-        //n = SPI.transfer(0x00);
-        //n = EUSCI_B_SPI_receiveData(baseAddress);
         txdata = i+0x00;
         spi_send_frame(baseAddress, &txdata, 1);
         spi_read_frame(baseAddress, &n, 1);
