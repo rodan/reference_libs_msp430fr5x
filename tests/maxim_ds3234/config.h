@@ -16,6 +16,8 @@
 //#define UART0_SPEED_230400_8M
 //#define UART0_SPEED_460800_8M
 
+#define EUSCI_SPI_BASE_ADDR EUSCI_B1_BASE
+
 //#define USE_ITOA_LUT
 //#define CONFIG_DEBUG
 

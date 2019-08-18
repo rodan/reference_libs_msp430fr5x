@@ -8,33 +8,19 @@
    control/status registers, aging register, sram
    - read of the temperature register, and of any address from the chip.
 
-  Author:          Petre Rodan <petre.rodan@simplex.ro>
-  Available from:  https://github.com/rodan/ds3234
+  Author:          Petre Rodan <2b4eda@subdimension.ro>
+  Available from:  https://github.com/rodan/reference_libs_msp430fr5x
  
-  The DS3231 is a low-cost, extremely accurate I2C real-time clock 
+  The DS3234 is a low-cost, extremely accurate SPI real-time clock 
   (RTC) with an integrated temperature-compensated crystal oscillator 
   (TCXO) and crystal.
-
-  GNU GPLv3 license:
-  
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-   
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-   
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   
 */
 
 #include "eusci_b_spi.h"
 #include "helper.h"
+#include "glue.h"
 #include "ds3234.h"
+#include "proj.h"
 
 /* control register 0Eh/8Eh
 bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
@@ -47,22 +33,35 @@ bit1 A2IE   Alarm2 interrupt enable (1 to enable)
 bit0 A1IE   Alarm1 interrupt enable (1 to enable)
 */
 
-#if 0
-void DS3234_init(const uint8_t pin, const uint8_t ctrl_reg)
+void DS3234_init(const uint16_t baseAddress)
 {
-    pinMode(pin, OUTPUT);       // chip select pin
-    SPI.begin();
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE1);
-    DS3234_set_creg(pin, ctrl_reg);
-    delay(10);
+    EUSCI_B_SPI_initMasterParam param = {0};
+    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.clockSourceFrequency = 8000000;
+    param.desiredSpiClock = 1000000;
+    param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
+    //param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT;
+    param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
+    //param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW;
+    param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
+    param.spiMode = EUSCI_B_SPI_3PIN;
+    //param.spiMode = EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW;
+    EUSCI_B_SPI_initMaster(baseAddress, &param);
+    EUSCI_B_SPI_enable(baseAddress);
 }
-#endif
 
-#if 0
-void DS3234_set(const uint8_t pin, struct ts t)
+void DS3234_port_init(void)
+{
+    DS3234_CS_HIGH;
+    // UCB1MOSI, UCB1MISO, UCB1CLK
+    P5SEL0 |= (BIT0 | BIT1 | BIT2);
+    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
+}
+
+void DS3234_set(const uint16_t baseAddress, struct ts t)
 {
     uint8_t i, century;
+    uint8_t txdata;
 
     if (t.year >= 2000) {
         century = 0x80;
@@ -74,30 +73,43 @@ void DS3234_set(const uint8_t pin, struct ts t)
 
     uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
     for (i = 0; i <= 6; i++) {
-        digitalWrite(pin, LOW);
-        SPI.transfer(i + 0x80);
-        if (i == 5)
-            SPI.transfer(dec_to_bcd(TimeDate[5]) + century);
-        else
-            SPI.transfer(dec_to_bcd(TimeDate[i]));
-        digitalWrite(pin, HIGH);
+        //digitalWrite(pin, LOW);
+        DS3234_CS_LOW;
+        //SPI.transfer(i + 0x80);
+        txdata = i + 0x80;
+        spi_send_frame(baseAddress, &txdata, 1);
+        if (i == 5) {
+            txdata = dec_to_bcd(TimeDate[5]) + century;
+            //SPI.transfer(dec_to_bcd(TimeDate[5]) + century);
+            }
+        else {
+            txdata = dec_to_bcd(TimeDate[i]);
+            //SPI.transfer(dec_to_bcd(TimeDate[i]));
+        }
+        spi_send_frame(baseAddress, &txdata, 1);
+        //digitalWrite(pin, HIGH);
+        DS3234_CS_HIGH;
     }
 }
-#endif
 
-#if 0
-void DS3234_get(const uint8_t pin, struct ts *t)
+void DS3234_get(const uint16_t baseAddress, struct ts *t)
 {
     uint8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
     uint8_t century = 0;
     uint8_t i, n;
     uint16_t year_full;
+    uint8_t txdata;
 
     for (i = 0; i <= 6; i++) {
-        digitalWrite(pin, LOW);
-        SPI.transfer(i + 0x00);
-        n = SPI.transfer(0x00);
-        digitalWrite(pin, HIGH);
+        DS3234_CS_LOW;
+        //SPI.transfer(i + 0x00);
+        //EUSCI_B_SPI_transmitData(baseAddress, i+0x00);
+        //n = SPI.transfer(0x00);
+        //n = EUSCI_B_SPI_receiveData(baseAddress);
+        txdata = i+0x00;
+        spi_send_frame(baseAddress, &txdata, 1);
+        spi_read_frame(baseAddress, &n, 1);
+        DS3234_CS_HIGH;
         if (i == 5) {           // month address also contains the century on bit7
             TimeDate[5] = bcd_to_dec(n & 0x1F);
             century = (n & 0x80) >> 7;
@@ -123,7 +135,6 @@ void DS3234_get(const uint8_t pin, struct ts *t)
     t->unixtime = get_unixtime(*t);
 #endif
 }
-#endif
 
 #if 0
 void DS3234_set_addr(const uint8_t pin, const uint8_t addr, const uint8_t val)

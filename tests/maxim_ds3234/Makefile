@@ -73,11 +73,12 @@ endif
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
+.PHONY: update_rtca_now
 
 ifeq ($(OS),Windows_NT)
 all: config.h driverlib $(EXOUTPUT)
 else
-all: depend config.h tags driverlib $(EXOUTPUT) size
+all: depend config.h tags update_rtca_now driverlib $(EXOUTPUT) size
 endif
 
 depend:	$(OBJ_DIR)/$(PROJ).dep
@@ -119,13 +120,16 @@ $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT
 	@echo -e "\n>> Building $@ as target $(TARGET)"
 	@$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@
 
+update_rtca_now: $(SRC)
+	@../../tools/update_rtca_now.sh
+
 size: $(OBJ_DIR)/$(PROJ).elf
 	@size $(OBJ_DIR)/$(PROJ).elf
 
 debug: all
 	$(GDB) $(OBJ_DIR)/$(PROJ).elf
 
-clean:
+clean: 
 	$(RM) build/*.o build/$(PROJ).{elf,cflags,dep,hdep}
 	$(RM) tags
 

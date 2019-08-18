@@ -10,6 +10,9 @@
 #define led_off             P1OUT &= ~BIT0
 #define led_switch          P1OUT ^= BIT0
 
+#define DS3234_CS_HIGH      P5OUT |= BIT3
+#define DS3234_CS_LOW       P5OUT &= ~BIT3
+
 #define true                1
 #define false               0
 

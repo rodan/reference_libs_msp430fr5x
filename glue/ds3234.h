@@ -1,5 +1,5 @@
-#ifndef __ds3234_h_
-#define __ds3234_h_
+#ifndef __DS3234_H_
+#define __DS3234_H_
 
 //#include "config.h"
 
@@ -31,9 +31,10 @@ struct ts {
 #endif    
 };
 
-void DS3234_init(const uint8_t pin, const uint8_t creg);
-void DS3234_set(const uint8_t pin, struct ts t);
-void DS3234_get(const uint8_t pin, struct ts *t);
+void DS3234_init(const uint16_t baseAddress);
+void DS3234_port_init(void);
+void DS3234_set(const uint16_t baseAddress, struct ts t);
+void DS3234_get(const uint16_t baseAddress, struct ts *t);
 
 void DS3234_set_addr(const uint8_t pin, const uint8_t addr, const uint8_t val);
 uint8_t DS3234_get_addr(const uint8_t pin, const uint8_t addr);

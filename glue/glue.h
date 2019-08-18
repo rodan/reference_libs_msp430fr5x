@@ -5,6 +5,9 @@
 #include "helper.h"
 #include "sys_messagebus.h"
 
+#include "spi.h"
+#include "ds3234.h"
+
 #ifdef __I2C_CONFIG_H__
 #include "i2c.h"
 #include "serial_bitbang.h"

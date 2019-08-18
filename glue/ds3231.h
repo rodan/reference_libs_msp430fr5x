@@ -1,5 +1,5 @@
-#ifndef __DS3231_H_
-#define __DS3231_H_
+#ifndef __DS3234_H_
+#define __DS3234_H_
 
 #ifdef __cplusplus
 extern "C" {
