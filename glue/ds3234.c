@@ -22,6 +22,8 @@
 #include "ds3234.h"
 #include "proj.h"
 
+#ifdef DS3234_VALID_SETUP
+
 /* control register 0Eh/8Eh
 bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
 bit6 BBSQW  Battery Backed Square Wave
@@ -433,4 +435,6 @@ uint8_t inp2toi(const char *cmd, const uint16_t seek)
     rv = (cmd[seek] - 48) * 10 + cmd[seek + 1] - 48;
     return rv;
 }
+#endif
+
 #endif

@@ -6,6 +6,7 @@
 #include "sys_messagebus.h"
 
 #include "spi.h"
+#include "ad7789.h"
 #include "ds3234.h"
 
 #ifdef __I2C_CONFIG_H__
