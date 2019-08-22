@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "timer_a1.h"
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
@@ -99,23 +98,19 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
 
-    timer_a1_init();
-
     uart0_port_init();
     uart0_init();
 
-    //AD7789_init_port();
     AD7789_init(EUSCI_SPI_BASE_ADDR);
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    led_off;
+    AD7789_postinit(EUSCI_SPI_BASE_ADDR);
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     display_menu();
-
 
     while (1) {
         // sleep

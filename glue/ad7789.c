@@ -18,7 +18,6 @@
 #include "glue.h"
 #include "ad7789.h"
 #include "proj.h"
-#include "timer_a1.h"
 
 void AD7789_init(const uint16_t baseAddress)
 {
@@ -35,7 +34,12 @@ void AD7789_init(const uint16_t baseAddress)
     param.spiMode = EUSCI_B_SPI_3PIN;
     EUSCI_B_SPI_initMaster(baseAddress, &param);
     EUSCI_B_SPI_enable(baseAddress);
-    AD7789_CS_LOW;
+}
+
+void AD7789_postinit(const uint16_t baseAddress)
+{
+    led_on;
+    AD7789_rst(baseAddress);
     AD7789_deinit_spi();
 }
 
@@ -69,13 +73,11 @@ uint8_t AD7789_get_status(const uint16_t baseAddress, uint8_t *status)
     uint8_t txdata = (AD7789_STATUS << 4) | AD7789_READ;
     *status = txdata;
 
-    timer_a1_delay_ccr2(_1ms);
-    AD7789_deinit_spi();
+    //AD7789_deinit_spi();
     AD7789_CS_LOW;
 
     while ((P5IN & BIT1) && tmout) {
     //while (tmout) {
-        timer_a1_delay_ccr2(_1ms);
         //if (!(P5IN & BIT1)) {
         //    break;
         //}
@@ -89,13 +91,11 @@ uint8_t AD7789_get_status(const uint16_t baseAddress, uint8_t *status)
         AD7789_init_spi();
         spi_send_frame(baseAddress, &txdata, 1);
         //AD7789_CS_HIGH;
-        //timer_a1_delay_ccr2(_20ms);
         //AD7789_CS_LOW;
         spi_read_frame(baseAddress, status, 1);
     }
 
     //AD7789_CS_HIGH;
-    timer_a1_delay_ccr2(_1ms);
     AD7789_CS_HIGH;
     AD7789_deinit_spi();
 
@@ -106,12 +106,9 @@ uint8_t AD7789_rst(const uint16_t baseAddress)
 {
     uint8_t txdata[4] = {0xff, 0xff, 0xff, 0xff};
 
-    AD7789_deinit_spi();
-    //AD7789_CS_LOW;
-
     AD7789_init_spi();
+    AD7789_CS_LOW;
     spi_send_frame(baseAddress, &txdata[0], 4);
-
     AD7789_CS_HIGH;
     AD7789_deinit_spi();
     return EXIT_SUCCESS;
@@ -124,12 +121,11 @@ uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data)
     //uint8_t txdata = 0x9c;
     //*status = txdata;
 
-    AD7789_deinit_spi();
+    //AD7789_deinit_spi();
     AD7789_CS_LOW;
 
     while ((P5IN & BIT1) && tmout) {
     //while (tmout) {
-        timer_a1_delay_ccr2(_1ms);
         //if (!(P5IN & BIT1)) {
         //    break;
         //}
@@ -143,7 +139,6 @@ uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data)
         AD7789_init_spi();
         spi_send_frame(baseAddress, &txdata, 1);
         //AD7789_CS_HIGH;
-        //timer_a1_delay_ccr2(_20ms);
         //AD7789_CS_LOW;
         spi_read_frame(baseAddress, data, 3);
     }

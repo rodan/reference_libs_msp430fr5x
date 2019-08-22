@@ -20,6 +20,7 @@
 #define AD7789_IN_VDD       0x03 // Vdd monitor
 
 void AD7789_init(const uint16_t baseAddress);
+void AD7789_postinit(const uint16_t baseAddress);
 void AD7789_init_port(void);
 uint8_t AD7789_get_status(const uint16_t baseAddress, uint8_t *status);
 uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data);
