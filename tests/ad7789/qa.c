@@ -26,6 +26,8 @@ void parse_user_input(void)
     uint8_t xfer;
     uint8_t ret;
     uint8_t conv[3];
+    float retf;
+    int32_t reti;
     //uint32_t in;
 
     if (f == '?') {
@@ -36,8 +38,9 @@ void parse_user_input(void)
         uart0_tx_str(str_temp, strlen(str_temp));
 
     } else if (f == 'c') {
-        ret = AD7789_get_conv(EUSCI_SPI_BASE_ADDR, &conv[0]);
-        snprintf(str_temp, STR_LEN, "ad7789 ADC 0x%x 0x%x 0x%x 0x%x\r\n", conv[0], conv[1], conv[2], ret);
+        ret = AD7789_get_conv(EUSCI_SPI_BASE_ADDR, &conv[0], &retf);
+        reti = retf*10000;
+        snprintf(str_temp, STR_LEN, "ad7789 ADC %c%d.%04d 0x%x 0x%x 0x%x 0x%x\r\n", reti<0 ? '-':' ',abs(reti/10000), abs(reti%10000), conv[0], conv[1], conv[2], ret);
         uart0_tx_str(str_temp, strlen(str_temp));
 
     } else if (f == 'i') {

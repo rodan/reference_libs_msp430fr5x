@@ -13,6 +13,7 @@
   with one differential input.
 */
 
+#include <math.h>
 #include "eusci_b_spi.h"
 #include "helper.h"
 #include "glue.h"
@@ -34,11 +35,6 @@ void AD7789_init(const uint16_t baseAddress)
     param.spiMode = EUSCI_B_SPI_3PIN;
     EUSCI_B_SPI_initMaster(baseAddress, &param);
     EUSCI_B_SPI_enable(baseAddress);
-}
-
-void AD7789_postinit(const uint16_t baseAddress)
-{
-    led_on;
     AD7789_rst(baseAddress);
     AD7789_deinit_spi();
 }
@@ -114,37 +110,35 @@ uint8_t AD7789_rst(const uint16_t baseAddress)
     return EXIT_SUCCESS;
 }
 
-uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data)
+uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data, float *output)
 {
-    uint16_t tmout = 10;
-    uint8_t txdata = (AD7789_DATA << 4) | AD7789_READ;
+    uint16_t tmout = 65535;
+    uint8_t  txdata = (AD7789_DATA << 4) | AD7789_READ;
+    uint32_t conv;
     //uint8_t txdata = 0x9c;
     //*status = txdata;
 
-    //AD7789_deinit_spi();
     AD7789_CS_LOW;
 
     while ((P5IN & BIT1) && tmout) {
-    //while (tmout) {
-        //if (!(P5IN & BIT1)) {
-        //    break;
-        //}
         tmout--;
     }
 
     if (tmout==0) {
-        //AD7789_CS_HIGH;
+        AD7789_CS_HIGH;
         return 0xee; // timeout
     } else {
         AD7789_init_spi();
         spi_send_frame(baseAddress, &txdata, 1);
-        //AD7789_CS_HIGH;
-        //AD7789_CS_LOW;
         spi_read_frame(baseAddress, data, 3);
     }
 
     AD7789_CS_HIGH;
     AD7789_deinit_spi();
+   
+    conv = (uint32_t) ((uint32_t) data[0] << 16) + ((uint32_t) data[1] << 8) + data[2];
+    //*output = conv;
+    *output = (float) (2.5*(conv/8388608.0-1)); // Vref*(counts/2^23-1)
 
     return EXIT_SUCCESS;
 }
