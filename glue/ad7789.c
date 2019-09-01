@@ -13,12 +13,22 @@
   with one differential input.
 */
 
+#include "config.h"
+#ifdef CONFIG_AD7789
+
 #include <math.h>
 #include "eusci_b_spi.h"
 #include "helper.h"
 #include "glue.h"
 #include "ad7789.h"
-#include "proj.h"
+
+#ifndef AD7789_CS_HIGH
+#error "Invalid AD7789_CS_HIGH in config.h"
+#endif
+
+#ifndef AD7789_CS_LOW
+#error "Invalid AD7789_CS_LOW in config.h"
+#endif
 
 void AD7789_init(const uint16_t baseAddress)
 {
@@ -142,4 +152,6 @@ uint8_t AD7789_get_conv(const uint16_t baseAddress, uint8_t *data, float *output
 
     return EXIT_SUCCESS;
 }
+
+#endif
 

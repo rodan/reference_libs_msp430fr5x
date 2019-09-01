@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "glue.h"
+#include "version.h"
 #include "qa.h"
 
 #define STR_LEN 64
@@ -31,7 +32,7 @@ void display_menu(void)
     char str_temp[STR_LEN];
 
     snprintf(str_temp, STR_LEN,
-            "\r\n cypress FM24 test suite --- available commands:\r\n\r\n");
+            "\r\n cypress FM24 test suite v%d.%d --- available commands:\r\n\r\n", COMMIT, BUILD);
     uart0_tx_str(str_temp, strlen(str_temp));
 
     snprintf(str_temp, STR_LEN, " \e[33;1m?\e[0m             - show menu\r\n" );
@@ -41,6 +42,12 @@ void display_menu(void)
     uart0_tx_str(str_temp, strlen(str_temp));
 
     snprintf(str_temp, STR_LEN, " \e[33;1mt\e[0m             - memtest\r\n" );
+    uart0_tx_str(str_temp, strlen(str_temp));
+
+    snprintf(str_temp, STR_LEN, " \e[33;1mr\e[0m             - tiny read test\r\n" );
+    uart0_tx_str(str_temp, strlen(str_temp));
+
+    snprintf(str_temp, STR_LEN, " \e[33;1mw\e[0m             - tiny write test\r\n" );
     uart0_tx_str(str_temp, strlen(str_temp));
 
     snprintf(str_temp, STR_LEN, " \e[33;1mh\e[0m             - hex dump read of all FRAM\r\n" );

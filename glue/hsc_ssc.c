@@ -8,6 +8,8 @@
 //  (SSC) Series are piezoresistive silicon pressure sensors.
 
 #include "config.h"
+#ifdef CONFIG_HSC_SSC
+
 #ifdef __I2C_CONFIG_H__
 
 #include <inttypes.h>
@@ -49,11 +51,11 @@ uint8_t HSC_SSC_read(const uint16_t usci_base_addr, const uint8_t slave_addr, st
     i2c_package_t pkg;
 
     pkg.slave_addr = slave_addr;
-    pkg.addr[0] = 0;
+    pkg.addr = NULL;
     pkg.addr_len = 0;
     pkg.data = val;
     pkg.data_len = 4;
-    pkg.options = I2C_READ | I2C_LAST_NAK;
+    pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
 #ifdef HARDWARE_I2C
     i2c_transfer_start(usci_base_addr, &pkg, NULL);
@@ -88,3 +90,4 @@ uint8_t HSC_SSC_convert(const struct HSC_SSC_pkt raw, uint32_t * pressure,
     return 0;
 }
 #endif // __I2C_CONFIG_H__
+#endif // CONFIG_HSC_SSC

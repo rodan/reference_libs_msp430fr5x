@@ -5,7 +5,7 @@
 
 #define USE_XT1
 //#define USE_WATCHDOG
-//#define HARDWARE_I2C
+#define HARDWARE_I2C
 //#define IRQ_I2C
 
 //#define UART0_SPEED_9600_1M
@@ -20,5 +20,8 @@
 //#define UART0_SPEED_115200_8M
 //#define UART0_SPEED_230400_8M
 //#define UART0_SPEED_460800_8M
+
+#define CONFIG_DS3231
+#define CONFIG_UNIXTIME
 
 #endif

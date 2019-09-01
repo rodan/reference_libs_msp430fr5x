@@ -68,7 +68,7 @@ void check_events(void)
 
 int main(void)
 {
-    char buf[18];
+    char buf[CONV_BASE_2_BUF_SZ];
 
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
@@ -85,8 +85,8 @@ int main(void)
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
-#define TEST_UART0_PRINT
-//#define TEST_ITOA
+//#define TEST_UART0_PRINT
+#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB
@@ -118,15 +118,23 @@ int main(void)
 #endif
 
 #ifdef TEST_ITOA
-    uart0_print(_itoa(&buf[0], 0));
+    uart0_print(_itoa(buf, 0));
     uart0_print("\r\n");
-    uart0_print(_itoa(&buf[0], 65535));
+    uart0_print(_itoa(buf, 65535));
     uart0_print("\r\n");
-    uart0_print(_utoa(&buf[0], 4294967295));
+    uart0_print(prepend_padding(buf, _itoa(buf, 1234), PAD_ZEROES, 11));
     uart0_print("\r\n");
-    uart0_print(_itoa(&buf[0], -65535));
+    uart0_print(prepend_padding(buf, _itoa(buf, 1234), PAD_ZEROES, 12));
     uart0_print("\r\n");
-    uart0_print(_itoa(&buf[0], -1));
+    uart0_print(prepend_padding(buf, _itoa(buf, 1234), PAD_ZEROES, 13));
+    uart0_print("\r\n");
+    uart0_print(_utoa(buf, 4294967295));
+    uart0_print("\r\n");
+    uart0_print(_itoa(buf, -2147483647));
+    uart0_print("\r\n");
+    uart0_print(_itoa(buf, -65535));
+    uart0_print("\r\n");
+    uart0_print(_itoa(buf, -1));
     uart0_print("\r\n");
 //>> Building main.elf as target RELEASE
 //   text    data     bss     dec     hex filename

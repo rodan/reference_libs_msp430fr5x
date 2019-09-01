@@ -122,10 +122,42 @@ float sq(const float x)
 
 // ###############################################
 // #
+// #  time functions
+// #
+uint32_t get_unixtime(struct ts t)
+{
+    const uint8_t days_in_month[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+    uint8_t i;
+    uint16_t d;
+    int16_t y;
+    uint32_t rv;
+
+    if (t.year >= 2000) {
+        y = t.year - 2000;
+    } else {
+        return 0;
+    }
+
+    d = t.mday - 1;
+    for (i=1; i<t.mon; i++) {
+        d += (uint16_t) (days_in_month[i - 1]);
+    }
+    if (t.mon > 2 && y % 4 == 0) {
+        d++;
+    }
+    // count leap days
+    d += (365 * y + (y + 3) / 4);
+    rv = ((d * 24UL + t.hour) * 60 + t.min) * 60 + t.sec + SECONDS_FROM_1970_TO_2000;
+    return rv;
+}
+
+
+// ###############################################
+// #
 // #  string functions
 // #
 
-uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
+uint8_t str_to_uint16(char *str, uint16_t *out, const uint8_t seek,
                       const uint8_t len, const uint16_t min, const uint16_t max)
 {
     uint16_t val = 0;
@@ -154,7 +186,7 @@ uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
     return EXIT_SUCCESS;
 }
 
-uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
+uint8_t str_to_uint32(char *str, uint32_t *out, const uint8_t seek,
                       const uint8_t len, const uint32_t min, const uint32_t max)
 {
     uint32_t val = 0, pow = 1;
@@ -183,7 +215,7 @@ static uint16_t const hex_ascii[16] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36
 
 char *_utoh(char *buf, const uint32_t val)
 {
-    char *p = &buf[11];
+    char *p = buf + CONV_BASE_8_BUF_SZ - 1; // the very end of the buffer
     uint32_t m = val;
     uint8_t i = 0;
 
@@ -216,7 +248,7 @@ static uint16_t const bin_ascii[2] = { 0x30, 0x31 };
 
 char *_uint32toa(char *buf, const uint32_t val)
 {
-    char *p = &buf[11];
+    char *p = buf + CONV_BASE_10_BUF_SZ - 1; // the very end of the buffer
     uint32_t m = val;
 
     *p = '\0';
@@ -238,7 +270,7 @@ char *_uint32toa(char *buf, const uint32_t val)
 
 char *_utob(char *buf, const uint16_t val)
 {
-    char *p = &buf[18];
+    char *p = buf + CONV_BASE_2_BUF_SZ - 1; // the very end of the buffer
     uint16_t m = val;
     uint8_t i = 0;
 
@@ -268,7 +300,7 @@ char *_utob(char *buf, const uint16_t val)
 
 char *_uint32toa(char *buf, const uint32_t val)
 {
-    char *p = &buf[11];
+    char *p = buf + CONV_BASE_10_BUF_SZ - 1; // the very end of the buffer
     uint32_t m = val;
 
     *p = '\0';
@@ -289,7 +321,7 @@ char *_uint32toa(char *buf, const uint32_t val)
 
 char *_utob(char *buf, const uint16_t val)
 {
-    char *p = &buf[18];
+    char *p = buf + CONV_BASE_2_BUF_SZ - 1; // the very end of the buffer
     uint16_t m = val;
     uint8_t i = 0;
 
@@ -333,6 +365,37 @@ char *_itoa(char *buf, const int32_t val)
         *(p - 1) = '-';
         return p-1;
     }
+}
+
+char *prepend_padding(char *buf, char *converted_buf, const pad_type padding_type, const uint8_t target_len)
+{
+    uint8_t conv_len;
+    uint8_t buf_pos;
+    uint8_t cnt;
+    uint8_t padding_char = '0';
+
+    conv_len = strlen(converted_buf);
+    buf_pos = converted_buf - buf;
+
+    // if not enough buffer space is available for the prepend
+    if (buf_pos < target_len-conv_len) {
+        return converted_buf;
+    }
+
+    // if the converted string is already longer than the target length
+    if (target_len <= conv_len) {
+        return converted_buf;
+    } 
+
+    if (padding_type == PAD_SPACES) {
+        padding_char = ' ';
+    }
+
+    for (cnt=0; cnt<target_len-conv_len; cnt++) {
+        *(buf + buf_pos - cnt - 1) = padding_char;
+    }
+
+    return buf + buf_pos - cnt;
 }
 
 uint8_t dec_to_bcd(const uint8_t val)

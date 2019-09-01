@@ -24,4 +24,13 @@
 #define     SYS_MSG_TIMER0_IFG 0x4   // timer0 overflow
 #define       SYS_MSG_UART0_RX 0x8   // UART received something
 
+// see hsc_ssc.h for a description of these values
+// these defaults are valid for the HSCMRNN030PA2A3 chip
+#define SLAVE_ADDR 0x28
+#define OUTPUT_MIN 0
+#define OUTPUT_MAX 0x3fff       // 2^14 - 1
+#define PRESSURE_MIN 0.0        // min is 0 for sensors that give absolute values
+#define PRESSURE_MAX 206842.7   // 30psi (and we want results in pascals)
+
+
 #endif

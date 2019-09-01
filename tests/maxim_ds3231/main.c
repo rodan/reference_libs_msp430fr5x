@@ -108,6 +108,7 @@ int main(void)
 //#endif
         //led_switch;
         check_events();
+        check_events();
     }
 
 }

@@ -16,7 +16,10 @@
 //#define UART0_SPEED_230400_8M
 //#define UART0_SPEED_460800_8M
 
+#define CONFIG_AD7789
 #define EUSCI_SPI_BASE_ADDR EUSCI_B1_BASE
+#define AD7789_CS_HIGH      P5OUT |= BIT3
+#define AD7789_CS_LOW       P5OUT &= ~BIT3
 
 //#define USE_ITOA_LUT
 //#define CONFIG_DEBUG

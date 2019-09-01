@@ -68,38 +68,21 @@ endif
 .PHONY: clean
 .PHONY: install
 .PHONY: config
+.PHONY: mkdir_od
 .PHONY: depend
 .PHONY: driverlib
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
-.PHONY: update_rtca_now
 
 ifeq ($(OS),Windows_NT)
-all: config.h driverlib $(EXOUTPUT)
+all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
-all: depend config.h tags update_rtca_now driverlib $(EXOUTPUT) size
+all: depend version.h config.h tags driverlib $(EXOUTPUT) size
 endif
-
-depend:	$(OBJ_DIR)/$(PROJ).dep
-
-$(OBJ_DIR)/$(PROJ).dep: $(SRC)
-	@echo "Generating dependencies.."
-	@mkdir -p $(OBJ_DIR)
-	@touch $@
-	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
-	@sed -i "s|build/$(GLUELIB)/|build/|;s|build/$(DRIVERLIB)/|build/|" $(OBJ_DIR)/main.dep
-	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
-	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
-	@rm -f $@.bak
 
 config.h:
 	@echo "config.h file is missing" && false
-
-tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
-	@echo "Generating tags .."
-	@echo $(deps)
-	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 $(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
 	@echo -e " * [drv] $(@F)"
@@ -113,28 +96,16 @@ $(OBJ_DIR)/%.o: %.c
 	@echo -e " * $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
-	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
 $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
 	@echo -e "\n>> Building $@ as target $(TARGET)"
 	@$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@
 
-update_rtca_now: $(SRC)
-	@../../tools/update_rtca_now.sh
+mkdir_od:
+	@mkdir -p $(OBJ_DIR)
 
-size: $(OBJ_DIR)/$(PROJ).elf
-	@size $(OBJ_DIR)/$(PROJ).elf
-
-debug: all
-	$(GDB) $(OBJ_DIR)/$(PROJ).elf
-
-clean: 
+clean:
 	$(RM) build/*.o build/$(PROJ).{elf,cflags,dep,hdep}
 	$(RM) tags
-
-cleanlib:
-	$(RM) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS)
 
 install: $(OBJ_DIR)/$(PROJ).elf
 	@bash ../../tools/burn.sh $<
@@ -144,4 +115,36 @@ install: $(OBJ_DIR)/$(PROJ).elf
 $(OBJ_DIR)/$(PROJ).cflags: cflags_update
 	@echo "$(CFLAGS)" | cmp -s - $@ || echo "$(CFLAGS)" > $@
 
+
+ifneq ($(OS),Windows_NT)
+
+version.h: $(SRC)
+	@../../tools/setver.sh
+
+$(OBJ_DIR)/$(PROJ).dep: $(SRC)
+	@echo "Generating dependencies.."
+	@mkdir -p $(OBJ_DIR)
+	@touch $@
+	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
+	@sed -i "s|build/$(GLUELIB)/|build/|;s|build/$(DRIVERLIB)/|build/|" $(OBJ_DIR)/main.dep
+	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
+	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
+	@rm -f $@.bak
+
+tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
+	@echo "Generating tags .."
+	@echo $(deps)
+	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
+
+size: $(OBJ_DIR)/$(PROJ).elf
+	@size $(OBJ_DIR)/$(PROJ).elf
+
+debug: all
+	$(GDB) $(OBJ_DIR)/$(PROJ).elf
+
+$(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
 -include $(OBJ_DIR)/$(PROJ).dep
+endif
+

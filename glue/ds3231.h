@@ -1,9 +1,7 @@
-#ifndef __DS3234_H_
-#define __DS3234_H_
+#ifndef __DS3231_H_
+#define __DS3231_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "helper.h"
 
 // i2c slave address of the DS3231 chip
 #define DS3231_I2C_ADDR             0x68
@@ -41,23 +39,9 @@ extern "C" {
 #define DS3231_A2F      0x2
 #define DS3231_OSF      0x80
 
-#define SECONDS_FROM_1970_TO_2000 946684800
-
-struct ts {
-    uint8_t sec;                /* seconds */
-    uint8_t min;                /* minutes */
-    uint8_t hour;               /* hours */
-    uint8_t mday;               /* day of the month */
-    uint8_t mon;                /* month */
-    int16_t year;               /* year */
-    uint8_t wday;               /* day of the week */
-    uint8_t yday;               /* day in the year */
-    uint8_t isdst;              /* daylight saving time */
-    uint8_t year_s;             /* year in short notation */
-#ifdef CONFIG_UNIXTIME
-    uint32_t unixtime;          /* seconds since 01.01.1970 00:00:00 UTC */
+#ifdef __cplusplus
+extern "C" {
 #endif
-};
 
 uint8_t DS3231_init(const uint16_t usci_base_addr, const uint8_t creg);
 uint8_t DS3231_set(const uint16_t usci_base_addr, struct ts t);
@@ -94,12 +78,6 @@ uint8_t DS3231_set_a2(const uint16_t usci_base_addr,
 uint8_t DS3231_get_a2(const uint16_t usci_base_addr, char *buf, const uint8_t len);
 uint8_t DS3231_clear_a2f(const uint16_t usci_base_addr);
 uint8_t DS3231_triggered_a2(const uint16_t usci_base_addr, uint8_t * val);
-
-// helpers
-uint32_t get_unixtime(struct ts t);
-uint8_t dectobcd(const uint8_t val);
-uint8_t bcdtodec(const uint8_t val);
-uint8_t inp2toi(char *cmd, const uint16_t seek);
 
 #ifdef __cplusplus
 }
