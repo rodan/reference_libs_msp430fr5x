@@ -15,7 +15,7 @@ void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, c
     char str_temp[STR_LEN];
 
     snprintf(str_temp, STR_LEN, " \e[36;1m*\e[0m testing %lx - %lx with pattern #%d\t", start_addr, stop_addr, test);
-    uart0_tx_str(str_temp, strlen(str_temp));
+    uart0_print(str_temp);
 
     el = FM24_memtest(usci_base_addr, start_addr, stop_addr, test, &rows_tested);
 
@@ -24,7 +24,7 @@ void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, c
     } else {
         snprintf(str_temp, STR_LEN, "%lu bytes tested with \e[31;1m%lu errors\e[0m\r\n", rows_tested * 8, el );
     }
-    uart0_tx_str(str_temp, strlen(str_temp));
+    uart0_print(str_temp);
 }
 
 void display_menu(void)
@@ -33,26 +33,13 @@ void display_menu(void)
 
     snprintf(str_temp, STR_LEN,
             "\r\n cypress FM24 test suite v%d.%d --- available commands:\r\n\r\n", COMMIT, BUILD);
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1m?\e[0m             - show menu\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mi\e[0m             - display i2c registers\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mt\e[0m             - memtest\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mr\e[0m             - tiny read test\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mw\e[0m             - tiny write test\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
-    snprintf(str_temp, STR_LEN, " \e[33;1mh\e[0m             - hex dump read of all FRAM\r\n" );
-    uart0_tx_str(str_temp, strlen(str_temp));
-
+    uart0_print(str_temp);
+    uart0_print(" \e[33;1m?\e[0m             - show menu\r\n");
+    uart0_print(" \e[33;1mi\e[0m             - display i2c registers\r\n");
+    uart0_print(" \e[33;1mt\e[0m             - memtest\r\n");
+    uart0_print(" \e[33;1mr\e[0m             - tiny read test\r\n");
+    uart0_print(" \e[33;1mw\e[0m             - tiny write test\r\n");
+    uart0_print(" \e[33;1mh\e[0m             - hex dump read of all FRAM\r\n");
 }
 
 void parse_user_input(void)
@@ -91,54 +78,54 @@ void parse_user_input(void)
         display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_00);
         display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_FF);
         display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_AA);
-        uart0_tx_str(" * roll over test\r\n", 19);
+        uart0_print(" * roll over test\r\n");
         display_memtest(EUSCI_BASE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
     } else if (f == 'h') {
         //for (i=0;i<(FM_LA+1)/16;i++) {
         for (i=0;i<8;i++) {
             FM24_read(EUSCI_BASE_ADDR, row, FM_LA - 63 + (i * 16), 16);
             snprintf(str_temp, STR_LEN, "%08lx: ", FM_LA - 63 + (i * 16));
-            uart0_tx_str(str_temp, strlen(str_temp));
+            uart0_print(str_temp);
             for (j=0; j<8; j++) {
                 snprintf(str_temp, STR_LEN, "%02x%02x ", row[2*j], row[2*j+1]);
-                uart0_tx_str(str_temp, strlen(str_temp));
+                uart0_print(str_temp);
             }
-            uart0_tx_str("  ", 2);
+            uart0_print("  ");
             for (j=0; j<16; j++) {
                 uart0_tx_str((char *)row + j, 1);
             }
-            uart0_tx_str("\r\n", 2);
+            uart0_print("\r\n");
         }
 
     } else if (f == 'i') {
         snprintf(str_temp, STR_LEN, "P7SEL0 0x%x, P7SEL1 0x%x\r\n", P7SEL0, P7SEL1);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2CTLW0 0x%x, UCB2CTLW1 0x%x\r\n", UCB2CTLW0, UCB2CTLW1);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2BRW 0x%x, UCBxSTATW 0x%x\r\n", UCB2BRW, UCB2STATW);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2TBCNT 0x%x\r\n", UCB2TBCNT);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2RXBUF 0x%x, UCB2TXBUF 0x%x\r\n", UCB2RXBUF, UCB2TXBUF);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2I2COA0 0x%x, UCB2ADDRX 0x%x\r\n", UCB2I2COA0, UCB2ADDRX);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2ADDMASK 0x%x, UCB2I2CSA 0x%x\r\n", UCB2ADDMASK, UCB2I2CSA);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2IE 0x%x, UCB2IFG 0x%x\r\n", UCB2IE, UCB2IFG);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
         snprintf(str_temp, STR_LEN, "UCB2IV 0x%x\r\n", UCB2IV);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
     } else {
-        uart0_tx_str("\r\n", 2);
+        uart0_print("\r\n");
     }
 }
 

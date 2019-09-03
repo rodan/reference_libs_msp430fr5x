@@ -49,13 +49,13 @@ void parse_user_input(void)
         snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d\r\n", t.year,
                  t.mon, t.mday, t.hour, t.min, t.sec);
 #endif
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
 
     } else if (f == 'i') {
         snprintf(str_temp, STR_LEN, "UCB1CTLW0 0x%x, UCB1BRW 0x%x\r\n", UCB1CTLW0, UCB1BRW);
-        uart0_tx_str(str_temp, strlen(str_temp));
+        uart0_print(str_temp);
     } else {
-        uart0_tx_str("\r\n", 2);
+        uart0_print("\r\n");
     }
 }
 

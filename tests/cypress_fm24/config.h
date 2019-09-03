@@ -13,7 +13,7 @@
 #define CONFIG_FM24V10
 
 // only a few of the F-RAM chips have explicit sleep mode option
-//#ifdef CONFIG_HAVE_FM24V10
+//#ifdef CONFIG_FM24V10
 //    #define FM24_HAS_SLEEP_MODE
 //#endif
 

@@ -81,7 +81,7 @@ void parse_user_input(void)
         ir_send_start(&temp_command);
         uart0_print("sig sent");
     } else {
-        uart0_tx_str("\r\n", 2);
+        uart0_print("\r\n");
     }
 }
 

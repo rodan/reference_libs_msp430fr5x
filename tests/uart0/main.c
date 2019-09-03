@@ -143,15 +143,15 @@ int main(void)
 
 #ifdef TEST_SNPRINTF
     snprintf(buf, 12, "%d", 0);
-    uart0_tx_str(buf, strlen(buf));
+    uart0_print(buf);
     snprintf(buf, 12, "%ld", 65535);
-    uart0_tx_str(buf, strlen(buf));
+    uart0_print(buf);
     snprintf(buf, 12, "%lld", 4294967295);
-    uart0_tx_str(buf, strlen(buf));
+    uart0_print(buf);
     snprintf(buf, 12, "%ld", -65535);
-    uart0_tx_str(buf, strlen(buf));
+    uart0_print(buf);
     snprintf(buf, 12, "%d", -1);
-    uart0_tx_str(buf, strlen(buf));
+    uart0_print(buf);
 //>> Building main.elf as target RELEASE
 //   text    data     bss     dec     hex filename
 //   5151     212     106    5469    155d main.elf

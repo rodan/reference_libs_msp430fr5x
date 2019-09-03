@@ -60,7 +60,7 @@ void parse_user_input(void)
         }
         uart0_print(" done\r\n");
     } else {
-        uart0_tx_str("\r\n", 2);
+        uart0_print("\r\n");
     }
 }
 
