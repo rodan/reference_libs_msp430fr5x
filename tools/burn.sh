@@ -7,6 +7,7 @@
 
 lsusb | grep -qi '0403:6001' && prog='ftdi'
 lsusb | grep -qi '2047:0013' && prog='ezfet-1.2'
+lsusb | grep -qi '2047:0014' && prog='msp-fet'
 lsusb | grep -qi 'Dragon' && prog='dragon'
 lsusb | grep -qi 'PL2303' && prog='stk500v2'
 lsusb | grep -qi 'eZ430 Development Tool' && prog='ez430'
@@ -46,6 +47,13 @@ lsusb | grep -qi '15ba:0100' && prog='olimex_iso_mk2'
 }
 
 [ "${prog}" = "ezfet-1.2" ] && {
+    echo "+ detected $prog"
+    set -x
+    mspdebug tilib "prog ${hex}"
+    exit $?
+}
+
+[ "${prog}" = "msp-fet" ] && {
     echo "+ detected $prog"
     set -x
     mspdebug tilib "prog ${hex}"

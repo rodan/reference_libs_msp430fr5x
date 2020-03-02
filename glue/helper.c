@@ -8,6 +8,8 @@
 // in case the user defines USE_ITOA_LUT locally
 #include "config.h"
 
+#include "uart0.h"
+
 // |error| < 0.005
 float _atan2f(const float y, const float x)
 {
@@ -157,6 +159,30 @@ uint32_t get_unixtime(struct ts t)
 // #  string functions
 // #
 
+uint8_t str_to_uint8(char *str, uint8_t * out, const uint8_t seek,
+                      const uint8_t len, const uint8_t min, const uint8_t max)
+{
+    uint32_t val = 0, pow = 1;
+    uint8_t i;
+
+    // pow() is missing in msp gcc, so we improvise
+    for (i = 0; i < len - 1; i++) {
+        pow *= 10;
+    }
+    for (i = 0; i < len; i++) {
+        if ((str[seek + i] > 47) && (str[seek + i] < 58)) {
+            val += (str[seek + i] - 48) * pow;
+        }
+        pow /= 10;
+    }
+    if ((val >= min) && (val <= max)) {
+        *out = val;
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
+}
+
 uint8_t str_to_uint16(char *str, uint16_t *out, const uint8_t seek,
                       const uint8_t len, const uint16_t min, const uint16_t max)
 {
@@ -164,7 +190,7 @@ uint8_t str_to_uint16(char *str, uint16_t *out, const uint8_t seek,
     uint32_t pow = 1;
     uint8_t i, c;
 
-    for (i = len; i > seek; i--) {
+    for (i = len + 1; i > seek; i--) {
         c = str[i-1] - 48;
         if (c < 10) {
             val += c * pow;
@@ -186,6 +212,7 @@ uint8_t str_to_uint16(char *str, uint16_t *out, const uint8_t seek,
     return EXIT_SUCCESS;
 }
 
+
 uint8_t str_to_uint32(char *str, uint32_t *out, const uint8_t seek,
                       const uint8_t len, const uint32_t min, const uint32_t max)
 {
@@ -202,6 +229,102 @@ uint8_t str_to_uint32(char *str, uint32_t *out, const uint8_t seek,
         }
         pow /= 10;
     }
+    if ((val >= min) && (val <= max)) {
+        *out = val;
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
+}
+
+uint8_t str_to_int32(char *str, int32_t *out, const uint8_t seek,
+                      const uint8_t len, const int32_t min, const int32_t max)
+{
+    int32_t val = 0;
+    uint32_t pow = 1;
+    uint8_t i;
+    int8_t sign = 1;
+
+    // pow() is missing in msp gcc, so we improvise
+    for (i = 0; i < len - 1; i++) {
+        pow *= 10;
+    }
+    for (i = 0; i < len; i++) {
+        if ((str[seek + i] > 47) && (str[seek + i] < 58)) {
+            val += (str[seek + i] - 48) * pow;
+        } else if (str[seek + i] == 45) {
+            sign = -1;
+        }
+        pow /= 10;
+    }
+    if ((val >= min) && (val <= max)) {
+        *out = val * sign;
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
+}
+
+uint8_t hstr_to_uint8(char *str, uint8_t *out, const uint8_t seek,
+                      const uint8_t len, const uint8_t min, const uint8_t max)
+{
+    uint8_t val = 0;
+    uint32_t pow = 1;
+    uint8_t i;
+
+    // pow() is missing in msp gcc, so we improvise
+    for (i = seek; i < len; i++) {
+        pow *= 16;
+    }
+
+    for (i = seek; i < len + 1; i++) {
+        if ((str[i] > 47) && (str[i] < 58)) {
+            // 0 - 9
+            val += (str[i] - 48) * pow;
+        } else if ((str[i] > 96) && (str[i] < 103)) {
+            // a - f
+            val += (str[i] - 87) * pow;
+        } else if ((str[i] > 64) && (str[i] < 71)) {
+            // A - F
+            val += (str[i] - 55) * pow;
+        }
+        pow /= 16;
+    }
+
+    if ((val >= min) && (val <= max)) {
+        *out = val;
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
+}
+
+uint8_t hstr_to_uint16(char *str, uint16_t *out, const uint8_t seek,
+                      const uint8_t len, const uint16_t min, const uint16_t max)
+{
+    uint16_t val = 0;
+    uint32_t pow = 1;
+    uint8_t i;
+
+    // pow() is missing in msp gcc, so we improvise
+    for (i = seek; i < len; i++) {
+        pow *= 16;
+    }
+
+    for (i = seek; i < len + 1; i++) {
+        if ((str[i] > 47) && (str[i] < 58)) {
+            // 0 - 9
+            val += (str[i] - 48) * pow;
+        } else if ((str[i] > 96) && (str[i] < 103)) {
+            // a - f
+            val += (str[i] - 87) * pow;
+        } else if ((str[i] > 64) && (str[i] < 71)) {
+            // A - F
+            val += (str[i] - 55) * pow;
+        }
+        pow /= 16;
+    }
+
     if ((val >= min) && (val <= max)) {
         *out = val;
         return EXIT_SUCCESS;
@@ -241,6 +364,67 @@ char *_utoh(char *buf, const uint32_t val)
     return p;
 }
 
+char *_utoh8(char *buf, const uint32_t val)
+{
+    char *p = buf + CONV_BASE_8_BUF_SZ - 1; // the very end of the buffer
+    uint32_t m = val;
+    uint8_t i = 0;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 2;
+        memcpy(p, &hex_ascii[0], sizeof(uint8_t));
+        memcpy(p+1, &hex_ascii[0], sizeof(uint8_t));
+    }
+
+    // groups of 8 bits
+    while (m > 0 || (i & 1))
+    {
+        p -= 1;
+        memcpy(p, &hex_ascii[m & 0xf], sizeof(uint8_t));
+        m >>= 4;
+        i++;
+    }
+
+    return p;
+}
+
+char *_utoh16(char *buf, const uint32_t val)
+{
+    char *p = buf + CONV_BASE_8_BUF_SZ - 1; // the very end of the buffer
+    uint32_t m = val;
+    uint8_t i = 0;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 4;
+        memcpy(p, &hex_ascii[0], sizeof(uint8_t));
+        memcpy(p+1, &hex_ascii[0], sizeof(uint8_t));
+        memcpy(p+2, &hex_ascii[0], sizeof(uint8_t));
+        memcpy(p+3, &hex_ascii[0], sizeof(uint8_t));
+        return p;
+    }
+
+    // groups of 8 bits
+    while (m > 0 || (i & 1))
+    {
+        p -= 1;
+        memcpy(p, &hex_ascii[m & 0xf], sizeof(uint8_t));
+        m >>= 4;
+        i++;
+    }
+
+    if (val < 0x100) {
+        p -= 2;
+        memcpy(p, &hex_ascii[0], sizeof(uint8_t));
+        memcpy(p+1, &hex_ascii[0], sizeof(uint8_t));
+    }
+
+    return p;
+}
+
 #ifdef USE_ITOA_LUT
 
 static uint16_t const dec_ascii[10] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 };
@@ -250,6 +434,28 @@ char *_uint32toa(char *buf, const uint32_t val)
 {
     char *p = buf + CONV_BASE_10_BUF_SZ - 1; // the very end of the buffer
     uint32_t m = val;
+
+    *p = '\0';
+
+    while(m >= 10)
+    {
+        uint32_t const old = m;
+
+        p -= 1;
+        m /= 10;
+        memcpy(p, &dec_ascii[old - (m * 10)], sizeof(uint8_t));
+    }
+
+    p -= 1;
+    memcpy(p, &dec_ascii[m], sizeof(uint8_t));
+
+    return p;
+}
+
+char *_uint16toa(char *buf, const uint16_t val)
+{
+    char *p = buf + CONV_BASE_10_BUF_SZ - 1; // the very end of the buffer
+    uint16_t m = val;
 
     *p = '\0';
 
@@ -319,6 +525,27 @@ char *_uint32toa(char *buf, const uint32_t val)
     return p;
 }
 
+char *_uint16toa(char *buf, const uint16_t val)
+{
+    char *p = buf + CONV_BASE_10_BUF_SZ - 1; // the very end of the buffer
+    uint32_t m = val;
+
+    *p = '\0';
+
+    if (val == 0) {
+        p -= 1;
+        *p = '0';
+    }
+
+    while (m > 0) {
+        p -= 1;
+        *p = (m % 10) + '0';
+        m /= 10;
+    }
+
+    return p;
+}
+
 char *_utob(char *buf, const uint16_t val)
 {
     char *p = buf + CONV_BASE_2_BUF_SZ - 1; // the very end of the buffer
@@ -362,6 +589,18 @@ char *_itoa(char *buf, const int32_t val)
         return _uint32toa(buf, val);
     } else {
         p = _uint32toa(buf, val * -1);
+        *(p - 1) = '-';
+        return p-1;
+    }
+}
+
+char *_i16toa(char *buf, const int16_t val)
+{
+    char *p;
+    if (val >= 0) {
+        return _uint16toa(buf, val);
+    } else {
+        p = _uint16toa(buf, val * -1);
         *(p - 1) = '-';
         return p-1;
     }

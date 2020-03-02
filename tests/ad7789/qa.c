@@ -9,16 +9,10 @@
 
 #define STR_LEN 64
 
-static const char __flash menu[] = "\r\n ad7789 module test suite --- available commands:\r\n\r\n \e[33;1m?\e[0m             - show menu\r\n \e[33;1mi\e[0m             - get reg settings\r\n \e[33;1mc\e[0m             - get conversion\r\n";
+static const char menu[] = "\r\n ad7789 module test suite --- available commands:\r\n\r\n \e[33;1m?\e[0m             - show menu\r\n \e[33;1mi\e[0m             - get reg settings\r\n \e[33;1mc\e[0m             - get conversion\r\n";
 
 void display_menu(void)
 {
-/*
-    uart0_print("\r\n ad7789 module test suite --- available commands:\r\n\r\n");
-    uart0_print(" \e[33;1m?\e[0m             - show menu\r\n");
-    uart0_print(" \e[33;1mi\e[0m             - get reg settings\r\n");
-    uart0_print(" \e[33;1mc\e[0m             - get conversion\r\n");
-    */
     uart0_print(menu);
 }
 

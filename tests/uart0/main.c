@@ -31,11 +31,11 @@ void main_init(void)
     //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
 
     // configure MCLK, SMCLK to be sourced by DCOCLK
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
 #ifdef USE_XT1
+    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_turnOnLFXT(CS_LFXT_DRIVE_3);
 #endif
 }

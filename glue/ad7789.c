@@ -33,10 +33,16 @@
 void AD7789_init(const uint16_t baseAddress)
 {
     EUSCI_B_SPI_initMasterParam param = {0};
+/*
     param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_ACLK;
     param.clockSourceFrequency = 32768;
     //param.desiredSpiClock = 8192;
     param.desiredSpiClock = 4096;
+*/    
+    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.clockSourceFrequency = 8000000;
+    param.desiredSpiClock = 10000;
+
     param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
     param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
     //param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT;

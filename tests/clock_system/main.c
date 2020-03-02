@@ -26,19 +26,40 @@ void main_init(void)
 
 #ifdef USE_XT1
     PJSEL0 |= BIT4 | BIT5;
-    CS_setExternalClockSource(32768,0);
+    #ifdef USE_XT2
+        PJSEL0 |= BIT6 | BIT7;
+        CS_setExternalClockSource(32768,8000000);
+    #else
+        CS_setExternalClockSource(32768,0);
+    #endif
+#else
+    #ifdef USE_XT2
+        PJSEL0 |= BIT6 | BIT7;
+        CS_setExternalClockSource(0,8000000);
+    #endif
 #endif
 
-    // Set DCO Frequency to 8MHz
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
-
+#ifdef USE_XT1
     // configure MCLK, SMCLK to be source by DCOCLK
     CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+#endif
+
+#ifdef USE_XT2
+    CS_initClockSignal(CS_SMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+#else
+    // Set DCO Frequency to 8MHz
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+#endif
 
 #ifdef USE_XT1
     CS_turnOnLFXT(CS_LFXT_DRIVE_0);
+#endif
+
+#ifdef USE_XT2
+    CS_turnOnHFXT(CS_HFXT_DRIVE_8MHZ_16MHZ);
 #endif
 
     // * port init

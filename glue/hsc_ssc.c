@@ -79,11 +79,8 @@ uint8_t HSC_SSC_convert(const struct HSC_SSC_pkt raw, uint32_t * pressure,
                    const float pressure_max)
 {
     float t, p;
-    p = 1.0 * (raw.bridge_data - output_min) * (pressure_max -
-                                                pressure_min) / (output_max -
-                                                                 output_min) -
-        pressure_min;
-    t = (raw.temperature_data * 0.0977) - 50;
+    p = (float) ((float)raw.bridge_data - (float)output_min) * ((float)pressure_max - (float) pressure_min) / ( (float)output_max - (float) output_min) + (float) pressure_min;
+    t = ((float) raw.temperature_data * 0.0977) - 50.0;
 
     *pressure = p;
     *temperature = 100 * t;

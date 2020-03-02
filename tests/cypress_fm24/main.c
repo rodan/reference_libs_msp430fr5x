@@ -24,7 +24,16 @@ void main_init(void)
 #endif
 
     // Set DCO Frequency to 8MHz
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
+    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
+
+    // Set DCO Frequency to 1MHz
+    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
+
+    // Set DCO Frequency to 2.67MHz
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_1);
+
+    // Set DCO Frequency to 4MHz
+    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_3);
 
     // configure MCLK, SMCLK to be source by DCOCLK
     CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
@@ -68,11 +77,12 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
     uart0_port_init();
-    uart0_init();
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
+
+    uart0_init();
 
 #ifdef HARDWARE_I2C 
     EUSCI_B_I2C_initMasterParam param = {0};
@@ -92,6 +102,8 @@ int main(void)
     led_off;
 
     sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+
+    display_menu();
 
     while (1) {
         // sleep

@@ -19,6 +19,16 @@
 #define  CONV_BASE_8_BUF_SZ  12
 #define CONV_BASE_10_BUF_SZ  12 // -2147483648 + ending 0 is 12 bytes long
 
+#ifndef EXIT_FAILURE
+#define EXIT_FAILURE 1
+#endif
+
+#ifndef EXIT_SUCCESS
+#define EXIT_SUCCESS 0
+#endif
+
+
+
 typedef enum {
     PAD_NONE,
     PAD_ZEROES,
@@ -108,6 +118,8 @@ char *_utob(char *buf, const uint16_t val);
     @return pointer to the string
 */
 char *_utoh(char *buf, const uint32_t val);
+char *_utoh8(char *buf, const uint32_t val);
+char *_utoh16(char *buf, const uint32_t val);
 
 /** return a decimal string for an uint32_t integer
     @param temporary buffer used to build up the string. buf[CONV_BASE_10_BUF_SZ] needs to be pre-allocated
@@ -122,6 +134,7 @@ char *_utoa(char *buf, const uint32_t val);
     @return pointer to the string
 */
 char *_itoa(char *buf, const int32_t val);
+char *_i16toa(char *buf, const int16_t val);
 
 /** return a string with prefixed padding
     @param pointer to originally allocated buffer
@@ -131,6 +144,30 @@ char *_itoa(char *buf, const int32_t val);
     @return pointer to the resulting string. *converted_buf is returned on parameter error
 */
 char *prepend_padding(char *buf, char *converted_buf, const pad_type padding_type, const uint8_t target_len);
+
+/** convert a string to a 16bit unsigned integer
+    @param pointer to string to be converted
+    @param pointer to resulting uint16_t value [min .. max]
+    @param how many chars to skip [0 .. len-1]
+    @param length of string to parse
+    @param minimal value for result
+    @param maximum value for result
+    @return EXIT_FAILURE if resulting value is outside the limits, EXIT_SUCCESS otherwise
+*/
+uint8_t str_to_uint8(char *str, uint8_t * out, const uint8_t seek,
+                      const uint8_t len, const uint8_t min, const uint8_t max);
+
+/** convert a string to a 16bit unsigned integer
+    @param pointer to string to be converted
+    @param pointer to resulting uint16_t value [min .. max]
+    @param how many chars to skip [0 .. len-1]
+    @param length of string to parse
+    @param minimal value for result
+    @param maximum value for result
+    @return EXIT_FAILURE if resulting value is outside the limits, EXIT_SUCCESS otherwise
+*/
+uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
+                      const uint8_t len, const uint16_t min, const uint16_t max);
 
 /** convert a string to a 32bit unsigned integer
     @param pointer to string to be converted
@@ -144,7 +181,32 @@ char *prepend_padding(char *buf, char *converted_buf, const pad_type padding_typ
 uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
                       const uint8_t len, const uint32_t min, const uint32_t max);
 
-/** convert a string to a 16bit unsigned integer
+/** convert a string to a 32bit signed integer
+    @param pointer to string to be converted
+    @param pointer to resulting int32_t value [min .. max]
+    @param how many chars to skip [0 .. len-1]
+    @param length of string to parse
+    @param minimal value for result
+    @param maximum value for result
+    @return EXIT_FAILURE if resulting value is outside the limits, EXIT_SUCCESS otherwise
+*/
+uint8_t str_to_int32(char *str, int32_t * out, const uint8_t seek,
+                      const uint8_t len, const int32_t min, const int32_t max);
+
+/** convert a hex string to a 8bit unsigned integer
+    @param pointer to string to be converted
+    @param pointer to resulting uint8_t value [min .. max]
+    @param how many chars to skip [0 .. len-1]
+    @param length of string to parse
+    @param minimal value for result
+    @param maximum value for result
+    @return EXIT_FAILURE if resulting value is outside the limits, EXIT_SUCCESS otherwise
+*/
+uint8_t hstr_to_uint8(char *str, uint8_t *out, const uint8_t seek,
+                      const uint8_t len, const uint8_t min, const uint8_t max);
+
+
+/** convert a hex string to a 16bit unsigned integer
     @param pointer to string to be converted
     @param pointer to resulting uint16_t value [min .. max]
     @param how many chars to skip [0 .. len-1]
@@ -153,8 +215,9 @@ uint8_t str_to_uint32(char *str, uint32_t * out, const uint8_t seek,
     @param maximum value for result
     @return EXIT_FAILURE if resulting value is outside the limits, EXIT_SUCCESS otherwise
 */
-uint8_t str_to_uint16(char *str, uint16_t * out, const uint8_t seek,
+uint8_t hstr_to_uint16(char *str, uint16_t *out, const uint8_t seek,
                       const uint8_t len, const uint16_t min, const uint16_t max);
+
 
 /** convert a base-10 integer value to a binary-coded decimal (BCD)
     @param input decimal value to be converted

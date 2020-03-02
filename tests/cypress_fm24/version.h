@@ -1,9 +1,9 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-// compiled on Tue Sep  3 06:56:59 UTC 2019
+// compiled on Sat Sep  7 20:57:18 UTC 2019
 
-#define BUILD 8
-#define COMMIT 64
+#define BUILD 19
+#define COMMIT 65
 
 #endif
