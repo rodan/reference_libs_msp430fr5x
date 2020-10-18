@@ -18,6 +18,7 @@ void display_menu(void)
     uart0_print(" \e[33;1m?\e[0m             - show menu\r\n");
     uart0_print(" \e[33;1mi\e[0m             - display i2c registers\r\n");
     uart0_print(" \e[33;1mr\e[0m             - tiny read test\r\n");
+    uart0_print(" \e[33;1mw\e[0m             - tiny write test\r\n");
 }
 
 void parse_user_input(void)
@@ -47,6 +48,9 @@ void parse_user_input(void)
         TCA6408_read(EUSCI_BASE_ADDR, TCA6408_SLAVE_ADDR, &data_r, TCA6408_CONF);
         snprintf(str_temp, STR_LEN, "conf    0x%x\r\n", data_r);
         uart0_print(str_temp);
+    } else if (f == 'w') {
+        data_r = 0xa;
+        TCA6408_write(EUSCI_BASE_ADDR, TCA6408_SLAVE_ADDR, &data_r, TCA6408_CONF);
     } else if (f == 'i') {
         snprintf(str_temp, STR_LEN, "P7SEL0 0x%x, P7SEL1 0x%x\r\n", P7SEL0, P7SEL1);
         uart0_print(str_temp);
