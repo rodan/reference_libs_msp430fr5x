@@ -8,7 +8,7 @@
 
 #define STR_LEN 64
 
-void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
+void display_memtest(const uint16_t usci_base_addr, const uint8_t slave_addr, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
 {
     uint32_t el;
     uint32_t rows_tested;
@@ -17,7 +17,7 @@ void display_memtest(const uint16_t usci_base_addr, const uint32_t start_addr, c
     snprintf(str_temp, STR_LEN, " \e[36;1m*\e[0m testing %lx - %lx with pattern #%d\t", start_addr, stop_addr, test);
     uart0_print(str_temp);
 
-    el = FM24_memtest(usci_base_addr, start_addr, stop_addr, test, &rows_tested);
+    el = FM24_memtest(usci_base_addr, slave_addr, start_addr, stop_addr, test, &rows_tested);
 
     if (el == 0) { 
         snprintf(str_temp, STR_LEN, "%lu bytes tested \e[32;1mok\e[0m\r\n", rows_tested * 8);
@@ -63,11 +63,11 @@ void parse_user_input(void)
     if (f == '?') {
         display_menu();
     } else if (f == 'w') {
-        FM24_write(EUSCI_BASE_ADDR, foo, FM_LA-20, 8);
+        FM24_write(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, foo, FM_LA-20, 8);
     } else if (f == 'b') {
-        FM24_write(EUSCI_BASE_ADDR, bar, 0x90, 8);
+        FM24_write(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, bar, 0x90, 8);
     } else if (f == 'r') {
-        FM24_read(EUSCI_BASE_ADDR, data_r, FM_LA-20, 8);
+        FM24_read(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-20, 8);
     } else if (f == 't') {
         //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
         //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
@@ -75,15 +75,15 @@ void parse_user_input(void)
         //display_memtest(EUSCI_BASE_ADDR, 0x40, 0x60, TEST_FF);
         //display_memtest(EUSCI_BASE_ADDR, 0x60, 0x80, TEST_AA);
         //display_memtest(EUSCI_BASE_ADDR, 0x90, 0x98, TEST_00);
-        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_00);
-        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_FF);
-        display_memtest(EUSCI_BASE_ADDR, 0, FM_LA, TEST_AA);
+        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
+        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
+        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
         uart0_print(" * roll over test\r\n");
-        display_memtest(EUSCI_BASE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
+        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
     } else if (f == 'h') {
         //for (i=0;i<(FM_LA+1)/16;i++) {
         for (i=0;i<8;i++) {
-            FM24_read(EUSCI_BASE_ADDR, row, FM_LA - 63 + (i * 16), 16);
+            FM24_read(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, row, FM_LA - 63 + (i * 16), 16);
             snprintf(str_temp, STR_LEN, "%08lx: ", FM_LA - 63 + (i * 16));
             uart0_print(str_temp);
             for (j=0; j<8; j++) {

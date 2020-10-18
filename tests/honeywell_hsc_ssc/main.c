@@ -22,16 +22,16 @@ void main_init(void)
     CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
 
     // configure MCLK, SMCLK to be source by DCOCLK
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
 #ifdef USE_XT1
+    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_turnOnLFXT(CS_LFXT_DRIVE_3);
 #endif
 }
 
-static void uart0_rx_irq(const uint16_t msg)
+static void uart0_rx_irq(const uint32_t msg)
 {
     parse_user_input();
     uart0_set_eol();
@@ -39,7 +39,6 @@ static void uart0_rx_irq(const uint16_t msg)
 
 void check_events(void)
 {
-    struct sys_messagebus *p = sys_messagebus_getp();
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
@@ -47,14 +46,7 @@ void check_events(void)
         msg |= SYS_MSG_UART0_RX;
         uart0_rst_event();
     }
-
-    while (p) {
-        // notify listener if he registered for any of these messages
-        if (msg & p->listens) {
-            p->fn(msg);
-        }
-        p = p->next;
-    }
+    eh_exec(msg);
 }
 
 int main(void)
@@ -87,7 +79,7 @@ int main(void)
     #endif
 #endif
 
-    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
     while (1) {
         // sleep

@@ -8,14 +8,7 @@
 #define HARDWARE_I2C
 #define IRQ_I2C
 
-#define CONFIG_CYPRESS_FM24
-#define CONFIG_FM24CL64B
-//#define CONFIG_FM24V10
-
-// only a few of the F-RAM chips have explicit sleep mode option
-//#ifdef CONFIG_FM24V10
-//    #define FM24_HAS_SLEEP_MODE
-//#endif
+#define CONFIG_TCA6408
 
 //#define CONFIG_DEBUG
 
