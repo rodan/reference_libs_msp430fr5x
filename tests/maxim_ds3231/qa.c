@@ -66,6 +66,10 @@ void parse_user_input(void)
         t.mday = COMPILE_DAY;
         t.mon = COMPILE_MON;
         t.year = COMPILE_YEAR;
+        t.yday = 0;
+        t.isdst = 0;
+        t.year_s = 0;
+        t.unixtime = 0;
         DS3231_set(EUSCI_BASE_ADDR, t);
     } else if (f == 't') {
         //DS3231_get_treg();

@@ -165,7 +165,7 @@ void __attribute__ ((interrupt(EUSCI_A3_VECTOR))) USCI_A3_ISR(void)
     switch (iv) {
     case USCI_UART_UCRXIFG:
         rx = UCA3RXBUF;
-        if (uart3_rx_enable && (uart3_p < UART3_RXBUF_SZ)) {
+        if (uart3_rx_enable && (uart3_p < UART3_RXBUF_SZ - 1)) {
             uart3_rx_buf[uart3_p] = rx;
             uart3_rx_buf[uart3_p+1] = 0;
             uart3_p++;

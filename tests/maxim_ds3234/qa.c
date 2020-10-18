@@ -37,13 +37,16 @@ void parse_user_input(void)
         t.mday = COMPILE_DAY;
         t.mon = COMPILE_MON;
         t.year = COMPILE_YEAR;
+        t.yday = 0;
+        t.isdst = 0;
+        t.year_s = 0;
         DS3234_set(EUSCI_SPI_BASE_ADDR, t);
     } else if (f == 'r') {
         DS3234_get(EUSCI_SPI_BASE_ADDR, &t);
 
         // there is a compile time option in the library to include unixtime support
 #ifdef CONFIG_UNIXTIME
-        snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d %ld\r\n", t.year,
+        snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d %u\r\n", t.year,
                  t.mon, t.mday, t.hour, t.min, t.sec, t.unixtime);
 #else
         snprintf(str_temp, STR_LEN, "%d.%02d.%02d %02d:%02d:%02d\r\n", t.year,

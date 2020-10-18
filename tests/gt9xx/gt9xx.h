@@ -132,7 +132,6 @@ extern "C" {
     uint8_t GT9XX_calc_checksum(uint8_t* buf, uint16_t len);
 
     // callback function
-    void (*GT9XX_HLHandler)(struct GT9XX_coord_t*);
     void GT9XX_set_HLHandler(void (*handler)(struct GT9XX_coord_t*));
 
     uint16_t _strtou16(char *buf);

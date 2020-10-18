@@ -95,6 +95,8 @@ volatile uint8_t gt9xx_last_event;
 // pointer to the struct being handled by the configured IRQ request
 struct goodix_ts_data *ts_handled;
 
+void (*GT9XX_HLHandler)(struct GT9XX_coord_t*);
+
 static void gt9xx_event_handler(uint32_t msg)
 {
     sig1_switch;
@@ -305,7 +307,7 @@ uint8_t GT9XX_read_chip_id(struct goodix_ts_data * t)
 
     t->chip_id = _strtou16(buf);
 
-    return rv;
+    return EXIT_SUCCESS;
 }
 
 // checks the current config parameters from t->conf against the provided data
@@ -342,7 +344,7 @@ uint8_t GT9XX_read_conf_version(struct goodix_ts_data * t)
     }
     t->conf.checksum = buf[0];
 
-    return rv;
+    return EXIT_SUCCESS;
 }
 
 // reads all GT9XX_CONFIG_911_SZ bytes from GT9XX_rCFG and places the data into
@@ -369,7 +371,7 @@ uint8_t GT9XX_read_config(struct goodix_ts_data * t)
     t->conf.version  = t->conf.data[rOFF_CONF_VER];
     t->conf.checksum = (uint8_t) t->conf.data[rOFF_CHECKSUM]; // 911 has a 8bit checksum, should ifdef?
 
-    return rv;
+    return EXIT_SUCCESS;
 }
 
 uint8_t GT9XX_write_config(struct goodix_ts_data * t, uint8_t *data, size_t data_len)
@@ -393,7 +395,7 @@ uint8_t GT9XX_write_config(struct goodix_ts_data * t, uint8_t *data, size_t data
     // allow the TS chip to reconfigure itself
     timer_a1_delay_ccr2(_200ms);
 
-    return rv;
+    return EXIT_SUCCESS;
 }
 
 void GT9XX_free_config(struct goodix_ts_data *t)
