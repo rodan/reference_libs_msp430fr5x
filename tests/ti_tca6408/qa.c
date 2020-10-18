@@ -13,7 +13,7 @@ void display_menu(void)
     char str_temp[STR_LEN];
 
     snprintf(str_temp, STR_LEN,
-            "\r\n TI TCA6408 test suite v%d.%d --- available commands:\r\n\r\n", COMMIT, BUILD);
+            "TI TCA6408 test suite v%d.%d --- available commands:\r\n\r\n", COMMIT, BUILD);
     uart0_print(str_temp);
     uart0_print(" \e[33;1m?\e[0m             - show menu\r\n");
     uart0_print(" \e[33;1mi\e[0m             - display i2c registers\r\n");
@@ -24,9 +24,6 @@ void parse_user_input(void)
 {
     char *input = uart0_get_rx_buf();
     char f = input[0];
-    //uint16_t i;
-    //uint8_t j;
-    //uint8_t row[16];
     char str_temp[STR_LEN];
     uint8_t data_r;
 

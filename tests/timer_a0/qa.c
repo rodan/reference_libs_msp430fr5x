@@ -5,6 +5,7 @@
 #include "glue.h"
 #include "qa.h"
 #include "timer_a0.h"
+#include "uart3.h"
 
 #define STR_LEN 64
 

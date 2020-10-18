@@ -14,6 +14,7 @@
 #include "glue.h"
 #include "qa.h"
 #include "timer_a0.h"
+#include "uart3.h"
 
 void main_init(void)
 {
@@ -42,13 +43,13 @@ void main_init(void)
 #endif
 }
 
-static void uart0_rx_irq(uint16_t msg)
+static void uart0_rx_irq(uint32_t msg)
 {
     parse_user_input();
     uart0_set_eol();
 }
 
-static void uart3_rx_irq(uint16_t msg)
+static void uart3_rx_irq(uint32_t msg)
 {
     parse_sensor_output();
     uart3_set_eol();
@@ -56,7 +57,6 @@ static void uart3_rx_irq(uint16_t msg)
 
 void check_events(void)
 {
-    struct sys_messagebus *p = sys_messagebus_getp();
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
@@ -65,13 +65,7 @@ void check_events(void)
         uart0_rst_event();
     }
 
-    while (p) {
-        // notify listener if he registered for any of these messages
-        if (msg & p->listens) {
-            p->fn(msg);
-        }
-        p = p->next;
-    }
+    eh_exec(msg);
 }
 
 int main(void)
@@ -89,8 +83,8 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
-    sys_messagebus_register(&uart3_rx_irq, SYS_MSG_UART3_RX);
+    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart3_rx_irq, SYS_MSG_UART3_RX);
 
     display_menu();
 

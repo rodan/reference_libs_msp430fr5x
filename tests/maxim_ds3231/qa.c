@@ -12,7 +12,7 @@ void display_menu(void)
 {
     char sconv[CONV_BASE_10_BUF_SZ];
     
-    uart0_print("\r\n Maxim DS3231 v");
+    uart0_print("\r\n Maxim DS3231 test suite v");
     uart0_print(_utoa(sconv, COMMIT));
     uart0_print(".");
     uart0_print(_utoa(sconv, BUILD));

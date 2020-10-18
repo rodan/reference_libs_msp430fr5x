@@ -110,7 +110,7 @@ void main_init(void)
 
 }
 
-static void uart0_rx_irq(uint16_t msg)
+static void uart0_rx_irq(uint32_t msg)
 {
     parse_user_input();
     uart0_set_eol();
@@ -120,7 +120,6 @@ uint8_t data[100];
 
 void check_events(void)
 {
-    struct sys_messagebus *p = sys_messagebus_getp();
     uint16_t msg = SYS_MSG_NULL;
     uint16_t ev;
 
@@ -158,13 +157,7 @@ void check_events(void)
         timer_a1_rst_event();
     }
 
-    while (p) {
-        // notify listener if he registered for any of these messages
-        if (msg & p->listens) {
-            p->fn(msg);
-        }
-        p = p->next;
-    }
+    eh_exec(msg);
 }
 
 void touch_HL_handler(struct GT9XX_coord_t *coord)
@@ -235,7 +228,7 @@ int main(void)
     //P5OUT |= BIT2;
     //timer_a1_delay_ccr2(_10ms); // wait 10 ms
 
-    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
     display_menu();
 

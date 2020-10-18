@@ -33,7 +33,7 @@
 
 #include "helper.h"
 #include "timer_a1.h"
-#include "sys_messagebus.h"
+#include "glue.h"
 #include "gt9xx.h"
 
 
@@ -95,7 +95,7 @@ volatile uint8_t gt9xx_last_event;
 // pointer to the struct being handled by the configured IRQ request
 struct goodix_ts_data *ts_handled;
 
-static void gt9xx_event_handler(uint16_t msg)
+static void gt9xx_event_handler(uint32_t msg)
 {
     sig1_switch;
     GT9XX_disable_irq();
@@ -235,7 +235,7 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
     // send configuration
 
     ts_handled = t;             // kinda cludgy
-    sys_messagebus_register(&gt9xx_event_handler, SYS_MSG_GT9XX_IRQ);
+    eh_register(&gt9xx_event_handler, SYS_MSG_GT9XX_IRQ);
 
     rv = GT9XX_read_chip_id(t);
     if (rv) {
