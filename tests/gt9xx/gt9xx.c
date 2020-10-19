@@ -256,6 +256,7 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
         return rv;
     }
 
+/*
     rv = GT9XX_check_conf_version(t);
     if (rv == GT9XX_NEED_CONF_UPDATE) {
         rv = GT9XX_write_config(t, (uint8_t *) &gt9xx_conf, GT9XX_CONFIG_911_SZ);
@@ -265,8 +266,8 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
     } else if (rv != EXIT_SUCCESS) {
         return rv;
     }
-
-    return rv;
+*/
+    return 0;
 }
 
 uint8_t GT9XX_clear_irq(struct goodix_ts_data * t)

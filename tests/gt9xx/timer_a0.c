@@ -63,12 +63,12 @@ void timer0_A1_ISR(void)
     if (iv == TAIV__TACCR1) {
         // timer used by timer_a0_delay_noblk_ccr1()
         // disable interrupt
-        sig2_off;
+        sig1_off;
         TA0CCTL1 &= ~CCIE;
         TA0CCTL1 = 0;
         timer_a0_last_event |= TIMER_A0_EVENT_CCR1;
         _BIC_SR_IRQ(LPM3_bits);
-        sig2_on;
+        sig1_on;
     } else if (iv == TAIV__TACCR2) {
         // timer used by timer_a0_delay_noblk_ccr2()
         // disable interrupt

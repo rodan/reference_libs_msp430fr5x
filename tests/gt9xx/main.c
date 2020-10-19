@@ -63,6 +63,8 @@ void main_init(void)
     PJOUT = 0;
     PJDIR = 0xFFFF;
 
+    vcc_on;
+
     // port init
     P1DIR |= BIT0 + BIT3 + BIT4 + BIT5;
 
@@ -100,11 +102,11 @@ void main_init(void)
     //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
 
     // configure MCLK, SMCLK to be sourced by DCOCLK
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
 #ifdef USE_XT1
+    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
     CS_turnOnLFXT(CS_LFXT_DRIVE_3);
 #endif
 
@@ -114,6 +116,13 @@ static void uart0_rx_irq(uint32_t msg)
 {
     parse_user_input();
     uart0_set_eol();
+}
+
+static void timer_a0_irq(uint32_t msg)
+{
+    sig2_off;
+    sig3_off;
+    sig4_off;
 }
 
 uint8_t data[100];
@@ -156,16 +165,20 @@ void check_events(void)
         }
         timer_a1_rst_event();
     }
-
-    eh_exec(msg);
+    
+    if (msg != SYS_MSG_NULL) {
+        eh_exec(msg);
+    }
 }
 
 void touch_HL_handler(struct GT9XX_coord_t *coord)
 {
     uint8_t i;
     char itoa_buf[18];
+    uint8_t cb = 0; // capacitive buttons detected
    
     for (i = 0; i < coord->count; i++) {
+
         uart0_print(" ");
         uart0_print(_utoa(itoa_buf, coord->point[i].trackId));
         uart0_print(" ");
@@ -175,6 +188,36 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
         uart0_print(" ");
         uart0_print(_utoa(itoa_buf, coord->point[i].area));
         uart0_print("   ");
+
+        // detect if it's one of the buttons
+        if (coord->point[i].x == 799) {
+            if ((coord->point[i].y > 200) && (coord->point[i].y < 300)) {
+                cb |= 0x1;
+            } else if ((coord->point[i].y > 300) && (coord->point[i].y < 400)) {
+                cb |= 0x2;
+            } else if ((coord->point[i].y > 400) && (coord->point[i].y < 500)) {
+                cb |= 0x4;
+            }
+        }
+        if (cb & 0x1) {
+            sig2_on;
+        } else {
+            sig2_off;
+        }
+        if (cb & 0x2) {
+            sig3_on;
+        } else {
+            sig3_off;
+        }
+        if (cb & 0x4) {
+            sig4_on;
+        } else {
+            sig4_off;
+        }
+
+        if (cb != 0) {
+            timer_a0_delay_noblk_ccr1(6000);
+        }
     }
     uart0_print("\r\n");
 }
@@ -184,12 +227,12 @@ int main(void)
     int16_t rv;
     char itoa_buf[18];
 
-    sig1_on;
+    sig0_on;
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
-    timer_a0_init(); // edge uart timeout
-    timer_a1_init(); // interface - ccr1 - meas interval, ccr2 - blocking delay
+    timer_a0_init();
+    timer_a1_init();
     uart0_port_init();
     uart0_init();
 
@@ -212,13 +255,11 @@ int main(void)
     #endif
 #endif
 
-    sig3_on;
     ts.usci_base_addr = EUSCI_BASE_ADDR;
     ts.slave_addr = GT9XX_SA;
 
     rv = GT9XX_init(&ts);
     GT9XX_set_HLHandler(touch_HL_handler);
-    sig3_off;
 
     uart0_print("GT9XX_init ret: ");
     uart0_print(_utoh(&itoa_buf[0], rv));
@@ -229,6 +270,7 @@ int main(void)
     //timer_a1_delay_ccr2(_10ms); // wait 10 ms
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&timer_a0_irq, SYS_MSG_TIMERA0_CRR1);
 
     display_menu();
 
@@ -236,23 +278,26 @@ int main(void)
     GT9XX_enable_irq();
     //P6IE |= GT9XX_IRQ;    // enable irq
 
+    sig0_off;
     sig1_off;
-    sig2_on;
-    sig3_on;
-    sig4_on;
-    sig5_on;
+    sig2_off;
+    sig3_off;
+    sig4_off;
 
     while (1) {
         // sleep
+        sig1_off;
         _BIS_SR(LPM3_bits + GIE);
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
+        sig1_on;
         check_events();
         check_events();
         check_events();
-        //check_events();
+        check_events();
+        check_events();
     }
 }
 

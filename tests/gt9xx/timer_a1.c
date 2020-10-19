@@ -1,7 +1,7 @@
 
 //   timer a0 handling
 //   CCR1 is used for timer_a1_delay_noblk_ccr1()
-//   CCR2 is used for timer_a1_delay_noblk_ccr2()
+//   CCR2 is used for timer_a1_delay_ccr2() (blocking)
 //
 //   author:          Petre Rodan <2b4eda@subdimension.ro>
 //   available from:  https://github.com/rodan/
