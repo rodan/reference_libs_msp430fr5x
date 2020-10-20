@@ -273,7 +273,7 @@ uint8_t GT9XX_init(struct goodix_ts_data * t)
 uint8_t GT9XX_clear_irq(struct goodix_ts_data * t)
 {
     uint8_t rv = 0;
-    uint8_t data[1] = { 0 };
+    static uint8_t data[1] = { 0 };
 
     rv = GT9XX_write(t, GT9XX_rCOORD_ADDR, (uint8_t *) data, 1);
     return rv;
@@ -299,7 +299,7 @@ uint8_t GT9XX_check_chip_id(const uint16_t id)
 uint8_t GT9XX_read_chip_id(struct goodix_ts_data * t)
 {
     uint8_t rv = EXIT_FAILURE;
-    char buf[11];
+    static char buf[11];
 
     rv = GT9XX_read(t, GT9XX_rDATA, (uint8_t *) buf, sizeof(buf));
     if (rv) {
@@ -331,7 +331,7 @@ uint8_t GT9XX_check_conf_version(struct goodix_ts_data * t)
 uint8_t GT9XX_read_conf_version(struct goodix_ts_data * t)
 {
     uint8_t rv = EXIT_FAILURE;
-    char buf[1];
+    static char buf[1];
 
     rv = GT9XX_read(t, GT9XX_rCFG + rOFF_CONF_VER, (uint8_t *) buf, 1);
     if (rv) {
@@ -412,7 +412,7 @@ int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
 {
     uint8_t rv = 0;
     uint8_t ret;
-    uint8_t reply[1];
+    static uint8_t reply[1];
     uint8_t should_callback = 0;
 
     rv = GT9XX_read(t, GT9XX_rCOORD_ADDR, reply, 1);
@@ -429,6 +429,9 @@ int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
     if (ret > 0 && ret <= GT9XX_COORD_MAX_COUNT) {
         rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, (uint8_t *) &t->coord.point,
                         GT9XX_POINT_STRUCT_SZ * (ret));
+        if (rv) {
+            return rv;
+        }
         t->coord.count = ret;
         should_callback = 1;
     }

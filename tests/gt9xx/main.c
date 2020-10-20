@@ -19,8 +19,8 @@
 #include "gt9xx.h"
 
 uint8_t coord_buff[100];
-
 struct goodix_ts_data ts;
+uint8_t rescale;
 
 void main_init(void)
 {
@@ -176,18 +176,9 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
     uint8_t i;
     char itoa_buf[18];
     uint8_t cb = 0; // capacitive buttons detected
+    int32_t rescale_x = 0;
    
     for (i = 0; i < coord->count; i++) {
-
-        uart0_print(" ");
-        uart0_print(_utoa(itoa_buf, coord->point[i].trackId));
-        uart0_print(" ");
-        uart0_print(_utoa(itoa_buf, coord->point[i].x));
-        uart0_print(" ");
-        uart0_print(_utoa(itoa_buf, coord->point[i].y));
-        uart0_print(" ");
-        uart0_print(_utoa(itoa_buf, coord->point[i].area));
-        uart0_print("   ");
 
         // detect if it's one of the buttons
         if (coord->point[i].x == 799) {
@@ -218,6 +209,30 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
         if (cb != 0) {
             timer_a0_delay_noblk_ccr1(6000);
         }
+
+        if (rescale) {
+            if ((coord->point[i].x > 78) && (coord->point[i].x < 758)) {
+                rescale_x = (121 * (int32_t) coord->point[i].x - 10036) / 100;
+                if (rescale_x > 800) {
+                    rescale_x = 800;
+                }
+                if (rescale_x < 0) {
+                    rescale_x = 0;
+                }
+                coord->point[i].x = (uint16_t) rescale_x;
+            }
+        }
+
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].trackId));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].x));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].y));
+        uart0_print(" ");
+        uart0_print(_utoa(itoa_buf, coord->point[i].area));
+        uart0_print("   ");
+
     }
     uart0_print("\r\n");
 }
@@ -257,6 +272,7 @@ int main(void)
 
     ts.usci_base_addr = EUSCI_BASE_ADDR;
     ts.slave_addr = GT9XX_SA;
+    rescale = 0;
 
     rv = GT9XX_init(&ts);
     GT9XX_set_HLHandler(touch_HL_handler);
