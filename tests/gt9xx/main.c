@@ -21,6 +21,7 @@
 uint8_t coord_buff[100];
 struct goodix_ts_data ts;
 uint8_t rescale;
+extern uint8_t gt9xx_debug_status[GT9XX_DEBUG_BUFFER_SZ];
 
 void main_init(void)
 {
@@ -171,6 +172,13 @@ void check_events(void)
     }
 }
 
+#ifdef DEBUG_STATUS
+void touch_HL_handler(struct GT9XX_coord_t *coord)
+{
+    print_buf(gt9xx_debug_status, GT9XX_DEBUG_BUFFER_SZ);
+}
+
+#else
 void touch_HL_handler(struct GT9XX_coord_t *coord)
 {
     uint8_t i;
@@ -178,6 +186,31 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
     uint8_t cb = 0; // capacitive buttons detected
     int32_t rescale_x = 0;
    
+    //uart0_print("k ");
+    //uart0_print(_utoa(itoa_buf, coord->key));
+    //uart0_print(" ");
+
+/*
+    if (coord->key & 0x1) {
+        sig2_on;
+    } else {
+        sig2_off;
+    }
+    if (coord->key & 0x2) {
+        sig3_on;
+    } else {
+        sig3_off;
+    }
+    if (coord->key & 0x4) {
+        sig4_on;
+    } else {
+        sig4_off;
+    }
+
+    if (coord->key != 0) {
+        timer_a0_delay_noblk_ccr1(60000);
+    }
+*/
     for (i = 0; i < coord->count; i++) {
 
         // detect if it's one of the buttons
@@ -207,10 +240,11 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
         }
 
         if (cb != 0) {
-            timer_a0_delay_noblk_ccr1(6000);
+            // deassert the button-driven leds
+            //timer_a0_delay_noblk_ccr1(11000);
         }
 
-        if (rescale) {
+        if (rescale && (cb == 0)) {
             if ((coord->point[i].x > 70) && (coord->point[i].x < 758)) {
                 rescale_x = (121 * (int32_t) coord->point[i].x - 10036) / 100;
                 if (rescale_x > 800) {
@@ -232,10 +266,10 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
         uart0_print(" ");
         uart0_print(_utoa(itoa_buf, coord->point[i].area));
         uart0_print("   ");
-
     }
     uart0_print("\r\n");
 }
+#endif
 
 int main(void)
 {

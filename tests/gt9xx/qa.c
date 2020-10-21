@@ -27,6 +27,38 @@ void display_menu(void)
     uart0_print(" \e[33;1mr[01]\e[0m   - rescale on/off\r\n");
 }
 
+void print_buf(uint8_t * data, const uint16_t size)
+{
+    uint16_t bytes_remaining = size;
+    uint16_t bytes_to_be_printed, bytes_printed = 0;
+    char itoa_buf[CONV_BASE_10_BUF_SZ];
+    uint16_t i;
+
+    while (bytes_remaining > 0) {
+
+        if (bytes_remaining > 16) {
+            bytes_to_be_printed = 16;
+        } else {
+            bytes_to_be_printed = bytes_remaining;
+        }
+
+        uart0_print(_utoh16(itoa_buf, bytes_printed));
+        uart0_print(": ");
+
+        for (i = 0; i < bytes_to_be_printed; i++) {
+            uart0_print(_utoh8(itoa_buf, data[bytes_printed + i]));
+            if (i & 0x1) {
+                uart0_print(" ");
+            }
+        }
+
+        uart0_print("\r\n");
+        bytes_printed += bytes_to_be_printed;
+        bytes_remaining -= bytes_to_be_printed;
+    }
+
+}
+
 void parse_user_input(void)
 {
     char itoa_buf[18];
@@ -50,7 +82,7 @@ void parse_user_input(void)
         uart0_print(_utoh(&itoa_buf[0], temp_buff[0]));
         uart0_print("\r\n");
     } else if (strstr (input, "cr")) {
-        GT9XX_free_config(&ts);
+        //GT9XX_free_config(&ts);
         rv = GT9XX_read_config(&ts);
         if (rv) {
             uart0_print("[!!] read conf\r\n");
@@ -87,7 +119,7 @@ void parse_user_input(void)
             uart0_print("[ok] write conf\r\n");
         }
     } else if (strstr (input, "ct")) {
-        GT9XX_free_config(&ts);
+        //GT9XX_free_config(&ts);
 
         rv = GT9XX_read_config(&ts);
         if (rv) {

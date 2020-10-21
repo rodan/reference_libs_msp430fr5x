@@ -12,7 +12,7 @@
 //#define  GT9XX_SA 0x14
 #define GT9XX_IRQ BIT3 // port for the irq functionality
 #define GT9XX_RST BIT2 // port for the reset functionality
-#define GT9XX_CONF_VER_B
+#define GT9XX_CONF_VER_D
 
 //#define UART0_SPEED_9600_1M
 //#define UART0_SPEED_19200_1M
@@ -29,5 +29,12 @@
 
 //#define USE_ITOA_LUT
 //#define CONFIG_DEBUG
+
+// read 50bytes of status registers after every interrupt
+//#define DEBUG_STATUS
+
+// if enabled automatically calculate the checksum for the written firmware
+// otherwise abort writing if checksum is incorrect
+#define OVERWRITE_CHECKSUM
 
 #endif

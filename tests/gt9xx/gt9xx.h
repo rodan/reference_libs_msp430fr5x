@@ -46,6 +46,7 @@ extern "C" {
 #define                     GT9XX_rCFG  0x8047
 #define                    GT9XX_rDATA  0x8140
 #define              GT9XX_rCOORD_ADDR  0x814E
+#define                GT9XX_rKEY_ADDR  0x814F
 #define              GT9XX_rCMD_STATUS  0x81A8
 
 #define          GT9XX_COORD_MAX_COUNT  5
@@ -53,6 +54,7 @@ extern "C" {
 // size of the configuration struct
 #define            GT9XX_CONFIG_911_SZ  186
 #define          GT9XX_POINT_STRUCT_SZ  8
+#define          GT9XX_DEBUG_BUFFER_SZ  50
 
 // relative address for configuration registers
 #define                  rOFF_CONF_VER  0
@@ -91,7 +93,8 @@ extern "C" {
 
     struct GT9XX_coord_t {
         uint8_t count;
-        struct GT9XX_point_t point[GT9XX_COORD_MAX_COUNT-1];
+        uint8_t key;
+        struct GT9XX_point_t point[GT9XX_COORD_MAX_COUNT];
     };
 
     struct goodix_ts_data {
