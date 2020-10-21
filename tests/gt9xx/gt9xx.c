@@ -108,8 +108,10 @@ uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
 };
 #elif defined(GT9XX_CONF_VER_D)
 // changes over the CCT screen
-// 0x8047 0x43 (version)
+// 0x8047 0x44 (version)
 // 0x804c 0x03 (touch num)
+// 0x804e 0x00 (disable touch keys)
+// 0x8093-0x809c (disable touch keys-related registers)
 // 0x809c 0xf0 (checksum)
 
 uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] = 
