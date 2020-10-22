@@ -214,7 +214,7 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
     for (i = 0; i < coord->count; i++) {
 
         // detect if it's one of the buttons
-        if (coord->point[i].x == 799) {
+        if (coord->point[i].x > 850) {
             if ((coord->point[i].y > 200) && (coord->point[i].y < 300)) {
                 cb |= 0x1;
             } else if ((coord->point[i].y > 300) && (coord->point[i].y < 400)) {
@@ -336,13 +336,17 @@ int main(void)
 
     while (1) {
         // sleep
-        sig1_off;
+#ifdef LED_SYSTEM_STATES
+        sig4_off;
+#endif
         _BIS_SR(LPM3_bits + GIE);
         __no_operation();
+#ifdef LED_SYSTEM_STATES
+        sig4_on;
+#endif
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        sig1_on;
         check_events();
         check_events();
         check_events();

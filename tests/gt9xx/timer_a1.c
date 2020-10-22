@@ -63,10 +63,17 @@ void timer_a1_delay_ccr2(uint16_t ticks)
 
     timer_a1_last_event &= ~TIMER_A1_EVENT_CCR2;
     while (1) {
+#ifdef LED_SYSTEM_STATES
+        sig4_off;
+#endif
         _BIS_SR(LPM3_bits + GIE);
         __no_operation();
-        if (timer_a1_last_event & TIMER_A1_EVENT_CCR2)
+        if (timer_a1_last_event & TIMER_A1_EVENT_CCR2) {
+#ifdef LED_SYSTEM_STATES
+            sig4_on;
+#endif
             break;
+            }
     }
     TA1CCTL2 &= ~CCIE;
     timer_a1_last_event &= ~TIMER_A1_EVENT_CCR2;
@@ -76,6 +83,9 @@ __attribute__ ((interrupt(TIMER1_A1_VECTOR)))
 void timer1_A1_ISR(void)
 {
     uint16_t iv = TA1IV;
+#ifdef LED_SYSTEM_STATES
+    sig2_on;
+#endif
     if (iv == TAIV__TACCR1) {
         // timer used by timer_a1_delay_noblk_ccr1()
         // disable interrupt
@@ -96,4 +106,7 @@ void timer1_A1_ISR(void)
         //timer_a1_last_event |= TIMER_A1_EVENT_IFG;
         _BIC_SR_IRQ(LPM3_bits);
     }
+#ifdef LED_SYSTEM_STATES
+    sig2_off;
+#endif
 }

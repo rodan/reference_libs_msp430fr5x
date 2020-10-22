@@ -60,6 +60,9 @@ __attribute__ ((interrupt(TIMER0_A1_VECTOR)))
 void timer0_A1_ISR(void)
 {
     uint16_t iv = TA0IV;
+#ifdef LED_SYSTEM_STATES
+    sig2_on;
+#endif
     if (iv == TAIV__TACCR1) {
         // timer used by timer_a0_delay_noblk_ccr1()
         // disable interrupt
@@ -82,4 +85,7 @@ void timer0_A1_ISR(void)
         //timer_a0_last_event |= TIMER_A0_EVENT_IFG;
         _BIC_SR_IRQ(LPM3_bits);
     }
+#ifdef LED_SYSTEM_STATES
+    sig2_off;
+#endif
 }
