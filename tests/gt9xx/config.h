@@ -12,7 +12,7 @@
 //#define  GT9XX_SA 0x14
 #define GT9XX_IRQ BIT3 // port for the irq functionality
 #define GT9XX_RST BIT2 // port for the reset functionality
-#define GT9XX_CONF_VER_D
+#define GT9XX_CONF_VER_E
 
 //#define UART0_SPEED_9600_1M
 //#define UART0_SPEED_19200_1M
@@ -41,6 +41,6 @@
 // led 2 - on during timer interrupt operation
 // led 3 - on during meter uart operation
 // led 4 - on when uC is outside of LPM3 (low power mode)
-#define LED_SYSTEM_STATES
+//#define LED_SYSTEM_STATES
 
 #endif

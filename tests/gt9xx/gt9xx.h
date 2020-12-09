@@ -75,6 +75,11 @@ extern "C" {
 #define        GT9XX_err_check_cfg_ver  0xf7
 #define                 GT9XX_err_misc  EXIT_FAILURE
 
+#define B0_CENTER_POS  131
+#define B1_CENTER_POS  397
+#define B2_CENTER_POS  663
+#define B_DELTA        50
+
     struct firmware {
         size_t size;
         uint8_t version;

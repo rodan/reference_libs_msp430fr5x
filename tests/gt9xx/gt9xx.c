@@ -21,6 +21,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef HARDWARE_I2C
 #include "i2c.h"
@@ -136,6 +137,38 @@ uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,           // 170 - 179
     0x0, 0x0, 0x0, 0x0, 0xe2, 0x01                              // 180 - 185
 };
+
+#elif defined(GT9XX_CONF_VER_E)
+// changes over the CCT screen
+// 0x8047 0x44 (version)
+// 0x8048 0x0356 - 854 horizontal resolution
+// 0x804c 0x03 (touch num)
+// 0x804e 0x00 (disable touch keys)
+// 0x8093-0x809c (disable touch keys-related registers)
+// 0x809c 0xe2 (checksum)
+
+uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] = 
+    { 0x42, 0x20, 0x03, 0x53, 0x02, 0x05, 0x3d, 0x01, 0x01, 0x18, 
+    0x1e, 0x0f, 0x55, 0x3c, 0x03, 0x05, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x06, 0x18, 0x1a, 0x1e, 0x14, 0x8c, 0x2e, 0x0e, 
+    0x32, 0x34, 0xd3, 0x07, 0x0, 0x0, 0x0, 0x1a, 0x02, 0x2c, 
+    0x32, 0x0, 0x0, 0x0, 0x0, 0x0, 0x64, 0x32, 0x0, 0x0, 
+    0x0, 0x1e, 0x50, 0x94, 0xc5, 0x02, 0x0, 0x14, 0x0, 0x04, 
+    0xb4, 0x21, 0x0, 0x99, 0x28, 0x0, 0x82, 0x31, 0x0, 0x70, 
+    0x3b, 0x0, 0x62, 0x48, 0x0, 0x62, 0x0, 0x0, 0x0, 0x0, 
+    0xf0, 0x4a, 0x3a, 0xff, 0xff, 0x27, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x1c, 0x1a, 0x18, 0x16, 0x14, 0x12, 0x10, 0x0e, 
+    0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x2a, 0x29, 0x28, 0x26, 0x24, 0x22, 0x21, 0x20, 
+    0x1f, 0x1e, 0x1d, 0x1c, 0x18, 0x16, 0x14, 0x13, 0x12, 0x10, 
+    0x0f, 0x0c, 0x0a, 0x08, 0x06, 0x04, 0x02, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+    0x0, 0x0, 0x0, 0x0, 0x08, 0x01
+};
+
 #endif
 
 uint8_t gt9xx_coord_buff[GT9XX_COORD_MAX_COUNT * GT9XX_POINT_STRUCT_SZ];
@@ -465,10 +498,10 @@ void GT9XX_free_config(struct goodix_ts_data *t)
 int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
 {
     uint8_t rv = 0;
-    uint8_t ret;
-    uint8_t coord_count = 0;
+    uint8_t ret, i, j;
     static uint8_t reply[1];
     uint8_t should_callback = 0;
+    struct GT9XX_point_t temp_point[GT9XX_COORD_MAX_COUNT];
     //char itoa_buf[18];
 
     rv = GT9XX_read(t, GT9XX_rCOORD_ADDR, reply, 1);
@@ -480,7 +513,7 @@ int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
         // no coordinates available
         return -1;
     }
-    ret = reply[0] & 0x1f; // bit0-3 is the number of detected touches, bit 4 represents 'key present'
+    ret = reply[0] & 0xf; // bit0-3 is the number of detected touches, bit 4 represents 'key present'
 
     //uart0_print(_utoh(itoa_buf, reply[0]));
     //uart0_print("\r\n");
@@ -491,38 +524,50 @@ int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
 
 #else
 
-    coord_count = reply[0] & 0xf;
     if (ret > 0 && ret <= GT9XX_COORD_MAX_COUNT) {
-        rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, (uint8_t *) &t->coord.point,
+
+        rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, (uint8_t *) &temp_point,
                         GT9XX_POINT_STRUCT_SZ * (ret));
+
         if (rv) {
             return rv;
         }
-        t->coord.count = ret;
-        should_callback = 1;
-    }
 
-    if (coord_count > 0 && coord_count <= GT9XX_COORD_MAX_COUNT) {
-        rv = GT9XX_read(t, GT9XX_rCOORD_ADDR + 1, (uint8_t *) &t->coord.point,
-                        GT9XX_POINT_STRUCT_SZ * (coord_count));
-        if (rv) {
-            return rv;
-        }
-        t->coord.count = coord_count;
-        should_callback = 1;
-    }
-
-    if (ret & 0x10) {
-        rv = GT9XX_read(t, GT9XX_rKEY_ADDR, (uint8_t *) &t->coord.key,1);
-        should_callback = 1;
+        t->coord.key = 0;
+        t->coord.count = 0;
+        j = 0;
+        
+        for (i = 0; i < ret; i++) {
+            if (temp_point[i].y < 480) {
+                memcpy(&t->coord.point[j], &temp_point[i], GT9XX_POINT_STRUCT_SZ);
+                t->coord.count++;
+                j++;
+                should_callback = 1;
+            } else {
+                // dead band between 480 and 500
+                // if over 500 it's actually a key
+                if (temp_point[i].y > 500) {
+                    if ((temp_point[i].x > B0_CENTER_POS - B_DELTA) && (temp_point[i].x < B0_CENTER_POS + B_DELTA)) {
+                        t->coord.key |= 0x1;
+                        should_callback = 1;
+                    } else if ((temp_point[i].x > B1_CENTER_POS - B_DELTA) && (temp_point[i].x < B1_CENTER_POS + B_DELTA)) {
+                        t->coord.key |= 0x2;
+                        should_callback = 1;
+                    } else if ((temp_point[i].x > B2_CENTER_POS - B_DELTA) && (temp_point[i].x < B2_CENTER_POS + B_DELTA)) {
+                        t->coord.key |= 0x4;
+                        should_callback = 1;
+                    }
+                }
+            }
+        } 
     } else {
         t->coord.key = 0;
+        t->coord.count = 0;
+        should_callback = 1;
     }
 
-    if (ret == 0x10) {
-        t->coord.count = 0;
-    }
 #endif
+
     // zero out GT9XX_rCOORD_ADDR
     GT9XX_clear_irq(t);
 

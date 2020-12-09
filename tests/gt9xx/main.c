@@ -186,11 +186,10 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
     uint8_t cb = 0; // capacitive buttons detected
     int32_t rescale_x = 0;
    
-    //uart0_print("k ");
-    //uart0_print(_utoa(itoa_buf, coord->key));
-    //uart0_print(" ");
+    uart0_print(" k");
+    uart0_print(_utoa(itoa_buf, coord->key));
+    uart0_print(" ");
 
-/*
     if (coord->key & 0x1) {
         sig2_on;
     } else {
@@ -207,12 +206,12 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
         sig4_off;
     }
 
-    if (coord->key != 0) {
-        timer_a0_delay_noblk_ccr1(60000);
-    }
-*/
-    for (i = 0; i < coord->count; i++) {
+//    if (coord->key != 0) {
+//        timer_a0_delay_noblk_ccr1(60000);
+//    }
 
+    for (i = 0; i < coord->count; i++) {
+/*
         // detect if it's one of the buttons
         if (coord->point[i].x > 850) {
             if ((coord->point[i].y > 200) && (coord->point[i].y < 300)) {
@@ -256,7 +255,7 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
                 coord->point[i].x = (uint16_t) rescale_x;
             }
         }
-
+*/
         uart0_print(" ");
         uart0_print(_utoa(itoa_buf, coord->point[i].trackId));
         uart0_print(" ");

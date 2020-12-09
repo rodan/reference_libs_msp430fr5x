@@ -138,7 +138,7 @@ void parse_user_input(void)
 
         //uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_MAX_CONTACTS]));
         ts.conf.data[rOFF_CONF_VER] = 0x42;
-        ts.conf.data[rOFF_MAX_CONTACTS] = 4;
+        ts.conf.data[rOFF_MAX_CONTACTS] = 5;
         ts.conf.data[rOFF_CHECKSUM] = GT9XX_calc_checksum(ts.conf.data, GT9XX_CONFIG_911_SZ - 2);
         ts.conf.data[rOFF_FRESH_CONFIG] = 1;
         //uart0_print(_utoh(&itoa_buf[0], ts.conf.data[rOFF_CHECKSUM]));
