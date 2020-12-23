@@ -168,7 +168,6 @@ uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ] =
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
     0x0, 0x0, 0x0, 0x0, 0x08, 0x01
 };
-
 #endif
 
 uint8_t gt9xx_coord_buff[GT9XX_COORD_MAX_COUNT * GT9XX_POINT_STRUCT_SZ];
@@ -498,7 +497,8 @@ void GT9XX_free_config(struct goodix_ts_data *t)
 int16_t GT9XX_read_state(struct goodix_ts_data *t, uint8_t * data)
 {
     uint8_t rv = 0;
-    uint8_t ret, i, j;
+    uint8_t ret;
+    uint8_t i, j;
     static uint8_t reply[1];
     uint8_t should_callback = 0;
     struct GT9XX_point_t temp_point[GT9XX_COORD_MAX_COUNT];

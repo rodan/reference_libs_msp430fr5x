@@ -49,14 +49,14 @@ lsusb | grep -qi '15ba:0100' && prog='olimex_iso_mk2'
 [ "${prog}" = "ezfet-1.2" ] && {
     echo "+ detected $prog"
     set -x
-    mspdebug tilib "prog ${hex}"
+    mspdebug --allow-fw-update tilib "prog ${hex}"
     exit $?
 }
 
 [ "${prog}" = "msp-fet" ] && {
     echo "+ detected $prog"
     set -x
-    mspdebug tilib "prog ${hex}"
+    mspdebug --allow-fw-update tilib "prog ${hex}"
     exit $?
 }
 
