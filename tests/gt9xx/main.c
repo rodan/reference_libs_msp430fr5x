@@ -20,7 +20,6 @@
 
 uint8_t coord_buff[100];
 struct goodix_ts_data ts;
-uint8_t rescale;
 extern uint8_t gt9xx_debug_status[GT9XX_DEBUG_BUFFER_SZ];
 
 void main_init(void)
@@ -183,8 +182,6 @@ void touch_HL_handler(struct GT9XX_coord_t *coord)
 {
     uint8_t i;
     char itoa_buf[18];
-    uint8_t cb = 0; // capacitive buttons detected
-    int32_t rescale_x = 0;
    
     uart0_print(" k");
     uart0_print(_utoa(itoa_buf, coord->key));
@@ -305,7 +302,6 @@ int main(void)
 
     ts.usci_base_addr = EUSCI_BASE_ADDR;
     ts.slave_addr = GT9XX_SA;
-    rescale = 0;
 
     rv = GT9XX_init(&ts);
     GT9XX_set_HLHandler(touch_HL_handler);

@@ -10,7 +10,6 @@
 
 extern struct goodix_ts_data ts;
 extern uint8_t gt9xx_conf[GT9XX_CONFIG_911_SZ];
-extern uint8_t rescale;
 
 void display_menu(void)
 {
@@ -19,12 +18,11 @@ void display_menu(void)
     //uart0_print(" \e[33;1m!\e[0m             - show status\r\n");
     //uart0_print(" \e[33;1mv\e[0m             - set verbose output (default)\r\n");
     //uart0_print(" \e[33;1mq\e[0m             - set minimal output\r\n");
-    uart0_print(" \e[33;1mrrtc\e[0m    - read real-time cmd register\r\n");
-    uart0_print(" \e[33;1mrcs\e[0m     - read cmd status register\r\n");
+//    uart0_print(" \e[33;1mrrtc\e[0m    - read real-time cmd register\r\n");
+//    uart0_print(" \e[33;1mrcs\e[0m     - read cmd status register\r\n");
     uart0_print(" \e[33;1mcr\e[0m      - config read\r\n");
-    uart0_print(" \e[33;1mct\e[0m      - config test\r\n");
-    uart0_print(" \e[33;1mcd\e[0m      - config default\r\n");
-    uart0_print(" \e[33;1mr[01]\e[0m   - rescale on/off\r\n");
+//    uart0_print(" \e[33;1mct\e[0m      - config test\r\n");
+    uart0_print(" \e[33;1mcw\e[0m      - config write\r\n");
 }
 
 void print_buf(uint8_t * data, const uint16_t size)
@@ -111,7 +109,7 @@ void parse_user_input(void)
         }
         uart0_print("\r\n");
 
-    } else if (strstr (input, "cd")) {
+    } else if (strstr (input, "cw")) {
         rv = GT9XX_write_config(&ts, (uint8_t *) &gt9xx_conf, GT9XX_CONFIG_911_SZ);
         if (rv) {
             uart0_print("[!!] write conf\r\n");
@@ -157,10 +155,6 @@ void parse_user_input(void)
         uart0_print("[ok] write conf\r\n");
 
         uart0_print("\r\n");
-    } else if (strstr (input, "r0")) {
-        rescale = 0;
-    } else if (strstr (input, "r1")) {
-        rescale = 1;
 /*
     } else if (f == 's') {
         uart0_print("read state\r\n");
