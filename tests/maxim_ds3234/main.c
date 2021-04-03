@@ -45,25 +45,6 @@ void main_init(void)
     PJOUT = 0;
     PJDIR = 0xFFFF;
 
-#ifdef USE_XT1
-    PJSEL0 |= BIT4 | BIT5;
-    CS_setExternalClockSource(32768, 0);
-#endif
-
-    // Set DCO Frequency to 8MHz
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
-
-    // Set DCO Frequency to 1MHz
-    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
-
-    // configure MCLK, SMCLK to be sourced by DCOCLK
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-
-#ifdef USE_XT1
-    CS_turnOnLFXT(CS_LFXT_DRIVE_3);
-#endif
 }
 
 static void uart0_rx_irq(uint32_t msg)
@@ -90,9 +71,24 @@ int main(void)
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
+    sig0_on;
+
+    clock_port_init();
+    clock_init();
+
+    // output SMCLK on P3.4
+    P3OUT &= ~BIT4;
+    P3DIR |= BIT4;
+    P3SEL1 |= BIT4;
 
     uart0_port_init();
     uart0_init();
+
+#ifdef UART0_RX_USES_RINGBUF
+    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+#else
+    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+#endif
 
     DS3234_port_init();
     DS3234_init(EUSCI_SPI_BASE_ADDR);
@@ -101,7 +97,15 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    led_off;
+    sig0_off;
+    sig1_off;
+    sig2_off;
+    sig3_off;
+#ifdef LED_SYSTEM_STATES
+    sig4_on;
+#else
+    sig4_off;
+#endif
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     display_menu();
@@ -109,7 +113,13 @@ int main(void)
 
     while (1) {
         // sleep
+#ifdef LED_SYSTEM_STATES
+        sig4_off;
+#endif
         _BIS_SR(LPM3_bits + GIE);
+#ifdef LED_SYSTEM_STATES
+        sig4_on;
+#endif
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;

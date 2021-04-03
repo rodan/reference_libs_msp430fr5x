@@ -2,19 +2,26 @@
 #define _CONFIG_H_
 
 #define USE_XT1
+//#define USE_XT2
 
-//#define UART0_SPEED_9600_1M
-//#define UART0_SPEED_19200_1M
-//#define UART0_SPEED_38400_1M
-//#define UART0_SPEED_57600_1M
-//#define UART0_SPEED_115200_1M
-//#define UART0_SPEED_9600_8M
-//#define UART0_SPEED_19200_8M
-//#define UART0_SPEED_38400_8M
-#define UART0_SPEED_57600_8M
-//#define UART0_SPEED_115200_8M
-//#define UART0_SPEED_230400_8M
-//#define UART0_SPEED_460800_8M
+//#define SMCLK_FREQ_1M
+//#define SMCLK_FREQ_4M
+#define SMCLK_FREQ_8M
+//#define SMCLK_FREQ_16M
+
+#define USE_UART0
+
+//#define BAUD_9600
+//#define BAUD_19200
+//#define BAUD_38400
+#define BAUD_57600
+//#define BAUD_115200
+
+#define UART0_RXBUF_SZ 16
+//#define UART0_RX_USES_RINGBUF
+
+//#define UART0_TXBUF_SZ 32
+//#define UART0_TX_USES_IRQ
 
 #define CONFIG_DS3234 
 #define EUSCI_SPI_BASE_ADDR EUSCI_B1_BASE
