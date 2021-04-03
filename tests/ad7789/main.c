@@ -12,7 +12,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "qa.h"
+#include "ui.h"
 
 void main_init(void)
 {
@@ -44,26 +44,6 @@ void main_init(void)
 
     PJOUT = 0;
     PJDIR = 0xFFFF;
-
-#ifdef USE_XT1
-    PJSEL0 |= BIT4 | BIT5;
-    CS_setExternalClockSource(32768, 0);
-#endif
-
-    // Set DCO Frequency to 8MHz
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
-
-    // Set DCO Frequency to 1MHz
-    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
-
-    // configure MCLK, SMCLK to be sourced by DCOCLK
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-
-#ifdef USE_XT1
-    CS_turnOnLFXT(CS_LFXT_DRIVE_3);
-#endif
 }
 
 static void uart0_rx_irq(uint32_t msg)
@@ -90,16 +70,31 @@ int main(void)
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
+    sig0_on;
 
+    clock_port_init();
+    clock_init();
+
+    uart0_port_init();
+    uart0_init();
+
+#ifdef UART0_RX_USES_RINGBUF
+    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+#else
+    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+#endif
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    uart0_port_init();
-    uart0_init();
-
     AD7789_init(EUSCI_SPI_BASE_ADDR);
+
+    sig0_off;
+    sig1_off;
+    sig2_off;
+    sig3_off;
+    sig4_off;
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     display_menu();
@@ -111,7 +106,6 @@ int main(void)
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        //led_switch;
         check_events();
     }
 }

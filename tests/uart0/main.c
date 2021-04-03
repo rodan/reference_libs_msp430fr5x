@@ -10,34 +10,48 @@
 #include <string.h>
 
 #include "proj.h"
+#include "config.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "qa.h"
+#include "ui.h"
+
+#include "timer_a0.h"
 
 void main_init(void)
 {
-    // port init
-    P1DIR = BIT0;
+    P1OUT = 0;
+    P1DIR = 0xff;
 
-#ifdef USE_XT1
-    PJSEL0 |= BIT4 | BIT5;
-    CS_setExternalClockSource(32768, 0);
-#endif
+    P2OUT = 0;
+    P2DIR = 0xff;
 
-    // Set DCO Frequency to 8MHz
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_6);
+    P3OUT = 0;
+    P3DIR = 0xff;
 
-    // Set DCO Frequency to 1MHz
-    //CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0);
+    P4OUT = 0;
+    P4DIR = 0xff;
 
-    // configure MCLK, SMCLK to be sourced by DCOCLK
-    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    // P55 and P56 are buttons
+    P5OUT = 0;
+    P5DIR = 0x9f;
+    // activate pullup
+    P5OUT = 0x60;
+    P5REN = 0x60;
+    // IRQ triggers on the falling edge
+    P5IES = 0x60;
 
-#ifdef USE_XT1
-    CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_turnOnLFXT(CS_LFXT_DRIVE_3);
-#endif
+    P6OUT = 0;
+    P6DIR = 0xff;
+
+    P7OUT = 0;
+    P7DIR = 0xff;
+
+    P8OUT = 0;
+    P8DIR = 0xff;
+
+    PJOUT = 0;
+    PJDIR = 0xffff;
+
 }
 
 static void uart0_rx_irq(uint32_t msg)
@@ -61,40 +75,70 @@ void check_events(void)
 
 int main(void)
 {
-    char buf[CONV_BASE_2_BUF_SZ];
-
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
+    sig0_on;
+
+    clock_port_init();
+    clock_init();
+
+    // output SMCLK on P3.4
+    P3OUT &= ~BIT4;
+    P3DIR |= BIT4;
+    P3SEL1 |= BIT4;
+
     uart0_port_init();
     uart0_init();
+
+#ifdef UART0_RX_USES_RINGBUF
+    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+#else
+    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+#endif
+
+#if (defined(USE_XT2) && defined(SMCLK_FREQ_16M)) || defined(UART0_TX_USES_IRQ)
+    // an external high frequency crystal can't be woken up quickly enough
+    // from LPM, so make sure that SMCLK never powers down
+
+    // also the uart tx irq ain't working without this for some reason
+    timer_a0_init();
+#endif
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-    led_off;
+    sig0_off;
+    sig1_off;
+    sig2_off;
+    sig3_off;
+#ifdef LED_SYSTEM_STATES
+    sig4_on;
+#else
+    sig4_off;
+#endif
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
 //#define TEST_UART0_PRINT
-#define TEST_ITOA
+//#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB
 
 #ifdef TEST_UART0_TX_STR
-    uart0_tx_str("h1llo world\r\n",13);
-    uart0_tx_str("he2lo world\r\n",13);
-    uart0_tx_str("hel3o world\r\n",13);
-    uart0_tx_str("hell4 world\r\n",13);
-    uart0_tx_str("hello5world\r\n",13);
-    uart0_tx_str("hello 6orld\r\n",13);
-    uart0_tx_str("hello w7rld\r\n",13);
-    uart0_tx_str("hello wo8ld\r\n",13);
-    uart0_tx_str("hello wor9d\r\n",13);
-    uart0_tx_str("hello worl0\r\n",13);
+    uart0_tx_str("h1llo world\r\n", 13);
+    uart0_tx_str("he2lo world\r\n", 13);
+    uart0_tx_str("hel3o world\r\n", 13);
+    uart0_tx_str("hell4 world\r\n", 13);
+    uart0_tx_str("hello5world\r\n", 13);
+    uart0_tx_str("hello 6orld\r\n", 13);
+    uart0_tx_str("hello w7rld\r\n", 13);
+    uart0_tx_str("hello wo8ld\r\n", 13);
+    uart0_tx_str("hello wor9d\r\n", 13);
+    uart0_tx_str("hello worl0\r\n", 13);
 #endif
 
 #ifdef TEST_UART0_PRINT
@@ -178,16 +222,21 @@ int main(void)
 
     display_menu();
 
-    led_on;
-
     while (1) {
         // sleep
+#ifdef LED_SYSTEM_STATES
+        sig4_off;
+#endif
         _BIS_SR(LPM3_bits + GIE);
+#ifdef LED_SYSTEM_STATES
+        sig4_on;
+#endif
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        //led_switch;
+        check_events();
+        check_events();
         check_events();
     }
 }

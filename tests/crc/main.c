@@ -1,17 +1,22 @@
 
+/*
+    program that tests the functionality of the EUSCI A0 UART 
+
+    tweak the baud rate in config.h
+*/
+
 #include <msp430.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "proj.h"
+#include "config.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "timer_a0.h"
 #include "ui.h"
 
 void main_init(void)
 {
-    // port init
     P1OUT = 0;
     P1DIR = 0xff;
 
@@ -44,11 +49,6 @@ void main_init(void)
 
     PJOUT = 0;
     PJDIR = 0xffff;
-
-#ifdef HARDWARE_I2C
-    P7SEL0 |= (BIT0 | BIT1);
-    P7SEL1 &= ~(BIT0 | BIT1);
-#endif
 }
 
 static void uart0_rx_irq(uint32_t msg)
@@ -72,6 +72,8 @@ void check_events(void)
 
 int main(void)
 {
+    //char buf[CONV_BASE_2_BUF_SZ];
+
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     main_init();
@@ -79,13 +81,6 @@ int main(void)
 
     clock_port_init();
     clock_init();
-
-    timer_a0_init();
-
-    // output SMCLK on P3.4
-    P3OUT &= ~BIT4;
-    P3DIR |= BIT4;
-    P3SEL1 |= BIT4;
 
     uart0_port_init();
     uart0_init();
@@ -100,30 +95,11 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C 
-    EUSCI_B_I2C_initMasterParam param = {0};
-
-    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = CS_getSMCLK();
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
-    param.byteCounterThreshold = 0;
-    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
-    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
-
-    #ifdef IRQ_I2C
-        i2c_irq_init(EUSCI_BASE_ADDR);
-    #endif
-#endif
-
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
-#ifdef LED_SYSTEM_STATES
-    sig4_on;
-#else
     sig4_off;
-#endif
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
@@ -138,15 +114,10 @@ int main(void)
 #ifdef LED_SYSTEM_STATES
         sig4_on;
 #endif
-
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
         check_events();
-        check_events();
-        check_events();
     }
-
 }
-
