@@ -57,11 +57,13 @@ EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 .PHONY: install
 .PHONY: config
 .PHONY: mkdir_od
+.PHONY: new_timestamps
 .PHONY: depend
 .PHONY: driverlib
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
+
 
 ifeq ($(OS),Windows_NT)
 CFLAGS	+= $(CFLAGS_REL)
@@ -79,7 +81,7 @@ TARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
 endif
-all: depend version.h config.h tags driverlib $(EXOUTPUT) size
+all: new_timestamps depend version.h config.h tags driverlib $(EXOUTPUT) size
 endif
 
 ifeq ($(MEMORY_MODEL),LARGE)
@@ -141,6 +143,9 @@ tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ
 	@echo "Generating tags .."
 	@echo $(deps)
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
+
+new_timestamps:
+	@$(BASH) ../../tools/update_rtca_now.sh
 
 size: $(OBJ_DIR)/$(PROJ).elf
 	@size $(OBJ_DIR)/$(PROJ).elf

@@ -42,5 +42,6 @@
 #define    SYS_MSG_TIMER0_CRR2 0x2   // timer_a0_delay_noblk_ccr2
 #define     SYS_MSG_TIMER0_IFG 0x4   // timer0 overflow
 #define       SYS_MSG_UART0_RX 0x8   // UART received something
+#define        SYS_MSG_P53_INT 0x10  // ds3234 interrupt
 
 #endif
